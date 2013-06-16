@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    updateCheck="false"
+    monitoring="autodetect"
+    dynamicConfig="true"
+    xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+        <!-- Required elements -->
+        <diskStore path="java.io.tmpdir"/>
+        <defaultCache
+        maxElementsInMemory="300"
+        eternal="false"
+        timeToIdleSeconds="3600"
+        timeToLiveSeconds="3600"
+        overflowToDisk="false">
+            <terracotta clustered="false"/>
+        </defaultCache>
+    
+    <cache name="publicPageTreeCache"  timeToLiveSeconds="86400" maxElementsInMemory="1" eternal="false" overflowToDisk="false" />
+    <cache name="pageWithElementsCache"  timeToLiveSeconds="86400" maxElementsInMemory="200" eternal="false" overflowToDisk="false" />
+    
+    <cache name="org.hibernate.cache.StandardQueryCache"
+        maxElementsInMemory="1000"
+        eternal="false"
+        timeToLiveSeconds="3600"
+        overflowToDisk="false"/>
+</ehcache>

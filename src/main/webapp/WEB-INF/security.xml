@@ -1,0 +1,63 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+	<security:http pattern="/public/**" security="none" />
+	<security:http pattern="/resources/**" security="none" />
+
+	<security:http auto-config="true">
+	   <security:intercept-url pattern="/do/signon/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
+       <security:intercept-url pattern="/do/login/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
+       <security:intercept-url pattern="/page/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
+       <security:intercept-url pattern="/image/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
+       <security:intercept-url pattern="/images/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
+       <security:intercept-url pattern="/profile/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
+       <security:intercept-url pattern="/user/**" access="ROLE_ADMIN" requires-channel="any" />
+	   <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
+        			
+		<security:session-management>
+			<security:concurrency-control
+				max-sessions="1" />
+		</security:session-management>
+		<security:form-login 
+		  login-page="/do/signon"
+		  login-processing-url="/do/login"
+		  authentication-failure-url="/do/signon?error=auth_fail"
+		  password-parameter="password"
+		  username-parameter="email" 
+		  default-target-url="/" />
+		<security:logout logout-success-url="/" logout-url="/do/signoff" />
+		<security:remember-me user-service-ref="customUserDetailsService" />
+	</security:http>
+
+	<bean id="customUserDetailsService" class="net.pechorina.kontempl.service.CustomUserDetailsService" />
+	
+	<bean id="securityMessageSource"
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>/WEB-INF/messages/security/messages</value>
+            </list>
+        </property>
+    </bean>
+    
+	<security:authentication-manager>
+		<!--  security:authentication-provider
+			user-service-ref="customUserDetailsService">
+			<security:password-encoder hash="md5" />
+		</security:authentication-provider -->
+		<security:authentication-provider ref="localAuthProvider" />
+	</security:authentication-manager>
+
+	<bean id="localAuthProvider" class="net.pechorina.kontempl.service.LocalAuthProvider" />
+
+	<!-- Automatically receives AuthenticationEvent messages -->
+	<bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener" />
+    
+    <bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
+
+</beans>

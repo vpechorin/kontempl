@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="">
+<Parameter name="siteConfig" value="file:/web/kontempl/site/site.properties" override="true"/>
+<Resource 
+    auth="Container" 
+    driverClassName="com.mysql.jdbc.Driver" 
+    maxActive="100" 
+    maxIdle="30" 
+    maxWait="10000" 
+    name="jdbc/kontempl"
+    username="kontempl" 
+    password="dbpass" 
+    type="javax.sql.DataSource" 
+    url="jdbc:mysql://localhost:3306/kontempldb" 
+    validationQuery="/* ping */"
+    testOnBorrow="true"
+    testWhileIdle="true"
+    minEvictableIdleTimeMillis="60000"
+    timeBetweenEvictionRunsMillis="10000"
+    />
+</Context>
