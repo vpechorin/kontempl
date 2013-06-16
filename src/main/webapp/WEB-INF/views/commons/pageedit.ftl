@@ -194,23 +194,6 @@
         console.log( "URL to images: " + url );
         $( "#imagesContainer" ).load( url );
         console.log( "Image reload requested" );
-        
-/*
-        $.ajax({
-            url: "/page/" + pageId + "/images",
-            cache: false,
-            type: "GET",
-            dataType : "html",
-            success: function( html ) {
-                $( "<h1/>" ).text( json.title ).appendTo( "body" );
-                $( "<div class=\"content\"/>").html( json.html ).appendTo( "body" );
-            }, 
-            error: function( xhr, status ) {
-                alert( "Sorry, there was a problem!" );
-            },
-            
-        });
-*/
     }
     
     $(function () {

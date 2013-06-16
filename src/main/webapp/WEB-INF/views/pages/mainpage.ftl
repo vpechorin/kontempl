@@ -54,8 +54,7 @@
     <script type="text/javascript" src="${appConfig.appPath}/resources/libs/galleryview/js/jquery.galleryview-3.0-dev.js"></script>
     <script type="text/javascript" src="${appConfig.appPath}/resources/libs/galleryview/js/jquery.easing.1.3.js"></script>
     <script type="text/javascript" src="${appConfig.appPath}/resources/libs/galleryview/js/jquery.timers-1.2.js"></script>
-        
-    <script type="text/javascript" src="${appConfig.appPath}/resources/js/vnetj.js"></script>        
+            
     <#list js as file>   		
 	<script type="text/javascript" src="${path}${file}"></script>
     </#list>

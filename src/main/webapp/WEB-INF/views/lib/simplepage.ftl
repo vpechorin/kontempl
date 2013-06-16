@@ -45,9 +45,8 @@
     <script src="${appConfig.appPath}/resources/libs/jquery-fileupload/js/jquery.iframe-transport.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-fileupload/js/jquery.fileupload.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
-    <script src="${appConfig.appPath}/resources/js/aretelib.js"></script>
     <script src="http://yui.yahooapis.com/3.10.1/build/yui/yui-min.js"></script>
-    <script type="text/javascript" src="${appConfig.appPath}/resources/js/vnetj.js"></script>        
+    <script src="${appConfig.appPath}/resources/js/kontempl.js"></script>
     <#list js as file>   		
 	<script type="text/javascript" src="${path}${file}"></script>
     </#list>
@@ -134,7 +133,7 @@
             <div class="footerContainer">
                 <@cmslib.insertPageElement thePage=txt peKey="footer"/>
                  <div class="srcAuthor pull-right">
-                    <i class="icon-certificate"></i> <span class=poweredBy title="Kontempl build. [ ${appConfig["application.build"]} ]">Kontempl</span>
+                    <i class="icon-certificate"></i> <span class=poweredBy title="${appConfig["application.build"]}">Kontempl</span>
                  </div>
             </div>
         </div>
