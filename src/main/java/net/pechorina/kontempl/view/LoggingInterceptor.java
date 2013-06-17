@@ -56,6 +56,9 @@ public class LoggingInterceptor extends HandlerInterceptorAdapter {
 		response.addHeader("Pragma", "no-cache");
 		response.addHeader("Cache-Control", "private");
 		response.addHeader("Expires", dtUTC.toString(fmtW3C));
+		
+		response.addHeader("X-App", appConfig.getProperty("application.name") +"-" + appConfig.getProperty("application.build"));
+		response.addHeader("X-Dev", appConfig.getProperty("application.developer") + " " + appConfig.getProperty("application.developerEmail"));
 	}
 	
 	public void afterCompletion(HttpServletRequest request,
