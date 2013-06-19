@@ -20,66 +20,106 @@
 <#if pagenode.pageElements??><#assign elementsNum = pagenode.pageElements?keys?size></#if>
 
 <ul class="nav nav-tabs">
+    <#if pagenode.id??>
     <li class="active"><a href="#edit" data-toggle="tab" ><i class="icon-pencil"></i> Edit</a></li>
     <li><a href="#elements" data-toggle="tab"><i class="icon-wrench"></i> Elements (${elementsNum})</a></li>
     <li><a href="#images" data-toggle="tab"><i class="icon-camera"></i> Images (<#if imagesNum??>${imagesNum}</#if>)</a></li>
+    <#else>
+    <li class="active"><a href="#edit" data-toggle="tab" ><i class="icon-pencil"></i> Edit</a></li>
+    </#if>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane active" id="edit">
     
-    <form class="cmxform" method="POST" action="">
-        <fieldset>
-        <#if pagenode.parentId??>
-        <input type=hidden name=parentId value="${pagenode.parentId}">
-        </#if>
-        <ol>
-            <li>
-                <label for=title>Public</label>
+    <form class="form-horizontal" method="POST" action="">
+    <div class="row">
+        <div class="span8">
+            <div class="control-group">
+                <label class="control-label" for="title">Title</label>
+                <div class="controls">
+                <@spring.formInput "pagenode.title" "class='span12' onKeyUp='onTitleChange();' onBlur='onTitleChange();'"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="body">Body</label>
+                <div class="controls">
+                <@spring.formTextarea "pagenode.body" "class='span12' style='height: 500px;'"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="description">Description</label>
+                <div class="controls">
+                <@spring.formTextarea "pagenode.description" "class='span12'"/>
+                </div>
+            </div>            
+            <div class="control-group">
+                <label class="control-label" for="tags">Tags</label>
+                <div class="controls">
+                <@spring.formInput "pagenode.tags" "class='span12'"/>
+                </div>
+            </div>                           
+        </div><!-- end of first col -->
+        <div class="span4" style="background-color: #EEE;">
+            <div class="control-group">
+                <label class="control-label" for="publicPage">Public</label>
+                <div class="controls">
                 <@spring.formCheckbox "pagenode.publicPage"/>
-            </li>
-            <li>
-                <label for=hideTitle>Placeholder</label>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="placeHolder">Placeholder</label>
+                <div class="controls">
                 <@spring.formCheckbox "pagenode.placeholder"/>
-            </li>
-            <li>
-                <label for=title>Index</label>
-                <@spring.formInput "pagenode.sortindex"/>
-            </li>
-            <li>
-                <label for=title>Title</label>
-                <@spring.formInput "pagenode.title"/>
-            </li>
-            <li>
-                <label for=hideTitle>Hide the title</label>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="sortindex">Index</label>
+                <div class="controls">
+                <@spring.formInput "pagenode.sortindex" "class='span12'"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="hideTitle">Hide the title</label>
+                <div class="controls">
                 <@spring.formCheckbox "pagenode.hideTitle"/>
-            </li>
-            <li>
-                <label for=title>Pagename</label>
-                <@spring.formInput "pagenode.name"/>
-            </li>
-            <li>
-                <label for=body>Description</label>
-                <@spring.formTextarea "pagenode.description"/>
-            </li>
-            <li>
-                <label for=body>Body</label>
-                <@spring.formTextarea "pagenode.body"/>
-            </li>
-            <li>
-                <label for=title>Tags</label>
-               <@spring.formInput "pagenode.tags"/>
-            </li>
-            <li>
-                <@spring.formHiddenInput "pagenode.parentId"/>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </li>
-        </ol>
-        </fieldset>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="autoName">Automatic naming</label>
+                <div class="controls">
+                <@spring.formCheckbox "pagenode.autoName" "onClick='onAutonameClick();'"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="name">Pagename</label>
+                <div class="controls">
+                <@spring.formInput "pagenode.name" "class='span12'"/>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label" for="parentId">Parent</label>
+                <div class="controls">
+                <@spring.formSingleSelect "pagenode.parentId" parents/>
+                </div>
+            </div>
+                  
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        
+        </div><!-- end of second col -->
+        
+        
+    </div><!-- end form row -->            
     </form>
     
     <!-- end of edit tab content -->
     </div>
+    <#if pagenode.id??>
     <div class="tab-pane" id="elements">
         <div>
             <h3>Page Elements</h3>
@@ -113,6 +153,8 @@
     
     <!-- end of elements tab content -->
     </div>
+    </#if>
+    <#if pagenode.id??>
     <div class="tab-pane" id="images">
         <div>
             <h3>Images</h3>
@@ -132,16 +174,52 @@
         </div>
     <!-- end of images tab content -->
     </div>
+    </#if>
 </div>
 
     
     <script>
-    
+    <#if pagenode.id??>
     var thisPageId=${pagenode.id?c};
+    <#else>
+    var thisPageId=0;
+    </#if>
     
     $(document).ready(function () {
-        prettyPrint()
+        prettyPrint();
+        onAutonameClick();
     });
+    
+    function onAutonameClick() {
+        if ($('#autoName').is(':checked')) {
+            console.log( "set disabled attr" );
+            $('#name').attr('disabled', true);
+        }
+        else {
+            console.log( "remove disabled attr" );
+            $('#name').removeAttr('disabled');
+        }
+    }
+    
+    function onTitleChange() {
+        var title = $('#title').val();
+        var url = "/page/titleToName?title=" + encodeURIComponent(title);
+        if ($('#autoName').is(':checked')) {
+            $.ajax({
+                url: url,
+                cache: false,
+                type: "GET",
+                dataType : "text",
+                success: function( txt ) {
+                    $("#name").val(txt);
+                }, 
+                error: function( xhr, status ) {
+                    console.log( "Error: " + status );
+                    alert( "Sorry, there was a problem! " + status );
+                }
+            });
+        }
+    }
     
     function onDeleteBtnClick(imageId) {
         $.ajax({

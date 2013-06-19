@@ -21,8 +21,8 @@ abstract public class AbstractController {
     public java.util.Properties appConfig;
     
 	@Autowired
-    public PageService pageService; 
-    
+    public PageService pageService;
+	
 	@Autowired
 	public Authentication auth;
 	

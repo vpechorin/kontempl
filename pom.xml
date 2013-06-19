@@ -4,7 +4,7 @@
 	<groupId>net.pechorina.kontempl</groupId>
 	<artifactId>kontempl</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>Kontempl</name>
 	<description>Kontempl - web site management system</description>
 	<url>https://github.com/vpechorin/kontempl</url>
@@ -374,11 +374,11 @@
             <version>4.2.5</version>
         </dependency>
         
-        <dependency>
+        <!--  dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-servlet-api</artifactId>
             <version>7.0.41</version>
-        </dependency>
+        </dependency -->
 
 	<dependency>
 		<groupId>org.imgscalr</groupId>

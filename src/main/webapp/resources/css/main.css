@@ -81,12 +81,6 @@ form.cmxform fieldset fieldset label {
 #suburb { width: 350px; }
 #uAgent {width: 350px; }
 
-#description { width: 450px; height: 58px; }
-#body { width: 800px; height: 300px; }
-#tags { width: 450px; }
-#sortindex { width: 60px; }
-#title { width: 450px; }
-
 .errorHdr { font-weight: bold; color: #E33; }
 .fieldError { padding-left: 15px; color: #F00;}
 .formErrors { padding: 20px 10px; line-height: 14px; color: #933;}

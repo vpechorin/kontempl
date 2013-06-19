@@ -1,11 +1,13 @@
 package net.pechorina.kontempl.view;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageElement;
@@ -17,6 +19,8 @@ import net.pechorina.kontempl.service.PageElementTypeService;
 import net.pechorina.kontempl.service.PageNavigationService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.PageTreeService;
+import net.pechorina.kontempl.utils.StringUtils;
+import net.pechorina.kontempl.view.forms.PageForm;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,19 +67,21 @@ public class PageController extends AbstractController {
     @RequestMapping(value="/add", method=RequestMethod.GET)
     public String pageAddChild(@RequestParam(value="parentId", required=false) Integer parentId, Model model) {    
     	if (parentId == null) { parentId = 0; }
-        Page newPage = new Page();
+        PageForm newPage = new PageForm();
+        newPage.setAutoName(true);
        	newPage.setParentId(parentId);
 
         int sortindex = pageService.getMaxSortindex(parentId);
         sortindex += 10;
         newPage.setSortindex(sortindex);
         model.addAttribute("pagenode", newPage);
+        model.addAttribute("parents", getParentsMap());
         
         return "commons/pageedit";        
     }
     
     @RequestMapping(value="/add", method=RequestMethod.POST)
-    public String pageAddChild(@ModelAttribute Page pageform, BindingResult result, HttpSession session, Model model) {
+    public String pageAddChild(@ModelAttribute PageForm pageform, BindingResult result, HttpSession session, Model model) {
         
         logger.debug("pageEditSubmit:: pageform=" + pageform);
 
@@ -110,11 +116,12 @@ public class PageController extends AbstractController {
     public String pageEdit(@PathVariable("pageId") Integer pageId, Model model) {    
         logger.debug("pageEdit:: pageId=" + pageId);
         Page p = pageService.getPageWithElements(pageId);
+        PageForm pageform = new PageForm(p);
         if (p != null) {
             logger.debug("Page:" + p);
         }
         
-        model.addAttribute("pagenode", p);
+        model.addAttribute("pagenode", pageform);
         int imagesNum = 0;
         
         if (pageId != null && pageId != 0) {
@@ -125,13 +132,14 @@ public class PageController extends AbstractController {
         	}
         }
         model.addAttribute("imagesNum", imagesNum);
+        model.addAttribute("parents", getParentsMap());
         
         return "commons/pageedit";
     }
     
     @RequestMapping(value="/{pageId}/edit", method=RequestMethod.POST)
     public String pageEditSubmit(@PathVariable("pageId") Integer pageId, 
-            @ModelAttribute Page pageform, BindingResult result, HttpSession session, Model model) {
+            @ModelAttribute PageForm pageform, BindingResult result, HttpSession session, Model model) {
         
         logger.debug("pageId: " + pageId);
         logger.debug("pageEditSubmit:: pageform=" + pageform);
@@ -309,4 +317,38 @@ public class PageController extends AbstractController {
         Page newPage = pageService.copyPage(p);
         return "redirect:/page/" + newPage.getId() + "/edit";
     }
+    
+    @RequestMapping(value="/titleToName")
+    public @ResponseBody String titleToName(@RequestParam(value="title", required=true) String title, Model model) {
+    	return StringUtils.clearPageName(title);
+    }
+    
+	private Map<String,String> getParentsMap() {
+		Map<String,String> map = new LinkedHashMap<String, String>();
+		map.put("0", "ROOT");
+		PageTree t = pageTreeService.getPageTree();
+		int level = 0;
+		for(GenericTreeNode<Page> node: t.getChildren()) {
+			map.put(node.getData().getId().toString(), node.getData().getName());
+			auxAddChildrenToTheParentMap(node, map, level);
+		}
+				
+        return map;
+	}
+	
+	private void auxAddChildrenToTheParentMap(GenericTreeNode<Page> parent, Map<String,String> map, int level) {
+		level++;
+		String prefix = "";
+		for(int i =0; i < level; i++) {
+			prefix += "..";
+		}
+		if (parent.hasChildren()) {
+			for(GenericTreeNode<Page> node: parent.getChildren()) {
+				String n = prefix + node.getData().getName();
+				map.put(node.getData().getId().toString(), n);
+				auxAddChildrenToTheParentMap(node, map, level);
+			}
+		}
+	}
+    
 }

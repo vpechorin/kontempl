@@ -192,20 +192,7 @@ public class StringUtils {
 		return s.replaceAll("[^\\p{Alnum}-_\\.]", "");
 	}
 
-	public static String clearCategoryName(String name) {
-		String path = name.trim();
-		path = simplyRegexpReplace(path, "\\s+", "-");
-		path = simplyRegexpReplace(path, "\\/+", "-");
-		path = simplyRegexpReplace(path, "[^A-Za-z0-9\\-]", "");
-		path = simplyRegexpReplace(path, "[\\-]{2,}", "-");
-		if (path.length() > 60) {
-			path = path.substring(0, 59);
-		}
-
-		return path;
-	}
-
-	public static String clearProductName(String name) {
+	public static String clearPageName(String name) {
 		String path = name.trim();
 		path = simplyRegexpReplace(path, "\\s+", "-");
 		path = simplyRegexpReplace(path, "\\/+", "-");
@@ -214,6 +201,7 @@ public class StringUtils {
 		if (path.length() > 80) {
 			path = path.substring(0, 79);
 		}
+		path = path.toLowerCase();
 
 		return path;
 	}
