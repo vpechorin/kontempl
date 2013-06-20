@@ -8,7 +8,9 @@
         </#list>
     </ul>
 </div>
+
 <script>
+$(document).foundation();
 $(document).ready(function() {
 $(".swipebox").swipebox({hideBarsDelay : 0});
 });
@@ -28,6 +30,7 @@ $(document).ready(function() {
     $(".orbit-progress").hide();
 });
 </#if>
-</script>    
-</#if>
+
+</script>  
+</#if>   
 </#macro>

@@ -276,3 +276,9 @@ table.treetable {
 }
 
 .cellHdr { text-align: right; padding-right: 15px;}
+
+#slidesContainer { background: url(/resources/img/loader.gif) center center #f4f4f4 no-repeat; height: 437px; }
+#slidesContainer img { display: none; }
+
+#slidesContainer.orbit-slides-container { background: none; }
+#slidesContainer.orbit-slides-container img { display: block; }
