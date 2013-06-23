@@ -80,6 +80,7 @@ public class SitemapService {
 				if (!child.getData().isPlaceholder()) {
 					String childUrl = "http://" + domainName + "/pv/" + child.getData().getName();
 					XmlUrl childXu = new XmlUrl(childUrl, XmlUrl.Priority.HIGH, "daily");
+					childXu.setLastmod(child.getData().lastModifiedDate());
 					xmlUrlSet.addUrl(childXu);
 				}
 
@@ -146,6 +147,22 @@ public class SitemapService {
             c = appConfig.getProperty("sitemapCharset");
         }
         return c;
+    }
+    
+    public void onlyUpdateSitemap() {
+    	XmlUrlSet s = makeSitemap();
+    	
+    	if (s != null) {
+    		logger.debug(s.getXmlUrls().size() + " urls in sitemap");
+    		if (appConfig.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
+    			saveSitemapCompressed(s);
+    			logger.debug("gziped sitemap saved");
+    		}
+    		else {
+    			saveSitemapUncompressed(s);
+    		}
+    		logger.debug("xml sitemap saved");
+    	}
     }
     
     public void updateSitemap() {

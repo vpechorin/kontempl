@@ -17,7 +17,7 @@
 <h3><#if pagenode.id??>edit page #${pagenode.id?c}<#else>add a new page</#if></h3>
 
 <#assign elementsNum = 0>
-<#if pagenode.pageElements??><#assign elementsNum = pagenode.pageElements?keys?size></#if>
+<#if pagedata.pageElements??><#assign elementsNum = pagedata.pageElements?keys?size></#if>
 
 <ul class="nav nav-tabs">
     <#if pagenode.id??>
@@ -135,16 +135,16 @@
                 <th>Content</th>
                 <th>Actions</th>
             </tr>
-            <#if pagenode.pageElements??>
-                <#if (pagenode.pageElements?keys?size > 0)>
-                    <#assign elementNames = pagenode.pageElements?keys>
+            <#if pagedata.pageElements??>
+                <#if (pagedata.pageElements?keys?size > 0)>
+                    <#assign elementNames = pagedata.pageElements?keys>
                     <#list elementNames as n>
                         <tr>
-                            <td>${pagenode.pageElements[n].id}</td>
-                            <td>${pagenode.pageElements[n].name!""?html}</td>
-                            <td><pre class="prettyprint">${pagenode.pageElements[n].body?html}</pre></td>
-                            <td><a class="btn btn-primary" href="${appConfig.appPath}/page/${pagenode.id?c}/edit-element?id=${pagenode.pageElements[n].id}"><i class="icon-pencil icon-white"></i> Edit</a>
-                            <a class="btn btn-inverse" href="${appConfig.appPath}/page/${pagenode.id?c}/delete-element?id=${pagenode.pageElements[n].id}"><i class="icon-trash icon-white"></i> Delete</a></td>
+                            <td>${pagedata.pageElements[n].id}</td>
+                            <td>${pagedata.pageElements[n].name!""?html}</td>
+                            <td><pre class="prettyprint">${pagedata.pageElements[n].body?html}</pre></td>
+                            <td><a class="btn btn-primary" href="${appConfig.appPath}/page/${pagedata.id?c}/edit-element?id=${pagedata.pageElements[n].id}"><i class="icon-pencil icon-white"></i> edit</a>
+                            <a class="btn btn-inverse" href="${appConfig.appPath}/page/${pagedata.id?c}/delete-element?id=${pagedata.pageElements[n].id}"><i class="icon-trash icon-white"></i> delete</a></td>
                         </tr>
                     </#list>
                 </#if>

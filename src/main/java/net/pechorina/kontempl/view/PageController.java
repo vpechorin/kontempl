@@ -122,6 +122,7 @@ public class PageController extends AbstractController {
         }
         
         model.addAttribute("pagenode", pageform);
+        model.addAttribute("pagedata", p);
         int imagesNum = 0;
         
         if (pageId != null && pageId != 0) {

@@ -73,6 +73,8 @@ public class PageViewController extends AbstractController {
         model.addAttribute("pagenodeImages", imageFileService.listImagesForPageOrdered(p.getId()));
         model.addAttribute("ogproperties", getOgProperties(p));
         
+        webRequest.setAttribute("last-modified", p.lastModified(), WebRequest.SCOPE_REQUEST);
+        
         return "pages/pageview";
     }    
     

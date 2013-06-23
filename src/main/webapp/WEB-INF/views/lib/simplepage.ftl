@@ -87,6 +87,9 @@
               </@security.authorize>
               <@security.authorize ifAnyGranted="ROLE_ADMIN">
               <li><a href="${appConfig.appPath}/user/control"><i class="icon-user"> </i> User accounts</a></li>
+              <li class="divider"></li>
+              <li><a href="${appConfig.appPath}/do/sitemap/update"><i class="icon-user"> </i> Update sitemap</a></li>
+              <li><a href="${appConfig.appPath}/do/sitemap/submit"><i class="icon-user"> </i> Re-Submit sitemap</a></li>
               </@security.authorize>
             </ul>
             </div>

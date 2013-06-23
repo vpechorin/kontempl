@@ -2,7 +2,12 @@
 <#import "/spring.ftl" as spring />
 <#import "/lib/cmslib.ftl" as cmslib/>
 <#assign canonical = "http://${appConfig.domainname}${appConfig.appPath}/pv/${txt.name}">
+<#assign pageTitle = cmslib.getPageElementContent(txt, "sitename")>
+<#if txt.title?has_content>
+<#assign pageTitle = txt.title?xhtml + " - " + cmslib.getPageElementContent(txt, "sitename")>
+</#if>
 <#if txt.name == "home">
+<#assign pageTitle = cmslib.getPageElementContent(txt, "sitename")>
 <#assign canonical = "http://${appConfig.domainname}${appConfig.appPath}">
 </#if>
 <@page
@@ -10,11 +15,7 @@
     metaDescription=txt.getTextDescription(300)!""
     selectedPage = txt
     canonical = canonical
-    ogproperties = {
-        "title":txt.title, 
-        "description":txt.getTextDescription(300)!"",
-        "sitename":cmslib.getPageElementContent(txt, "sitename")
-    }
+    ogproperties = ogproperties
     pageedit=appConfig.appPath + "/page/" + txt.id?c + "/edit"
 >
 <@breadcrumbs/>

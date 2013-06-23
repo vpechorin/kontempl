@@ -17,6 +17,7 @@
        <security:intercept-url pattern="/images/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
        <security:intercept-url pattern="/profile/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
        <security:intercept-url pattern="/user/**" access="ROLE_ADMIN" requires-channel="any" />
+       <security:intercept-url pattern="/do/sitemap/**" access="ROLE_ADMIN" requires-channel="any" />
 	   <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
         			
 		<security:session-management>

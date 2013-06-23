@@ -26,6 +26,7 @@
 	</context:component-scan>
 	
 	<context:annotation-config />
+	<task:annotation-driven />
     
     <bean id="asyncExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor"/>
     
@@ -123,5 +124,6 @@
     </bean>
     
     <import resource="webmvc-config.xml" />
+    <import resource="tasks.xml" />
     
 </beans>

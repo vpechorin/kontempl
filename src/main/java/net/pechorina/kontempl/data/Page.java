@@ -20,12 +20,19 @@ import net.pechorina.kontempl.utils.StringUtils;
 
 import org.apache.log4j.Logger;
 import org.hibernate.annotations.Index;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "page")
 public class Page implements Serializable, Cloneable {
 	private static final Logger logger = Logger.getLogger(Page.class);
 	private static final long serialVersionUID = 1222384650558947506L;
+
+	private static final DateTimeFormatter fmtW3C = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss");
+	private static final DateTimeFormatter fmtW3CDate = DateTimeFormat.forPattern("yyyy-MM-dd");
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -263,6 +270,24 @@ public class Page implements Serializable, Cloneable {
 		}
 		return d;
 	}
+	
+	public String lastModified() {
+		if (this.getUpdated() == null) {
+			return null;
+		}
+		DateTime d = new DateTime(this.getUpdated());
+		DateTime dtUTC = d.withZone(DateTimeZone.UTC);
+		return dtUTC.toString(fmtW3C) + " GMT"; 
+	}
+	
+	public String lastModifiedDate() {
+		if (this.getUpdated() == null) {
+			return null;
+		}
+		DateTime d = new DateTime(this.getUpdated());
+		DateTime dtUTC = d.withZone(DateTimeZone.UTC);
+		return dtUTC.toString(fmtW3CDate); 
+	}
 
 	@Override
 	public String toString() {
@@ -293,6 +318,10 @@ public class Page implements Serializable, Cloneable {
 		builder.append(tags);
 		builder.append(", body=");
 		builder.append(body);
+		if (this.pageElements != null) {
+			builder.append(", pageElementsNum=");
+			builder.append(this.pageElements.size());
+		}
 		builder.append("]");
 		return builder.toString();
 	}
