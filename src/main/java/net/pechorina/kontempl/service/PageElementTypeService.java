@@ -1,5 +1,6 @@
 package net.pechorina.kontempl.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,19 @@ public class PageElementTypeService {
         }
         
         return typeMap;
+	}
+	
+	@Transactional
+	public List<String> getTypeList() {
+		List<String> typeList = new ArrayList<String>();
+        List<PageElementType> l = pageElementTypeRepo.listAll();
+        if (l != null) {
+        	for(PageElementType r: l) {
+        		typeList.add(r.getName());
+        	}
+        }
+		
+        return typeList;
 	}
 	
 }

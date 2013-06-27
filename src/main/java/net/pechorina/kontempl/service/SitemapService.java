@@ -177,7 +177,7 @@ public class SitemapService {
     		else {
     			saveSitemapUncompressed(s);
     		}
-    		logger.debug("xml sitemap saved");
+    		logger.info("xml sitemap saved, pages: " + s.getXmlUrls().size());
     		if (appConfig.getProperty("sitemapSubmitSw").equalsIgnoreCase("on")) {
     			submitSitemap();
     		}
@@ -209,6 +209,7 @@ public class SitemapService {
             HttpEntity entity = response.getEntity();
             String responseStr = EntityUtils.toString(entity);
             logger.debug("Sitemap submit detailed response: " + responseStr);
+            logger.info("Sitemap submitted to " + url);
     	} catch (IOException e) {
     		logger.error("Fatal IO error: " + e.getMessage());
     	} catch (ParseException e) {

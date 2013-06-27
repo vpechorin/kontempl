@@ -9,13 +9,8 @@
         <div class="control-group">
                 <label class="control-label" for="name">Element Name</label>
                 <div class="controls">
-                <@spring.formSingleSelect "pageelement.name", types/>
-                </div>
-         </div>
-        <div class="control-group">
-                <label class="control-label" for="customName">or Element Custom Name</label>
-                <div class="controls">
-                <@spring.formInput "pageelement.customName" "class='span8'"/>
+                <@spring.formInput "pageelement.name" "class='span8'"/>
+                <#if types??><span class="help-inline">Standard handles(names): <i><#list types as t>${t}, </#list></i></span></#if>
                 </div>
          </div>
         <div class="control-group">

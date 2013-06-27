@@ -216,7 +216,8 @@ public class PageController extends AbstractController {
             logger.debug("Page:" + p);
         }
         
-        Map<String,String> types = pageElementTypeService.getTypeMap();
+        List<String> types = pageElementTypeService.getTypeList();
+        //Map<String,String> types = pageElementTypeService.getTypeMap();
         model.addAttribute("types", types);
         
         PageElement pe = new PageElement();
@@ -231,8 +232,9 @@ public class PageController extends AbstractController {
     public String pageElementEdit(@PathVariable("pageId") Integer pageId,
         @RequestParam(value="id", required=false) Integer pageElementId, Model model) {    
         logger.debug("pageElementEdit:: pageId=" + pageId + " pageElementId=" + pageElementId);
-
-        Map<String,String> types = pageElementTypeService.getTypeMap();
+        
+        List<String> types = pageElementTypeService.getTypeList();
+        // Map<String,String> types = pageElementTypeService.getTypeMap();
         model.addAttribute("types", types);
 
         Page p = pageService.getPageWithElements(pageId);
@@ -254,7 +256,9 @@ public class PageController extends AbstractController {
     	
         User u = getUser();
         
-        Map<String,String> types = pageElementTypeService.getTypeMap();
+        List<String> types = pageElementTypeService.getTypeList();
+        // Map<String,String> types = pageElementTypeService.getTypeMap();
+
         model.addAttribute("types", types);
         
         PageElement pe = new PageElement();
@@ -265,12 +269,7 @@ public class PageController extends AbstractController {
         	}
         }
         
-        if (pageElementForm.getName().equalsIgnoreCase("custom")) {
-            pe.setName(pageElementForm.getCustomName());
-        }
-        else {
-            pe.setName(pageElementForm.getName());
-        }
+        pe.setName(pageElementForm.getName());
 
         pe.setBody(pageElementForm.getBody());
         pe.setPageId(pageId);
