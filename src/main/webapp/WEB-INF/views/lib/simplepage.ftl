@@ -30,6 +30,8 @@
     <link href="${appConfig.appPath}/resources/libs/google-code-prettify/prettify.css" rel="stylesheet">
     <link href="${appConfig.appPath}/resources/libs/jquery-treetable/stylesheets/jquery.treetable.css" rel="stylesheet"/>
     <link href="${appConfig.appPath}/resources/libs/jquery-treetable/stylesheets/jquery.treetable.theme.default.css" rel="stylesheet"/>
+    <link href="${appConfig.appPath}/resources/libs/markitup/markitup/skins/markitup/style.css" rel="stylesheet"/>
+    <link href="${appConfig.appPath}/resources/libs/markitup/markitup/sets/html/style.css" rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="${appConfig.appPath}/resources/css/main.css">
     
     <#list css as file>   		
@@ -38,13 +40,15 @@
     <!--[if lt IE 9]>
     <script src="${appConfig.appPath}/resources/libs/html5shiv/html5shiv.js"></script>
     <![endif]-->
-    <script src="${appConfig.appPath}/resources/libs/jquery/jquery-1.9.1.min.js"></script>
+    <script src="${appConfig.appPath}/resources/libs/jquery/jquery-1.10.2.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/bootstrap/js/twitter-bootstrap-hover-dropdown.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-fileupload/js/vendor/jquery.ui.widget.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-fileupload/js/jquery.iframe-transport.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-fileupload/js/jquery.fileupload.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-treetable/javascripts/src/jquery.treetable.js"></script>
+    <script src="${appConfig.appPath}/resources/libs/markitup/markitup/jquery.markitup.js"></script>
+    <script src="${appConfig.appPath}/resources/libs/markitup/markitup/sets/html/set.js"></script>
     <script src="http://yui.yahooapis.com/3.10.1/build/yui/yui-min.js"></script>
     <script src="${appConfig.appPath}/resources/js/kontempl.js"></script>
     <#list js as file>   		

@@ -289,3 +289,80 @@ table.treetable {
 
 #slidesContainer.orbit-slides-container { background: none; }
 #slidesContainer.orbit-slides-container img { display: block; } */
+
+.swiper-container {
+	width: 656px;
+	height: 437px;
+    color: #fff;
+    text-align: center;
+}
+
+.swiper-next, .swiper-prev {
+	position:absolute;
+	top: 50%;
+	margin-top: -22px;
+    background-color: black;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 40px;
+    height: 45px;
+    line-height: 45px;
+    color: white;
+    text-indent: -9999px !important; 
+}
+.swiper-prev > span,
+.swiper-next > span {
+      position: absolute;
+      top: 50%;
+      margin-top: -16px;
+      display: block;
+      width: 0;
+      height: 0;
+      border: inset 16px;
+}
+.swiper-prev { left: 0; }
+.swiper-next { right: 0; }
+.swiper-prev > span {
+	border-right-style: solid;
+    border-color: transparent;
+    border-right-color: #fff;
+}
+.swiper-prev:hover > span {
+	border-right-color: #ccc;
+}
+.swiper-next > span {
+	  border-color: transparent;
+      border-left-style: solid;
+      border-left-color: #fff;
+      left: 50%;
+      margin-left: -8px;
+}
+.swiper-next:hover > span {
+    border-left-color: #ccc;
+}
+
+.pagination {
+  height: 20px;
+  margin: 8px 10px;
+}
+
+.swiper-pagination-switch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background-color: #FFF;
+  margin-right: 5px;
+  opacity: 0.8;
+  border: 1px solid #222;
+  cursor: pointer;
+}
+.swiper-visible-switch {
+  background-color: #222;
+}
+.swiper-active-switch {
+  background-color: #444;
+}
+
+.markItUpEditor {
+	// background-image: url("images/bg-editor-html.png");
+}

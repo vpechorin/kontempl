@@ -17,7 +17,7 @@
 <h3><#if pagenode.id??>edit page #${pagenode.id?c}<#else>add a new page</#if></h3>
 
 <#assign elementsNum = 0>
-<#if pagedata.pageElements??><#assign elementsNum = pagedata.pageElements?keys?size></#if>
+<#if  pagedata?? && pagedata.pageElements??><#assign elementsNum = pagedata.pageElements?keys?size></#if>
 
 <ul class="nav nav-tabs">
     <#if pagenode.id??>
@@ -44,7 +44,7 @@
             <div class="control-group">
                 <label class="control-label" for="body">Body</label>
                 <div class="controls">
-                <@spring.formTextarea "pagenode.body" "class='span12' style='height: 500px;'"/>
+                <@spring.formTextarea "pagenode.body" "class='span12 markItUp' style='height: 500px;'"/>
                 </div>
             </div>
             <div class="control-group">
@@ -188,6 +188,8 @@
     $(document).ready(function () {
         prettyPrint();
         onAutonameClick();
+        // init markItUp textareas
+        $(".markItUp").markItUp(mySettings);
     });
     
     function onAutonameClick() {

@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="${appConfig.appPath}/resources/libs/magnific-popup/magnific-popup.css">
      <link rel="stylesheet" href="${appConfig.appPath}/resources/libs/galleryview/css/jquery.galleryview-3.0-dev.css">
      <link rel="stylesheet" href="${appConfig.appPath}/resources/libs/swipebox/swipebox.css">
+     <link rel="stylesheet" href="${appConfig.appPath}/resources/libs/swiper/idangerous.swiper.css">
     
     <!--[if lt IE 9]>
     <script src="${appConfig.appPath}/resources/libs/html5shiv/html5shiv.js"></script>
@@ -42,7 +43,7 @@
     	<style type="text/css" media="all">@import ${path}${file};</style>
     </#list>
     <!-- script src="http://yui.yahooapis.com/3.10.1/build/yui/yui-min.js"></script -->
-    <script src="${appConfig.appPath}/resources/libs/jquery/jquery-1.10.0.min.js"></script>
+    <script src="${appConfig.appPath}/resources/libs/jquery/jquery-1.10.2.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery-ui-custom/js/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/jquery/modernizr-2.0.6.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/bootstrap/js/bootstrap.min.js"></script>
@@ -50,6 +51,7 @@
 
     <script src="${appConfig.appPath}/resources/libs/magnific-popup/jquery.magnific-popup.min.js"></script>
     <script src="${appConfig.appPath}/resources/libs/swipebox/jquery.swipebox.min.js"></script>
+    <script defer src="${appConfig.appPath}/resources/libs/swiper/idangerous.swiper-2.0.min.js"></script>
     
     <script type="text/javascript" src="${appConfig.appPath}/resources/libs/galleryview/js/jquery.galleryview-3.0-dev.js"></script>
     <script type="text/javascript" src="${appConfig.appPath}/resources/libs/galleryview/js/jquery.easing.1.3.js"></script>
