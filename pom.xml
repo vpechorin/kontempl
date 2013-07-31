@@ -36,10 +36,10 @@
 	</properties>
 
 	<repositories>
-	       <repository>
-                <id>central</id>
-                <url>http://repo1.maven.org/maven2/</url>
-        </repository>
+		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2/</url>
+		</repository>
 		<repository>
 			<id>JBoss repository</id>
 			<url>https://repository.jboss.org/nexus/content/repositories/groups/public-jboss/</url>
