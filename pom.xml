@@ -4,7 +4,7 @@
 	<groupId>net.pechorina.kontempl</groupId>
 	<artifactId>kontempl</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.7</version>
+	<version>1.0.8</version>
 	<name>Kontempl</name>
 	<description>Kontempl - web site management system</description>
 	<url>https://github.com/vpechorin/kontempl</url>
@@ -28,9 +28,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>3.2.6.RELEASE</org.springframework.version>
+		<org.springframework.version>3.2.7.RELEASE</org.springframework.version>
 		<org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
-		<org.hibernate.version>4.3.0.Final</org.hibernate.version>
+		<org.hibernate.version>4.3.1.Final</org.hibernate.version>
 		<slf4j.version>1.7.3</slf4j.version>
 		<cglib.version>2.2.2</cglib.version>
 	</properties>
