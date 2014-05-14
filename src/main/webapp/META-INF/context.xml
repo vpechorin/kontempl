@@ -11,7 +11,7 @@
     username="kontempl" 
     password="dbpass" 
     type="javax.sql.DataSource" 
-    url="jdbc:mysql://localhost:3306/kontempldb" 
+    url="jdbc:mysql://dev_srv:3306/kontempldb" 
     validationQuery="/* ping */"
     testOnBorrow="true"
     testWhileIdle="true"
