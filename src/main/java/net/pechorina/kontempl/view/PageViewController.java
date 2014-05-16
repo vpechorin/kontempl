@@ -12,7 +12,8 @@ import net.pechorina.kontempl.service.ImageFileService;
 import net.pechorina.kontempl.service.PageNavigationService;
 import net.pechorina.kontempl.service.PageService;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,7 +24,7 @@ import org.springframework.web.context.request.WebRequest;
 
 @Controller
 public class PageViewController extends AbstractController {
-    private static final Logger logger = Logger.getLogger(PageViewController.class);
+	static final Logger logger = LoggerFactory.getLogger(PageViewController.class);
     
 	@Autowired
     private PageService pageService;

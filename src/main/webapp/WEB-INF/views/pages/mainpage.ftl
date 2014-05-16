@@ -6,7 +6,6 @@
 <#include "/lib/gallery.ftl"/>
 <#include "/lib/orbit.ftl"/>
 <#include "/lib/breadcrumbs.ftl"/>
-<#assign security=JspTaglibs["http://www.springframework.org/security/tags"] />
 <!DOCTYPE html>
 <#if txt??><#else><#if homePage??><#assign txt=homePage></#if></#if>
 <#if pageName??><#else><#assign pageName="genericpage"></#if>
@@ -20,9 +19,9 @@
     <#if opts.metaDescription??><meta name="description" content="${opts.metaDescription}"></#if>
     <#if opts.metaKeywords??><meta name="keywords" content="${opts.metaKeywords}"></#if>
     <#if opts.ogproperties??>
-    <meta property="og:site_name" content="${opts.ogproperties.sitename?chop_linebreak?xhtml}"> 
-    <meta property="og:title" content="${opts.ogproperties.title?chop_linebreak?xhtml}">
-    <meta property="og:description" content="${opts.ogproperties.description?chop_linebreak?xhtml}">
+    <#if opts.ogproperties.sitename??><meta property="og:site_name" content="${opts.ogproperties.sitename?chop_linebreak?xhtml}"></#if> 
+    <#if opts.ogproperties.title??><meta property="og:title" content="${opts.ogproperties.title?chop_linebreak?xhtml}"></#if>
+    <#if opts.ogproperties.description??><meta property="og:description" content="${opts.ogproperties.description?chop_linebreak?xhtml}"></#if>
     <#if opts.ogproperties.iconUrl??><meta property="og:image" content="${opts.ogproperties.iconUrl}"></#if>
     </#if>
  
@@ -100,13 +99,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          
-            <@security.authorize access="isAuthenticated()">
-                    <@security.authentication property="principal.user.name" var="principalName" scope="page" />
+          	
+          	<#if user??>
+          	
             <div class="btn-group pull-right">
             
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-              <i class="icon-user"></i> ${principalName}
+              <i class="icon-user"></i> ${user.name}
               <span class="caret"></span>
             </a>
             
@@ -114,25 +113,22 @@
               <li><a href="${appConfig.appPath}/profile/edit">Profile</a></li>
               <li class="divider"></li>
               <li><a href="${appConfig.appPath}/do/signoff">Sign Out</a></li>
-              <@security.authorize ifAnyGranted="ROLE_ADMIN,ROLE_EDITOR">
+
               <li class="divider"></li>
               <#if opts.pageedit??><li><a href="${opts.pageedit}"><i class="icon-edit"> </i> Edit this page</a></li></#if>
               <li><a href="${appConfig.appPath}/page/tree"><i class="icon-list"> </i> Index</a></li>
-              </@security.authorize>
-              <@security.authorize ifAnyGranted="ROLE_ADMIN">
+
               <li><a href="${appConfig.appPath}/user/control"><i class="icon-user"> </i> User accounts</a></li>
-              </@security.authorize>
              </ul>
             </div>
-            </@security.authorize>
+			<#else>
 
-            <@security.authorize access="isAnonymous()">
             <div class="nav-collapse pull-right">
                 <ul class="nav">
                     <li><a href="${appConfig.appPath}/do/signon">Login</a></li>
                 </ul>
             </div>
-            </@security.authorize>
+            </#if>
             
             <#assign pageEditLink="">
             <#if txt??><#assign pageEditLink=appConfig.appPath + "/page/" + txt.id?c + "/edit"></#if>

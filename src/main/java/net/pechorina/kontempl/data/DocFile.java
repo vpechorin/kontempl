@@ -2,25 +2,26 @@ package net.pechorina.kontempl.data;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.Integer;
-import java.lang.String;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static javax.persistence.FetchType.EAGER;
-
 @Entity
-@Table(name = "imagefile", indexes={
+@Table(name = "docfile", indexes={
 		@Index(name="pageIdIdx", columnList="pageId"),
 		@Index(name="nameIdx", columnList="name"),
-		@Index(name="mainImgIdx", columnList="mainImage"),
 		@Index(name="sortIdx", columnList="sortIndex")
 })
-public class ImageFile implements Serializable, Cloneable {
-	static final Logger logger = LoggerFactory.getLogger(ImageFile.class);
+public class DocFile implements Serializable, Cloneable {
+	static final Logger logger = LoggerFactory.getLogger(DocFile.class);
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -30,58 +31,36 @@ public class ImageFile implements Serializable, Cloneable {
 	private Integer pageId;
 
 	private String name;
+	
+	private String title;
 
 	private String contentType;
 	
-	private boolean mainImage;
-	
 	private int sortIndex;
 
-	private int width;
-	private int height;
 	private long fileSize;
-	
-	@OneToOne(mappedBy = "imageFile", fetch = EAGER)
-	private Thumbnail thumb;
 
-	public ImageFile() {
+	public DocFile() {
 		super();
 	}
 	
-	public ImageFile(FileMeta fm) {
+	public DocFile(FileMeta fm) {
 		super();
 		this.contentType = fm.getFileType();
 		this.fileSize = fm.getFileSize();
 		this.name = fm.getFileName();
-		this.mainImage = false;
 		this.sortIndex = 10;
-	}
-	
-	public String getHFileSize() {
-		String hs = "";
-		if (this.fileSize > (1024*1024)) {
-			float s = new Long(this.fileSize).floatValue() / (1024f * 1024f);
-			hs = String.format("%.1f", s) + " MB";
-		}
-		else if (this.fileSize < 1024) {
-			hs = this.fileSize + " bytes";
-		}
-		else {
-			long sl = this.fileSize / 1024l;
-			hs = String.format("%d", sl) + " KB";
-		}
-		return hs;
 	}
 	
 	@Transient
 	public String getAbsolutePath() {
-		String res = File.separator + pageId + File.separator + "images" + File.separator + this.name;
+		String res = File.separator + pageId + File.separator + "docs" + File.separator + this.name;
 		return res;
 	}
 	
 	@Transient
 	public String getDirectoryPath() {
-		String res = File.separator + pageId + File.separator + "images";
+		String res = File.separator + pageId + File.separator + "docs";
 		return res;
 	}
 
@@ -101,6 +80,14 @@ public class ImageFile implements Serializable, Cloneable {
 		this.name = name;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	public long getFileSize() {
 		return this.fileSize;
 	}
@@ -117,36 +104,12 @@ public class ImageFile implements Serializable, Cloneable {
 		this.contentType = contentType;
 	}
 
-	public int getWidth() {
-		return this.width;
-	}
-
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	public int getHeight() {
-		return this.height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
-	}
-
 	public Integer getPageId() {
 		return pageId;
 	}
 
 	public void setPageId(Integer pageId) {
 		this.pageId = pageId;
-	}
-
-	public boolean isMainImage() {
-		return mainImage;
-	}
-
-	public void setMainImage(boolean mainImage) {
-		this.mainImage = mainImage;
 	}
 
 	public int getSortIndex() {
@@ -157,51 +120,21 @@ public class ImageFile implements Serializable, Cloneable {
 		this.sortIndex = sortIndex;
 	}
 
-	public Thumbnail getThumb() {
-		return thumb;
-	}
-
-	public void setThumb(Thumbnail thumb) {
-		this.thumb = thumb;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("ImageFile [id=");
-		builder.append(id);
-		builder.append(", pageId=");
-		builder.append(pageId);
-		builder.append(", name=");
-		builder.append(name);
-		builder.append(", contentType=");
-		builder.append(contentType);
-		builder.append(", width=");
-		builder.append(width);
-		builder.append(", height=");
-		builder.append(height);
-		builder.append(", fileSize=");
-		builder.append(fileSize);
-		builder.append("]");
-		return builder.toString();
-	}
-
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof ImageFile))
-			return false;
-		ImageFile other = (ImageFile) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+	
+	public String getHFileSize() {
+		String hs = "";
+		if (this.fileSize > (1024*1024)) {
+			float s = new Long(this.fileSize).floatValue() / (1024f * 1024f);
+			hs = String.format("%.1f", s) + " MB";
+		}
+		else if (this.fileSize < 1024) {
+			hs = this.fileSize + " bytes";
+		}
+		else {
+			long sl = this.fileSize / 1024l;
+			hs = String.format("%d", sl) + " KB";
+		}
+		return hs;
 	}
 
 	@Override
@@ -209,10 +142,10 @@ public class ImageFile implements Serializable, Cloneable {
 		return super.clone(); 
 	}
 	
-	public ImageFile copy() {
-		ImageFile im = null;
+	public DocFile copy() {
+		DocFile im = null;
 		try {
-			im = (ImageFile) this.clone();
+			im = (DocFile) this.clone();
 		} catch (CloneNotSupportedException e) {
 			logger.error("Exception: " + e);
 		}
@@ -220,6 +153,64 @@ public class ImageFile implements Serializable, Cloneable {
 			im.setId(null);
 		}
 		return im;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DocFile [id=");
+		builder.append(id);
+		builder.append(", pageId=");
+		builder.append(pageId);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", title=");
+		builder.append(title);
+		builder.append(", contentType=");
+		builder.append(contentType);
+		builder.append(", sortIndex=");
+		builder.append(sortIndex);
+		builder.append(", fileSize=");
+		builder.append(fileSize);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DocFile other = (DocFile) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		} else if (!pageId.equals(other.pageId))
+			return false;
+		return true;
 	}
 	
 }

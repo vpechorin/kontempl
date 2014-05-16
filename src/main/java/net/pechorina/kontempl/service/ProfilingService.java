@@ -4,10 +4,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Stopwatch;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProfilingService {
-	private static final Logger logger = Logger.getLogger(ProfilingService.class);
+	static final Logger logger = LoggerFactory.getLogger(ProfilingService.class);
 	
 	private Stopwatch stopwatch;
 
@@ -20,7 +21,7 @@ public class ProfilingService {
 	}
 	
 	public void onRequestStart(String msg) {
-		stopwatch = new Stopwatch().start();
+		stopwatch = Stopwatch.createStarted();
 		if (msg != null) {
 			logger.debug("Start: " + msg);
 		}

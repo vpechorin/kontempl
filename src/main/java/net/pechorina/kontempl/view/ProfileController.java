@@ -7,7 +7,8 @@ import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.view.forms.ProfileForm;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping(value = "/profile")
 public class ProfileController extends AbstractController {
-	private static final Logger logger = Logger.getLogger(ProfileController.class);
+	static final Logger logger = LoggerFactory.getLogger(ProfileController.class);
 	
 	@Autowired
 	private UserService userService;

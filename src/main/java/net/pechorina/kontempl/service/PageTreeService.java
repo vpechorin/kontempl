@@ -7,7 +7,8 @@ import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageTree;
 import net.pechorina.kontempl.repos.PageRepo;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("pageTreeService")
 public class PageTreeService {
-	private static final Logger logger = Logger.getLogger(PageTreeService.class);
+	static final Logger logger = LoggerFactory.getLogger(PageTreeService.class);
 
 	@Autowired
 	private PageRepo pageRepo;
@@ -80,6 +81,11 @@ public class PageTreeService {
 
 		// find home page
 		Page homePage = pageRepo.findByName(appConfig.getProperty("homePage"));
+		
+		if (homePage == null) {
+			logger.warn("Homepage not found");
+			return null;
+		}
 		
 		// set image for this page
 		homePage.setMainImage(imageFileService.getMainImageForPage(homePage.getId()));

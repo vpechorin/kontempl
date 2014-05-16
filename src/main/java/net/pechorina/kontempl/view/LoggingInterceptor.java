@@ -5,7 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.pechorina.kontempl.service.ProfilingService;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Component("loggingInterceptor")
 public class LoggingInterceptor extends HandlerInterceptorAdapter {
-	private static final Logger logger = Logger.getLogger(LoggingInterceptor.class);
+	static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
 	
 	private static final DateTimeFormatter fmtW3C = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'");
 	

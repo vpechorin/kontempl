@@ -1,13 +1,16 @@
 package net.pechorina.kontempl.data;
 
 import java.util.*;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author vp
  */
 public class GenericTreeNode<T> {
-    private static final Logger logger = Logger.getLogger(GenericTreeNode.class);
+	static final Logger logger = LoggerFactory.getLogger(GenericTreeNode.class);
+
     private T data;
     private int items;
     private List<GenericTreeNode<T>> children;

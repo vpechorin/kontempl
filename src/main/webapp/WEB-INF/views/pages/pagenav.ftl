@@ -1,7 +1,8 @@
-<#macro pagenav pagetree pageName="home" opts...>
+<#macro pagenav pagetree={} pageName="home" opts...>
     <div class="nav-collapse collapse">
         <ul class="nav">
             <li <#if pageName == "home">class=active</#if>><a  href="${appConfig.appPath}/">Home</a></li>
+        <#if pagetree.children??>    
         <#list pagetree.children as rootPage>
             <#assign elementClass="">
             <#if pageName == rootPage.data.name><#assign elementClass="active"></#if>
@@ -24,9 +25,10 @@
             </li>
             </#if>
         </#list>
-        <@security.authorize ifAnyGranted="ROLE_ADMIN,ROLE_EDITOR">
+        </#if>
+        <#if user??>
             <#if opts.pageedit??><li><a href="${opts.pageedit}"><i class="icon-edit icon-white"> </i> Edit this page</a></li></#if>
-        </@security.authorize>
+        </#if>
         </ul>
     </div>
 </#macro>

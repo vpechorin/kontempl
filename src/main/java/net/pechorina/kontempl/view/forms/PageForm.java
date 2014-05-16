@@ -7,11 +7,12 @@ import javax.validation.constraints.NotNull;
 
 import net.pechorina.kontempl.data.Page;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PageForm implements Serializable {
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(PageForm.class);
+
+	static final Logger logger = LoggerFactory.getLogger(PageForm.class);
 	private static final long serialVersionUID = 1L;
 
 	@NotNull

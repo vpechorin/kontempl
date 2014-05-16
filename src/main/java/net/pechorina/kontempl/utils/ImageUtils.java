@@ -11,12 +11,14 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.imgscalr.Scalr.*;
 
 public class ImageUtils {
 
-	private static final Logger logger = Logger.getLogger(ImageUtils.class);
+	static final Logger logger = LoggerFactory.getLogger(ImageUtils.class);
 
 	/**
 	 * Gets image dimensions for given file

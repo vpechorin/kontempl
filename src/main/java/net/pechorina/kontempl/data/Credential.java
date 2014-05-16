@@ -14,21 +14,29 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.Index;
 //import javax.persistence.UniqueConstraint;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.hibernate.annotations.Index;
+
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Entity implementation class for Entity: Credential
  * 
  */
 @Entity
-@Table(name = "credential")
+@Table(name = "credential", indexes={
+		@Index(name="activeIdx", columnList="active"),
+		@Index(name="userIdx", columnList="userId"),
+		@Index(name="usernameIdx", columnList="username"),
+		@Index(name="uidIdx", columnList="uid")
+})
 public class Credential implements Serializable {
 
 	@Id
@@ -50,8 +58,7 @@ public class Credential implements Serializable {
 	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updated;
-	
-	@Index(name="activeIndex")
+
 	private boolean active;
 	private boolean verified;
 

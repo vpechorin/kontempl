@@ -1,6 +1,5 @@
 package net.pechorina.kontempl.view;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -8,12 +7,11 @@ import java.util.LinkedList;
 
 import javax.servlet.http.HttpServletResponse;
 
+import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.FileMeta;
-import net.pechorina.kontempl.data.ImageFile;
-import net.pechorina.kontempl.service.ImageFileService;
+import net.pechorina.kontempl.service.DocFileService;
 import net.pechorina.kontempl.service.PageElementTypeService;
 import net.pechorina.kontempl.service.PageService;
-import net.pechorina.kontempl.utils.ImageUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +28,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.google.common.io.Files;
 
 @Controller
-public class ImageController extends AbstractController {
-	static final Logger logger = LoggerFactory.getLogger(ImageController.class);
+public class DocFileController extends AbstractController {
+	static final Logger logger = LoggerFactory.getLogger(DocFileController.class);
 
 	@Autowired
 	private PageService pageService;
@@ -40,9 +38,9 @@ public class ImageController extends AbstractController {
 	private PageElementTypeService pageElementTypeService;
 
 	@Autowired
-	private ImageFileService imageFileService;
+	private DocFileService docFileService;
 
-	@RequestMapping(value = "/image/{pageId}/upload", method = RequestMethod.POST)
+	@RequestMapping(value = "/files/{pageId}/upload", method = RequestMethod.POST)
 	public @ResponseBody
 	LinkedList<FileMeta> upload(@PathVariable("pageId") Integer pageId,
 			MultipartHttpServletRequest request, HttpServletResponse response) {
@@ -73,38 +71,32 @@ public class ImageController extends AbstractController {
 
 		if (files.size() > 0) {
 			for (FileMeta fm : files) {
-				ImageFile im = new ImageFile(fm);
-				im.setPageId(pageId);
+				DocFile df = new DocFile(fm);
+				df.setPageId(pageId);
 				String filePath = appConfig.getProperty("fileStoragePath")
-						+ im.getAbsolutePath();
+						+ df.getAbsolutePath();
 				String dirPath = appConfig.getProperty("fileStoragePath")
-						+ im.getDirectoryPath();
+						+ df.getDirectoryPath();
 				boolean success = false;
 				try {
 					File f = new File(filePath);
 					File d = new File(dirPath);
 					if (!d.exists()) {
-						logger.debug("Image directory do not exists, create new: "
+						logger.debug("Target directory do not exists, create new: "
 								+ dirPath);
 						Files.createParentDirs(f);
 					}
 					Files.write(fm.getBytes(), f);
-					Dimension dim = ImageUtils.getImageDimension(f);
-					if (dim != null) {
-						im.setWidth(dim.width);
-						im.setHeight(dim.height);
-					}
 					success = true;
 				} catch (IOException e) {
-					logger.error("Can't write image to file: " + e);
+					logger.error("Can't write doc to file: " + e);
 					success = false;
 				}
 				if (success) {
-					int sortIndex = imageFileService.getNextImageSortIndex(pageId);
-					im.setSortIndex(sortIndex);
-					imageFileService.adjustMainImageStatusForNewImage(im);
-					ImageFile i = imageFileService.save(im);
-					logger.debug("Image " + filePath + " saved: " + i);
+					int sortIndex = docFileService.getNextDocSortIndex(pageId);
+					df.setSortIndex(sortIndex);
+					DocFile docFile = docFileService.save(df);
+					logger.debug("Image " + filePath + " saved: " + docFile);
 				}
 			}
 		}
@@ -114,11 +106,11 @@ public class ImageController extends AbstractController {
 		return files;
 	}
 
-	@RequestMapping(value = "/images/{imageId}/delete")
-	public String delete(@PathVariable("imageId") Integer imageId) {
-		ImageFile im = imageFileService.getImageById(imageId);
-		Integer pageId = im.getPageId();
-		boolean success = imageFileService.deleteImage(im);
+	@RequestMapping(value = "/files/{fileId}/delete")
+	public String delete(@PathVariable("fileId") Integer fileId) {
+		DocFile df = docFileService.getDocById(fileId);
+		Integer pageId = df.getPageId();
+		boolean success = docFileService.deleteDoc(df);
 		
 		pageService.resetPageCache();
 		
@@ -126,10 +118,10 @@ public class ImageController extends AbstractController {
 		return "redirect:/page/" + pageId + "/edit";
 	}
 	
-	@RequestMapping(value = "/images/{imageId}/asyncdelete")
-	public @ResponseBody String deleteAsync(@PathVariable("imageId") Integer imageId) {
-		ImageFile im = imageFileService.getImageById(imageId);
-		boolean success = imageFileService.deleteImage(im);
+	@RequestMapping(value = "/files/{fileId}/asyncdelete")
+	public @ResponseBody String deleteAsync(@PathVariable("fileId") Integer fileId) {
+		DocFile df = docFileService.getDocById(fileId);
+		boolean success = docFileService.deleteDoc(df);
 		
 		pageService.resetPageCache();
 		
@@ -137,31 +129,11 @@ public class ImageController extends AbstractController {
 		return "SUCCESS";
 	}
 	
-	@RequestMapping(value = "/images/{imageId}/setMain")
-	public String markAsMainImage(@PathVariable("imageId") Integer imageId) {
-		ImageFile im = imageFileService.getImageById(imageId);
-		Integer pageId = im.getPageId();
-		imageFileService.markImageAsMainImage(im);
-		
-		pageService.resetPageCache();
-		
-		return "redirect:/page/" + pageId + "/edit";
-	}
-	
-	@RequestMapping(value = "/images/{imageId}/setMainAsync")
-	public @ResponseBody String markAsMainImageAsync(@PathVariable("imageId") Integer imageId) {
-		ImageFile im = imageFileService.getImageById(imageId);
-		imageFileService.markImageAsMainImage(im);
-		
-		pageService.resetPageCache();
-		
-		return "OK";
-	}
-	
-	@RequestMapping(value = "/images/{imageId}/move")
-	public @ResponseBody String moveImage(@PathVariable("imageId") Integer imageId, @RequestParam(value="dir", required=true) String direction) {
-		ImageFile im = imageFileService.getImageById(imageId);
-		imageFileService.moveImage(im, direction);
+	@RequestMapping(value = "/files/{fileId}/move")
+	public @ResponseBody String moveFile(@PathVariable("fileId") Integer fileId, 
+			@RequestParam(value="dir", required=true) String direction) {
+		DocFile f = docFileService.getDocById(fileId);
+		docFileService.moveDoc(f, direction);
 		return "OK";
 	}
 	

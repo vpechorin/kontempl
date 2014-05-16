@@ -14,7 +14,8 @@ import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.PageTreeService;
 import net.pechorina.kontempl.utils.TextContentUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 @ControllerAdvice
 @RequestMapping(value = "/do/error")
 public class ErrorController {
-	private static final Logger logger = Logger.getLogger(ErrorController.class);
+	static final Logger logger = LoggerFactory.getLogger(ErrorController.class);
 	
     @Autowired
     @Qualifier("appConfig")

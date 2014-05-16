@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PageTree extends GenericTree<Page> {
-    //private static final Logger logger = Logger.getLogger(PageTree.class);
+	static final Logger logger = LoggerFactory.getLogger(PageTree.class);
     
     public void updateItemsCounters(Map<Long, Integer> pageItems) {
         for (GenericTreeNode<Page> rootPage : this.getChildren() ) {

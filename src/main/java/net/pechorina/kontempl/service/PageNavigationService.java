@@ -10,7 +10,8 @@ import net.pechorina.kontempl.data.PageTree;
 import net.pechorina.kontempl.repos.PageElementRepo;
 import net.pechorina.kontempl.repos.PageRepo;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("pageNavService")
 public class PageNavigationService {
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(PageNavigationService.class);
+
+	static final Logger logger = LoggerFactory.getLogger(PageNavigationService.class);
 
 	@Autowired
 	private PageRepo pageRepo;

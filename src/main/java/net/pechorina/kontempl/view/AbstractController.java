@@ -44,4 +44,21 @@ abstract public class AbstractController {
 	    }
 	    return user;
 	}
+
+	public OptiUserDetails getUserDetails() {
+		OptiUserDetails s = null;
+		if (auth != null && auth.isAuthenticated()) {
+	        Object principal = auth.getPrincipal();
+	        if (principal instanceof UserDetails) {
+	        	UserDetails userDetails = (UserDetails) principal;
+	        	s = (OptiUserDetails)userDetails;
+	        }
+	    }		
+		return s;
+	}
+
+	
+	public Authentication getAuth() {
+		return auth;
+	}
 }

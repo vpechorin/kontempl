@@ -13,7 +13,8 @@ import net.pechorina.kontempl.repos.ImageFileRepo;
 import net.pechorina.kontempl.repos.ThumbnailRepo;
 import net.pechorina.kontempl.utils.ImageUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import com.google.common.io.Files;
 
 @Service("imageFileService")
 public class ImageFileService {
-	private static final Logger logger = Logger.getLogger(ImageFileService.class);
+	static final Logger logger = LoggerFactory.getLogger(ImageFileService.class);
 
 	@Autowired
 	private ImageFileRepo imageFileRepo;
@@ -60,7 +61,7 @@ public class ImageFileService {
 		for(ImageFile im: images) {
 			deleteImage(im);
 		}
-		String pageImagesDir = appConfig.getProperty("fileStoragePath") + File.separator + pageId;
+		String pageImagesDir = appConfig.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "images";
 		File dir = new File(pageImagesDir);
 		deleteDirectory(dir);
 	}

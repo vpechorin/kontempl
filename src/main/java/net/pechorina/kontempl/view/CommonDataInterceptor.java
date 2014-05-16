@@ -13,7 +13,8 @@ import net.pechorina.kontempl.service.ProfilingService;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.utils.TextContentUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
@@ -26,7 +27,7 @@ import org.springframework.web.context.request.WebRequestInterceptor;
 
 @Component
 public class CommonDataInterceptor implements WebRequestInterceptor  {
-	private static final Logger logger = Logger.getLogger(CommonDataInterceptor.class);
+	static final Logger logger = LoggerFactory.getLogger(CommonDataInterceptor.class);
 	
     @Autowired
     @Qualifier("appConfig")

@@ -4,7 +4,7 @@
 	<groupId>net.pechorina.kontempl</groupId>
 	<artifactId>kontempl</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.8</version>
+	<version>1.2.0</version>
 	<name>Kontempl</name>
 	<description>Kontempl - web site management system</description>
 	<url>https://github.com/vpechorin/kontempl</url>
@@ -28,11 +28,12 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>3.2.7.RELEASE</org.springframework.version>
-		<org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
-		<org.hibernate.version>4.3.1.Final</org.hibernate.version>
-		<slf4j.version>1.7.3</slf4j.version>
+		<org.springframework.version>4.0.4.RELEASE</org.springframework.version>
+		<org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
+		<org.hibernate.version>4.3.5.Final</org.hibernate.version>
+		<slf4j.version>1.7.7</slf4j.version>
 		<cglib.version>2.2.2</cglib.version>
+		<jackson-2-version>2.2.3</jackson-2-version>
 	</properties>
 
 	<repositories>
@@ -101,7 +102,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.28</version>
+			<version>5.1.30</version>
 		</dependency>
 
 		<dependency>
@@ -242,7 +243,7 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
-			<version>1.4.3.RELEASE</version>
+			<version>1.5.2.RELEASE</version>
 		</dependency>
 
 		<dependency>
@@ -265,15 +266,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+    		<groupId>ch.qos.logback</groupId>
+    		<artifactId>logback-classic</artifactId>
+    		<version>1.1.2</version>
 		</dependency>
 
 		<dependency>
@@ -322,14 +317,22 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>16.0</version>
+			<version>17.0</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.13</version>
-		</dependency>
+		
+		 <!-- the core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
+ <dependency>
+   <groupId>com.fasterxml.jackson.core</groupId>
+   <artifactId>jackson-core</artifactId>
+   <version>${jackson-2-version}</version>
+ </dependency>
+ 
+ <!-- databinding; ObjectMapper, JsonNode and related classes are here -->
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>
+  <version>${jackson-2-version}</version>
+</dependency>
 
 		<dependency>
 			<groupId>joda-time</groupId>
@@ -347,7 +350,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3</version>
+            <version>1.3.1</version>
         </dependency>
         
         <dependency>
@@ -361,12 +364,6 @@
             <artifactId>httpclient</artifactId>
             <version>4.2.5</version>
         </dependency>
-        
-        <!--  dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>7.0.41</version>
-        </dependency -->
 
 	<dependency>
 		<groupId>org.imgscalr</groupId>

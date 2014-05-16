@@ -8,11 +8,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StringUtils {
 
-	private static final Logger logger = Logger.getLogger(StringUtils.class);
+	static final Logger logger = LoggerFactory.getLogger(StringUtils.class);
 
 	/**
 	 * Returns the string trimmed to specified length
@@ -227,7 +229,7 @@ public class StringUtils {
 		try {
 			res = encodeHtml(res);
 		} catch (IOException ex) {
-			logger.warn(ex);
+			logger.warn(ex.toString());
 		}
 		return res;
 	}

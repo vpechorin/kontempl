@@ -11,15 +11,19 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Index;
 import javax.validation.constraints.NotNull;
 
-import org.apache.log4j.Logger;
-import org.hibernate.annotations.Index;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
-@Table(name = "pageelement")
+@Table(name = "pageelement", indexes={
+		@Index(name="pageIdIndex", columnList="pageId"),
+		@Index(name="nameIndex", columnList="name")
+})
 public class PageElement implements Serializable, Cloneable {
-	private static final Logger logger = Logger.getLogger(PageElement.class);
+	static final Logger logger = LoggerFactory.getLogger(PageElement.class);
 	private static final long serialVersionUID = 1L;
 	
 	@Id
@@ -27,17 +31,14 @@ public class PageElement implements Serializable, Cloneable {
 	private Integer id;
 
 	@NotNull
-	@Index(name="pageIdIndex")
     private Integer pageId;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updated;
 	
-	@Index(name="updatedByIDX")
 	private Integer updatedBy;
 	
 	@NotNull
-	@Index(name="nameIndex")
     private String name;
     private String customName;    
     

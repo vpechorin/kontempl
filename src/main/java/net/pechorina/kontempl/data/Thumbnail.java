@@ -14,11 +14,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.hibernate.annotations.Index;
+import javax.persistence.Index;
 
 @Entity
-@Table(name = "thumbnail")
+@Table(name = "thumbnail", indexes={
+		@Index(name="pageIdIdx", columnList="pageId"),
+		@Index(name="nameIdx", columnList="name")
+})
 public class Thumbnail implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -26,10 +28,8 @@ public class Thumbnail implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Index(name = "pageIdIdx")
 	private Integer pageId;
 
-	@Index(name = "nameIdx")
 	private String name;
 
 	private int width;

@@ -5,10 +5,11 @@ import javax.validation.ConstraintValidatorContext;
 
 import net.pechorina.kontempl.utils.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PasswordValidator implements ConstraintValidator<Password, Object> {
-	private static final Logger logger = Logger.getLogger(PasswordValidator.class);
+	static final Logger logger = LoggerFactory.getLogger(PasswordValidator.class);
 	
 	private static final int MIN_PASSWORD_LENGTH = 5;
 	

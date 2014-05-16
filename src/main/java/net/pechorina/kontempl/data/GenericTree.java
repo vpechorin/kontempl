@@ -3,8 +3,11 @@ package net.pechorina.kontempl.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class GenericTree<T> {
-    //private static final Logger logger = Logger.getLogger(GenericTree.class);
+	static final Logger logger = LoggerFactory.getLogger(GenericTree.class);
     private List<GenericTreeNode<T>> children;
     
     public GenericTree() {

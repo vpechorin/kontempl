@@ -9,7 +9,8 @@ import net.pechorina.kontempl.data.Role;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.utils.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -18,8 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class CustomUserDetailsService implements UserDetailsService {
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(UserDetailsService.class);
+
+	static final Logger logger = LoggerFactory.getLogger(UserDetailsService.class);
 	//protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	
 	@Autowired

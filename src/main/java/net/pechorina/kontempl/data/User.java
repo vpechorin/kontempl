@@ -20,17 +20,18 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.Index;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.hibernate.annotations.Index;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
+
 import static javax.persistence.CascadeType.ALL;
 
 /**
@@ -38,7 +39,10 @@ import static javax.persistence.CascadeType.ALL;
  * 
  */
 @Entity
-@Table(name = "user")
+@Table(name = "user", indexes={
+		@Index(name="lockedIdx", columnList="locked"),
+		@Index(name="activeIdx", columnList="active")
+})
 public class User implements Serializable {
 
 	@Id
@@ -49,11 +53,9 @@ public class User implements Serializable {
 	@Size(min = 2)
 	private String name;
 	
-	@Index(name="lockedIdx")
 	@NotNull
 	private boolean locked;
 	
-	@Index(name="activeIdx")
 	@NotNull
 	private boolean active;
 	

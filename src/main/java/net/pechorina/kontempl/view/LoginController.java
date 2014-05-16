@@ -1,6 +1,7 @@
 package net.pechorina.kontempl.view;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class LoginController extends AbstractController {
-	private static final Logger logger = Logger
-			.getLogger(LoginController.class);
+	static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
 	@RequestMapping(value = "/do/signon", method = RequestMethod.GET)
 	public String loginPage(Model model) {

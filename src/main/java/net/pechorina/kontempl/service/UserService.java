@@ -16,7 +16,8 @@ import net.pechorina.kontempl.repos.RoleRepo;
 import net.pechorina.kontempl.repos.UserRepo;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("userService")
 public class UserService {
-	private static final Logger logger = Logger.getLogger(UserService.class);
+	static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserRepo userRepo;
@@ -55,7 +56,7 @@ public class UserService {
         	String uid = "password:" + email;
         	Credential c = new Credential(u, "password", uid, email, pwdHash);
     		c.setVerified(true);
-    		logger.debug(c);
+    		logger.debug(c.toString());
     		Set<Credential> userCredentials = new HashSet<Credential>();
     		userCredentials.add(c);
     		u.setCredentials(userCredentials);

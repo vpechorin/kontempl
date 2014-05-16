@@ -9,7 +9,8 @@ import java.util.Locale;
 import net.pechorina.kontempl.utils.StringUtils;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -27,7 +28,7 @@ import org.springframework.util.Assert;
 
 public class LocalAuthProvider implements AuthenticationProvider {
 
-	private static final Logger logger = Logger.getLogger(LocalAuthProvider.class);
+	static final Logger logger = LoggerFactory.getLogger(LocalAuthProvider.class);
 	protected boolean hideUserNotFoundExceptions = false;
 	// protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	

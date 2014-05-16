@@ -7,15 +7,16 @@ import java.util.Map;
 import net.pechorina.kontempl.data.Role;
 import net.pechorina.kontempl.repos.RoleRepo;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service("roleService")
 public class RoleService {
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(RoleService.class);
+
+	static final Logger logger = LoggerFactory.getLogger(RoleService.class);
 
 	@Autowired
 	private RoleRepo roleRepo;

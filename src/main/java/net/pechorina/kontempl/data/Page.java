@@ -14,22 +14,27 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.Index;
 import javax.validation.constraints.NotNull;
 
 import net.pechorina.kontempl.utils.StringUtils;
 
-import org.apache.log4j.Logger;
-import org.hibernate.annotations.Index;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
-@Table(name = "page")
+@Table(name = "page", indexes={
+		@Index(name="parentIDX", columnList="parentId"),
+		@Index(name="sortIndexIDX", columnList="sortindex"),
+		@Index(name="pubIDX", columnList="publicPage")
+})
 public class Page implements Serializable, Cloneable {
-	private static final Logger logger = Logger.getLogger(Page.class);
-	private static final long serialVersionUID = 1222384650558947506L;
+	static final Logger logger = LoggerFactory.getLogger(Page.class);
+	private static final long serialVersionUID = 1L;
 
 	private static final DateTimeFormatter fmtW3C = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss");
 	private static final DateTimeFormatter fmtW3CDate = DateTimeFormat.forPattern("yyyy-MM-dd");
@@ -39,14 +44,11 @@ public class Page implements Serializable, Cloneable {
 	private Integer id;
 	
 	@NotNull
-	@Index(name="parentIDX")	
 	private Integer parentId;
 	
 	@NotNull
-	@Index(name="sortIndexIDX")
 	private int sortindex;
 	
-	@Index(name="pubIDX")
 	private boolean publicPage;
 	
 	private boolean hideTitle;
@@ -61,7 +63,6 @@ public class Page implements Serializable, Cloneable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updated;
 	
-	@Index(name="updatedByIDX")
 	private Integer updatedBy;
 
 	private String title;

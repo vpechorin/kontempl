@@ -5,7 +5,7 @@
 <#include "/lib/pagetreemenu.ftl"/>
 <#include "/lib/pagebranch.ftl"/>
 <#include "/lib/dropdownSubmenu.ftl"/>
-<#assign security=JspTaglibs["http://www.springframework.org/security/tags"] />
+
 <!DOCTYPE html>
 <#if txt??><#else><#if homePage??><#assign txt=homePage></#if></#if>
 <html lang="en">
@@ -72,40 +72,35 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          
-            <@security.authorize access="isAuthenticated()">
-                    <@security.authentication property="principal.user.name" var="principalName" scope="page" />
+          	
+          	<#if user??>
+
             <div class="btn-group pull-right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-              <i class="icon-user"></i> ${principalName}
+              <i class="icon-user"></i> ${user.name}
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
               <li><a href="${appConfig.appPath}/profile/edit">Profile</a></li>
               <li class="divider"></li>
               <li><a href="${appConfig.appPath}/do/signoff">Sign Out</a></li>
-              <@security.authorize ifAnyGranted="ROLE_ADMIN,ROLE_EDITOR">
               <li class="divider"></li>
               <#if opts.pageedit??><li><a href="${opts.pageedit}"><i class="icon-edit"> </i> Edit this page</a></li></#if>
               <li><a href="${appConfig.appPath}/page/tree"><i class="icon-list"> </i> Index</a></li>
-              </@security.authorize>
-              <@security.authorize ifAnyGranted="ROLE_ADMIN">
               <li><a href="${appConfig.appPath}/user/control"><i class="icon-user"> </i> User accounts</a></li>
               <li class="divider"></li>
               <li><a href="${appConfig.appPath}/do/sitemap/update"><i class="icon-user"> </i> Update sitemap</a></li>
               <li><a href="${appConfig.appPath}/do/sitemap/submit"><i class="icon-user"> </i> Re-Submit sitemap</a></li>
-              </@security.authorize>
             </ul>
             </div>
-            </@security.authorize>
-            
-            <@security.authorize access="isAnonymous()">
+            <#else>
+
             <div class="nav-collapse pull-right">
                 <ul class="nav">
                     <li><a href="${appConfig.appPath}/do/signon">Login</a></li>
                 </ul>
             </div>
-            </@security.authorize>
+            </#if>
           
            <div class="nav-collapse">
                 <ul class="nav">
@@ -113,13 +108,13 @@
                 </ul>
            </div>
           
-          <@security.authorize ifAnyGranted="ROLE_ADMIN,ROLE_EDITOR">
+          <#if user??>
           <div class="nav-collapse">
                 <ul class="nav">
                     <li><a href="${appConfig.appPath}/page/tree"><i class="icon-list icon-white"> </i> Index</a></li>
                 </ul>
-           </div>            
-           </@security.authorize>
+           </div> 
+           </#if>           
 
         </div>
       </div>

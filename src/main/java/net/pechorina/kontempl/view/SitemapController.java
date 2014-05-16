@@ -2,7 +2,8 @@ package net.pechorina.kontempl.view;
 
 import net.pechorina.kontempl.service.SitemapService;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping(value = "/do/sitemap")
 public class SitemapController extends AbstractController {
 
-	private static final Logger logger = Logger
-			.getLogger(SitemapController.class);
+	static final Logger logger = LoggerFactory.getLogger(SitemapController.class);
 
 	@Autowired
 	SitemapService sitemapService;

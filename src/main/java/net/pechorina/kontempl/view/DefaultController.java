@@ -3,7 +3,8 @@ package net.pechorina.kontempl.view;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.service.PageService;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DefaultController {
-	private static final Logger logger = Logger.getLogger(DefaultController.class);
+	static final Logger logger = LoggerFactory.getLogger(DefaultController.class);
 	
     @Autowired
     @Qualifier("appConfig")

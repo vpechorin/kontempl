@@ -25,7 +25,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ import freemarker.template.TemplateException;
 
 @Service("sitemapService")
 public class SitemapService {
-	private static final Logger logger = Logger.getLogger(SitemapService.class);
+	static final Logger logger = LoggerFactory.getLogger(SitemapService.class);
 
 	@Autowired
 	private PageService pageService;

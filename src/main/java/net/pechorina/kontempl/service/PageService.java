@@ -13,7 +13,8 @@ import net.pechorina.kontempl.repos.PageElementRepo;
 import net.pechorina.kontempl.repos.PageRepo;
 import net.pechorina.kontempl.utils.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("pageService")
 public class PageService {
-	private static final Logger logger = Logger.getLogger(PageService.class);
+	static final Logger logger = LoggerFactory.getLogger(PageService.class);
 
 	@Autowired
 	private PageRepo pageRepo;

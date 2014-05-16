@@ -6,11 +6,12 @@ import javax.validation.ConstraintValidatorContext;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.utils.StringUtils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class UsernameValidator implements ConstraintValidator<Username, Object> {
-	private static final Logger logger = Logger.getLogger(UsernameValidator.class);
+	static final Logger logger = LoggerFactory.getLogger(UsernameValidator.class);
 
 	@Autowired
 	private UserService userService;

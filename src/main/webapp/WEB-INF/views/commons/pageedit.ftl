@@ -24,6 +24,7 @@
     <li class="active"><a href="#edit" data-toggle="tab" ><i class="icon-pencil"></i> Edit</a></li>
     <li><a href="#elements" data-toggle="tab"><i class="icon-wrench"></i> Elements (${elementsNum})</a></li>
     <li><a href="#images" data-toggle="tab"><i class="icon-camera"></i> Images (<#if imagesNum??>${imagesNum}</#if>)</a></li>
+    <li><a href="#files" data-toggle="tab"><i class="icon-file"></i> Files (<#if filesNum??>${filesNum}</#if>)</a></li>
     <#else>
     <li class="active"><a href="#edit" data-toggle="tab" ><i class="icon-pencil"></i> Edit</a></li>
     </#if>
@@ -175,6 +176,28 @@
     <!-- end of images tab content -->
     </div>
     </#if>
+    
+    <#if pagenode.id??>
+    <div class="tab-pane" id="files">
+        <div>
+            <h3>Files</h3>
+        </div>
+        
+        <div>
+        <label>Upload files(s):</label>
+        <input class="btn btn-inverse" id="fileupload2" type="file" name="files[]" data-url="${appConfig.appPath}/files/${pagenode.id?c}/upload" multiple>
+        </div>
+        
+        <div id="progress2" class="progress progress-striped">
+            <div class="bar" style="width: 0%;"></div>
+        </div>
+        
+        <div id=filesContainer>
+        <#include "/commons/pagefiles.ftl">
+        </div>
+    <!-- end of files tab content -->
+    </div>
+    </#if>
 </div>
 
     
@@ -238,6 +261,22 @@
         });
     }
     
+        
+    function onFileDeleteBtnClick(imageId) {
+        $.ajax({
+            url: "/files/" + imageId + "/asyncdelete",
+            cache: false,
+            type: "GET",
+            dataType : "text",
+            success: function( txt ) {
+                reloadFileTable(thisPageId);
+            }, 
+            error: function( xhr, status ) {
+                alert( "Sorry, there was a problem! " + status );
+            }
+        });
+    }
+    
     function onSetMainImgClick(imageId) {
         $.ajax({
             url: "/images/" + imageId + "/setMainAsync",
@@ -269,6 +308,22 @@
         });
     }
     
+    function moveFile(fileId, direction) {
+        $.ajax({
+            url: "/files/" + fileId + "/move",
+            data: { dir: direction },
+            cache: false,
+            type: "GET",
+            dataType : "text",
+            success: function( txt ) {
+                reloadFileTable(thisPageId);
+            }, 
+            error: function( xhr, status ) {
+                alert( "Sorry, there was a problem! " + status );
+            }
+        });
+    }
+    
     function reloadImageTable(pageId) {
         var url = "/page/" + pageId + "/images";
         console.log( "URL to images: " + url );
@@ -276,7 +331,13 @@
         console.log( "Image reload requested" );
     }
     
+    function reloadFileTable(pageId) {
+        var url = "/page/" + pageId + "/files";
+        $( "#filesContainer" ).load( url );
+    }
+    
     $(function () {
+    
     $('#fileupload').fileupload({
         dataType: 'json',
         acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
@@ -295,10 +356,29 @@
                 'width',
                 progress + '%'
             );
+        }
+    });
+    
+    $('#fileupload2').fileupload({
+        dataType: 'json',
+        maxFileSize: 1000000000, // 1 GB
+        previewMaxWidth: 100,
+        previewMaxHeight: 100,
+ 
+        done: function (e, data) {
+            reloadFileTable(thisPageId);
+            $('#progress2 .bar').css('width', '0%' );
         },
  
-        // dropZone: $('#dropzone')
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress2 .bar').css(
+                'width',
+                progress + '%'
+            );
+        }
     });
-});
+    
+	});
     </script>
 </@page>

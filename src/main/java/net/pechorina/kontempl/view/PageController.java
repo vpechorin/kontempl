@@ -7,12 +7,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageElement;
 import net.pechorina.kontempl.data.PageTree;
 import net.pechorina.kontempl.data.User;
+import net.pechorina.kontempl.service.DocFileService;
 import net.pechorina.kontempl.service.ImageFileService;
 import net.pechorina.kontempl.service.PageElementService;
 import net.pechorina.kontempl.service.PageElementTypeService;
@@ -22,7 +24,8 @@ import net.pechorina.kontempl.service.PageTreeService;
 import net.pechorina.kontempl.utils.StringUtils;
 import net.pechorina.kontempl.view.forms.PageForm;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,7 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping(value = "/page")
 public class PageController extends AbstractController {
-    private static final Logger logger = Logger.getLogger(PageController.class);
+	static final Logger logger = LoggerFactory.getLogger(PageController.class);
     
     @Autowired
     private PageElementService pageElementService;
@@ -53,6 +56,9 @@ public class PageController extends AbstractController {
 	
 	@Autowired
 	private ImageFileService imageFileService;
+	
+	@Autowired
+	private DocFileService docFileService;
 	
 	@Autowired
 	private PageElementTypeService pageElementTypeService;
@@ -124,6 +130,7 @@ public class PageController extends AbstractController {
         model.addAttribute("pagenode", pageform);
         model.addAttribute("pagedata", p);
         int imagesNum = 0;
+        int filesNum = 0;
         
         if (pageId != null && pageId != 0) {
         	List<ImageFile> images = imageFileService.listImagesForPageOrdered(pageId);
@@ -131,8 +138,14 @@ public class PageController extends AbstractController {
         	if (images != null) {
         		imagesNum = images.size();
         	}
+        	List<DocFile> files = docFileService.listDocsForPageOrdered(pageId);
+        	model.addAttribute("pagenodeFiles", files);
+        	if (files != null) {
+        		filesNum = files.size();
+        	}
         }
         model.addAttribute("imagesNum", imagesNum);
+        model.addAttribute("filesNum", filesNum);
         model.addAttribute("parents", getParentsMap());
         
         return "commons/pageedit";
@@ -301,6 +314,15 @@ public class PageController extends AbstractController {
     	model.addAttribute("pagenodeImages", images);
     	
     	return "commons/pageimages2";
+    }
+    
+    @RequestMapping(value="/{pageId}/files", method=RequestMethod.GET)
+    public String getPageFiles(@PathVariable("pageId") Integer pageId, Model model) {    
+
+    	List<DocFile> images = docFileService.listDocsForPageOrdered(pageId);
+    	model.addAttribute("pagenodeFiles", images);
+    	
+    	return "commons/pagefiles";
     }
     
     @RequestMapping(value="/{pageId}/move")
