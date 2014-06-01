@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,15 +36,14 @@ public class LocalAuthProvider implements AuthenticationProvider {
 	// protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	
 	@Autowired
-	@Qualifier("appConfig")
-	private java.util.Properties appConfig;
+	private Environment env;
 	
 	@Autowired
 	@Qualifier("customUserDetailsService")
 	private UserDetailsService userDetailsService;
 	
 	@Autowired
-	@Qualifier("securityMessageSource")
+	//@Qualifier("securityMessageSource")
 	MessageSource messages;
 
 	@Override

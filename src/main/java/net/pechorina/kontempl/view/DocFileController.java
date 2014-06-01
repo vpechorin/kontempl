@@ -69,9 +69,9 @@ public class DocFileController extends AbstractController {
 			for (FileMeta fm : files) {
 				DocFile df = new DocFile(fm);
 				df.setPageId(pageId);
-				String filePath = appConfig.getProperty("fileStoragePath")
+				String filePath = env.getProperty("fileStoragePath")
 						+ df.getAbsolutePath();
-				String dirPath = appConfig.getProperty("fileStoragePath")
+				String dirPath = env.getProperty("fileStoragePath")
 						+ df.getDirectoryPath();
 				boolean success = false;
 				try {

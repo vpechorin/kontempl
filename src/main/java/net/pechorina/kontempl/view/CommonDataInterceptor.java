@@ -1,6 +1,7 @@
 package net.pechorina.kontempl.view;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import net.pechorina.kontempl.data.OptiUserDetails;
@@ -14,7 +15,7 @@ import net.pechorina.kontempl.utils.TextContentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,14 +23,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequestInterceptor;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-@Component
-public class CommonDataInterceptor implements WebRequestInterceptor  {
+//@Component
+public class CommonDataInterceptor extends HandlerInterceptorAdapter  {
 	static final Logger logger = LoggerFactory.getLogger(CommonDataInterceptor.class);
 	
     @Autowired
-    @Qualifier("appConfig")
-    private java.util.Properties appConfig;
+    private Environment env;
     
     @Autowired
     private ProfilingService profilingService;
@@ -50,17 +51,21 @@ public class CommonDataInterceptor implements WebRequestInterceptor  {
 	private HttpServletRequest request;
 	
 	@Override
-	public void afterCompletion(WebRequest webRequest, Exception ex)
+	public void afterCompletion(HttpServletRequest request,
+    HttpServletResponse response,
+    Object handler,
+    Exception ex)
 			throws Exception {
+		
 	}
 
-	@Override
+	/*@Override
 	public void postHandle(WebRequest webRequest, ModelMap model) throws Exception {
 		logger.debug("CommonDataInterceptor::postHandle");
 		if (model != null) {
 			
-			model.addAttribute("appVersion", appConfig.getProperty("application.build"));
-			model.addAttribute("appConfig", appConfig);
+			model.addAttribute("appVersion", env.getProperty("application.build"));
+			model.addAttribute("env", env);
 			
 			User user = this.getUser();
 			if (user != null) {
@@ -97,5 +102,5 @@ public class CommonDataInterceptor implements WebRequestInterceptor  {
     	}
     	
     	return user;
-    }
+    }*/
 }

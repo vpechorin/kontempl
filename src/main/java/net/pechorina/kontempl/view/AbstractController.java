@@ -8,8 +8,9 @@ import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.PageService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
@@ -17,14 +18,10 @@ import org.springframework.stereotype.Controller;
 abstract public class AbstractController {
     
     @Autowired
-    @Qualifier("appConfig")
-    public java.util.Properties appConfig;
+    public Environment env;
     
 	@Autowired
     public PageService pageService;
-	
-	@Autowired
-	public Authentication auth;
 	
 	@Autowired
 	public HttpSession session;
@@ -34,6 +31,7 @@ abstract public class AbstractController {
 	
 	public User getUser(){
 		User user = null;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated()) {
 	        Object principal = auth.getPrincipal();
 	        if (principal instanceof UserDetails) {
@@ -47,6 +45,7 @@ abstract public class AbstractController {
 
 	public OptiUserDetails getUserDetails() {
 		OptiUserDetails s = null;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated()) {
 	        Object principal = auth.getPrincipal();
 	        if (principal instanceof UserDetails) {
@@ -59,6 +58,7 @@ abstract public class AbstractController {
 
 	
 	public Authentication getAuth() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return auth;
 	}
 }

@@ -7,10 +7,10 @@
     </layout>
   </appender>
    
-  <logger name="net.pechorina.kontempl" level="DEBUG"/>
-  <logger name="org.hibernate" level="DEBUG"/>
+  <logger name="net.pechorina.kontempl" level="info"/>
+  <logger name="org.hibernate" level="info"/>
  
-  <root level="debug">
+  <root level="info">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

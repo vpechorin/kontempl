@@ -32,11 +32,6 @@ public class AuthenticationTokenProcessingFilter extends GenericFilterBean {
 	
 	@Autowired
 	private UserService userService;
-	
-	public AuthenticationTokenProcessingFilter(UserService userService) {
-		super();
-		this.userService = userService;
-	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,

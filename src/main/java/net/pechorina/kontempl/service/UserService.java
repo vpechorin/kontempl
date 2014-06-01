@@ -21,7 +21,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,13 +46,12 @@ public class UserService {
 	private AuthTokenRepo authTokenRepo;
 
 	@Autowired
-	@Qualifier("appConfig")
-	public java.util.Properties appConfig;
+	private Environment env;
 	
 	@Transactional
 	public AuthToken getAuthToken(String uuid) {
 		
-		int tokenExpireMinutes = Integer.parseInt( appConfig.getProperty("auth_token_expire") );
+		int tokenExpireMinutes = Integer.parseInt( env.getProperty("auth_token_expire") );
 		
 		AuthToken a = authTokenRepo.findOne(uuid);
 		logger.debug("Token retrieved: " + a);

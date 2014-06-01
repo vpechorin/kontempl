@@ -6,7 +6,9 @@ import com.google.common.base.Stopwatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ProfilingService {
 	static final Logger logger = LoggerFactory.getLogger(ProfilingService.class);
 	

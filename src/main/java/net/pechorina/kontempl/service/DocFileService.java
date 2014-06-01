@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +25,7 @@ public class DocFileService {
 	private DocFileRepo docFileRepo;
 	
 	@Autowired
-	@Qualifier("appConfig")
-	public java.util.Properties appConfig;
+	private Environment env;
 	
 	@Transactional
 	public List<DocFile> listDocsForPage(Integer pageId) {
@@ -50,7 +50,7 @@ public class DocFileService {
 		for(DocFile d: docs) {
 			deleteDoc(d);
 		}
-		String pageDocsDir = appConfig.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "docs";
+		String pageDocsDir = env.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "docs";
 		File dir = new File(pageDocsDir);
 		deleteDirectory(dir);
 	}
@@ -107,7 +107,7 @@ public class DocFileService {
 	
 	@Transactional
 	public boolean deleteDoc(DocFile d) {
-		String filename = appConfig.getProperty("fileStoragePath") + d.getAbsolutePath();
+		String filename = env.getProperty("fileStoragePath") + d.getAbsolutePath();
 		boolean success = deleteFileByName( filename );
 		// check if file still exists
 		if (!success) {
@@ -212,9 +212,9 @@ public class DocFileService {
 		DocFile savedFile = null;
 		logger.debug("Copy " + src.getName() + " file from page #" + src.getPageId() + " to page #" + pageId);
 		try {
-			File srcFile = new File(appConfig.getProperty("fileStoragePath") + src.getAbsolutePath());
-			File targetFile = new File(appConfig.getProperty("fileStoragePath") + target.getAbsolutePath());
-			String targetDir = appConfig.getProperty("fileStoragePath") + target.getDirectoryPath();
+			File srcFile = new File(env.getProperty("fileStoragePath") + src.getAbsolutePath());
+			File targetFile = new File(env.getProperty("fileStoragePath") + target.getAbsolutePath());
+			String targetDir = env.getProperty("fileStoragePath") + target.getDirectoryPath();
 			File d = new File(targetDir);
 			if (!d.exists()) {
 				logger.debug("new file directory does not exists, create new: " + targetDir);

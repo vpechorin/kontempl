@@ -71,9 +71,9 @@ public class ImageController extends AbstractController {
 			for (FileMeta fm : files) {
 				ImageFile im = new ImageFile(fm);
 				im.setPageId(pageId);
-				String filePath = appConfig.getProperty("fileStoragePath")
+				String filePath = env.getProperty("fileStoragePath")
 						+ im.getAbsolutePath();
-				String dirPath = appConfig.getProperty("fileStoragePath")
+				String dirPath = env.getProperty("fileStoragePath")
 						+ im.getDirectoryPath();
 				boolean success = false;
 				try {

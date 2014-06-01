@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +32,7 @@ public class PageTreeService {
 	private ImageFileService imageFileService;
     
 	@Autowired
-	@Qualifier("appConfig")
-	public java.util.Properties appConfig;
+	private Environment env;
 
 	@Transactional
 	public List<Site> getSiteTree() {
@@ -106,7 +106,7 @@ public class PageTreeService {
 		PageTree pageTree = new PageTree();
 
 		// find home page
-		Page homePage = pageRepo.findBySiteAndName(site, appConfig.getProperty("homePage"));
+		Page homePage = pageRepo.findBySiteAndName(site, env.getProperty("homePage"));
 		
 		if (homePage == null) {
 			logger.warn("Homepage not found");

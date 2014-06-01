@@ -13,7 +13,7 @@ public class ConfigController extends AbstractController {
     @RequestMapping(value = "/config/list")
     public String listConfig(Model model) {
         logger.debug("list config");
-        model.addAttribute("message", appConfig.toString());
+        model.addAttribute("message", env.toString());
         return "commons/simplemessage";
     }
 

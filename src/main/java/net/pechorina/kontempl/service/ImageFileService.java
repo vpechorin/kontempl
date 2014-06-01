@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +34,7 @@ public class ImageFileService {
 	private ThumbnailRepo thumbRepo;
 	
 	@Autowired
-	@Qualifier("appConfig")
-	public java.util.Properties appConfig;
+	private Environment env;
 	
 	@Transactional
 	public List<ImageFile> listImagesForPage(Integer pageId) {
@@ -61,7 +61,7 @@ public class ImageFileService {
 		for(ImageFile im: images) {
 			deleteImage(im);
 		}
-		String pageImagesDir = appConfig.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "images";
+		String pageImagesDir = env.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "images";
 		File dir = new File(pageImagesDir);
 		deleteDirectory(dir);
 	}
@@ -127,7 +127,7 @@ public class ImageFileService {
 	
 	@Transactional
 	public boolean deleteImage(ImageFile im) {
-		String filename = appConfig.getProperty("fileStoragePath") + im.getAbsolutePath();
+		String filename = env.getProperty("fileStoragePath") + im.getAbsolutePath();
 		boolean success = deleteFileByName( filename );
 		// check if file still exists
 		if (!success) {
@@ -265,7 +265,7 @@ public class ImageFileService {
 	}
 	
 	private void deleteThumb(Thumbnail t) {
-		String thumbFile = appConfig.getProperty("fileStoragePath") + t.getAbsolutePath();
+		String thumbFile = env.getProperty("fileStoragePath") + t.getAbsolutePath();
 		boolean fileDeleted = deleteFileByName( thumbFile );
 		if (!fileDeleted) {
 			File f = new File(thumbFile);
@@ -289,15 +289,15 @@ public class ImageFileService {
 	}
 	
 	public boolean makeThumbnail(ImageFile imageFile, Thumbnail thumb) {
-		String imgFilename = appConfig.getProperty("fileStoragePath") + imageFile.getAbsolutePath();
-		String thumbFilename = appConfig.getProperty("fileStoragePath") + thumb.getAbsolutePath();
-		String thumbDir = appConfig.getProperty("fileStoragePath") + thumb.getDirectoryPath();
+		String imgFilename = env.getProperty("fileStoragePath") + imageFile.getAbsolutePath();
+		String thumbFilename = env.getProperty("fileStoragePath") + thumb.getAbsolutePath();
+		String thumbDir = env.getProperty("fileStoragePath") + thumb.getDirectoryPath();
 		
 		BufferedImage scaledImage = null;
 		try {
 			File file = new File(imgFilename);
 			BufferedImage in = ImageIO.read( file );
-			scaledImage = ImageUtils.createThumbnail(in, Integer.parseInt( appConfig.getProperty("thumbSize") ));
+			scaledImage = ImageUtils.createThumbnail(in, Integer.parseInt( env.getProperty("thumbSize") ));
 			in.flush();
 		} catch (IOException e) {
 			logger.error("Cant read image: " + imgFilename + " exception: " + e);
@@ -316,7 +316,7 @@ public class ImageFileService {
 					logger.debug("Thumb directory does not exists, create new: " + thumbDir);
 					Files.createParentDirs(outputFile);
 				}
-				ImageIO.write(scaledImage, appConfig.getProperty("thumbFormat"), outputFile);
+				ImageIO.write(scaledImage, env.getProperty("thumbFormat"), outputFile);
 				success = true;
 			} catch (IOException e) {
 				logger.error("Cant save image: " + thumbFilename + " exception: " + e);
@@ -337,9 +337,9 @@ public class ImageFileService {
 		ImageFile savedFile = null;
 		logger.debug("Copy " + src.getName() + " file from page #" + src.getPageId() + " to page #" + pageId);
 		try {
-			File srcFile = new File(appConfig.getProperty("fileStoragePath") + src.getAbsolutePath());
-			File targetFile = new File(appConfig.getProperty("fileStoragePath") + target.getAbsolutePath());
-			String targetDir = appConfig.getProperty("fileStoragePath") + target.getDirectoryPath();
+			File srcFile = new File(env.getProperty("fileStoragePath") + src.getAbsolutePath());
+			File targetFile = new File(env.getProperty("fileStoragePath") + target.getAbsolutePath());
+			String targetDir = env.getProperty("fileStoragePath") + target.getDirectoryPath();
 			File d = new File(targetDir);
 			if (!d.exists()) {
 				logger.debug("new file directory does not exists, create new: " + targetDir);

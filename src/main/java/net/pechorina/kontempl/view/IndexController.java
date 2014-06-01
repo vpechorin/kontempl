@@ -25,7 +25,7 @@ public class IndexController extends AbstractController {
     @RequestMapping(value="/v/{site}/index")
     public String indexPage(@PathVariable("site") String siteName, Model model) {    
         logger.debug("show index page");
-        String pageName = appConfig.getProperty("homePage");
+        String pageName = env.getProperty("homePage");
         Page p = pageService.getPageCached(siteName, pageName);
         model.addAttribute("txt", p);
     	return "pages/pageindex";

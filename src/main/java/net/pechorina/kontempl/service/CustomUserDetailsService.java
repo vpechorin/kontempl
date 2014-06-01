@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,14 +27,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 	//protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	
 	@Autowired
-	@Qualifier("appConfig")
-	public java.util.Properties appConfig;
+	private Environment env;
 	
 	@Autowired
 	UserService userService;
 	
 	@Autowired
-	@Qualifier("securityMessageSource")
+	//@Qualifier("securityMessageSource")
 	MessageSource messages;
 	
 	@Override

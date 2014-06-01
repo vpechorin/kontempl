@@ -8,7 +8,7 @@ import net.pechorina.kontempl.utils.TextContentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,8 +25,7 @@ public class GlobalControllerExceptionHandler {
 	static final Logger logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
 	
     @Autowired
-    @Qualifier("appConfig")
-    public java.util.Properties appConfig;
+    private Environment env;
 
     @ExceptionHandler(PageNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
@@ -77,9 +76,9 @@ public class GlobalControllerExceptionHandler {
     }
     
     private void fillModel(WebRequest webRequest, ModelMap model) {
-    	model.addAttribute("appVersion", appConfig.getProperty("application.build"));
-    	model.addAttribute("appConfig", appConfig);
-    	logger.debug("added appConfig to the model");
+    	model.addAttribute("appVersion", env.getProperty("application.build"));
+    	model.addAttribute("env", env);
+    	logger.debug("added env to the model");
 
     	User user = this.getUser();
     	if (user != null) {

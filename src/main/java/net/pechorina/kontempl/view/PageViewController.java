@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 
 @Controller
+@RequestMapping(value = "/pv")
 public class PageViewController extends AbstractController {
 	static final Logger logger = LoggerFactory.getLogger(PageViewController.class);
     
@@ -36,10 +37,10 @@ public class PageViewController extends AbstractController {
 	@Autowired
 	private ImageFileService imageFileService;
 	
-    @RequestMapping(value="/v/{site}/index.html")
+    @RequestMapping(value="/{site}/index.html")
     public String homePage(@PathVariable("site") String siteName, Model model) throws PageNotFoundException, SiteNotFoundException {    
         logger.debug("show home page");
-        String pageName = appConfig.getProperty("homePage");
+        String pageName = env.getProperty("homePage");
         
         Page p = pageService.getPageCached(siteName, pageName);
         
@@ -55,7 +56,7 @@ public class PageViewController extends AbstractController {
     	return "pages/pageview";
     }
 	
-    @RequestMapping(value="/v/{site}/p/{pageName}")
+    @RequestMapping(value="/{site}/{pageName}")
     public String pageView(WebRequest webRequest, 
     			@PathVariable("site") String siteName,
                 @PathVariable("pageName") String pageName, Model model) throws PageNotFoundException {   
@@ -87,7 +88,7 @@ public class PageViewController extends AbstractController {
     		ogProperties.put("title", p.getTitle());
     	}
     	
-    	String desc = p.getTextDescription(Integer.parseInt( appConfig.getProperty("ogDescriptionLength") ) );
+    	String desc = p.getTextDescription(Integer.parseInt( env.getProperty("ogDescriptionLength") ) );
     	if (desc.length() > 0) {
     		ogProperties.put("description", desc);
     	}
@@ -101,7 +102,7 @@ public class PageViewController extends AbstractController {
     	
     	if (p.getMainImage() != null) {
     		if (p.getMainImage().getThumb() != null) {
-    			String thumbUrl = "http://" + appConfig.getProperty("domainname") + appConfig.getProperty("fileStorageUrl") + p.getMainImage().getThumb().getAbsolutePath();
+    			String thumbUrl = "http://" + env.getProperty("domainname") + env.getProperty("fileStorageUrl") + p.getMainImage().getThumb().getAbsolutePath();
     			ogProperties.put("iconUrl", thumbUrl);
     		}
     	}
@@ -109,7 +110,7 @@ public class PageViewController extends AbstractController {
     	return ogProperties;
     }
     
-    @RequestMapping(value="/v/{site}/p/{pageName}/agileImages")
+    @RequestMapping(value="/{site}/{pageName}/agileImages")
     public @ResponseBody ArrayList<HashMap<String, String>> agileCarouselData(WebRequest webRequest, 
     		@PathVariable("site") String siteName,
             @PathVariable("pageName") String pageName, Model model) throws PageNotFoundException {
@@ -118,8 +119,8 @@ public class PageViewController extends AbstractController {
     	List<ImageFile> images = imageFileService.listImagesForPageOrdered(p.getId());
     	for(ImageFile img: images) {
     		HashMap<String,String> m = new HashMap<String, String>();
-    		m.put("content", "<div class='slide_inner'><a class='photo_link' href='#'><img class=photo src='" + appConfig.getProperty("fileStorageUrl") + img.getAbsolutePath() + "'></a></div>");
-    		m.put("content_button", "<div class='thumb'><img src='" + appConfig.getProperty("fileStorageUrl") + img.getThumb().getAbsolutePath() + "'></div>");
+    		m.put("content", "<div class='slide_inner'><a class='photo_link' href='#'><img class=photo src='" + env.getProperty("fileStorageUrl") + img.getAbsolutePath() + "'></a></div>");
+    		m.put("content_button", "<div class='thumb'><img src='" + env.getProperty("fileStorageUrl") + img.getThumb().getAbsolutePath() + "'></div>");
     		l.add(m);
     	}
     	return l;

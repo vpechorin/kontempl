@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -47,8 +46,7 @@ public class SitemapService {
 	private PageTreeService pageTreeService;
     
 	@Autowired
-	@Qualifier("appConfig")
-	public java.util.Properties appConfig;
+	private org.springframework.core.env.Environment env;
 	
 	@Autowired
 	@Qualifier("freemarkerCommonConfiguration")
@@ -57,7 +55,7 @@ public class SitemapService {
 	public XmlUrlSet makeSitemap() {
     	logger.debug("make sitemap");
     	XmlUrlSet xmlUrlSet = new XmlUrlSet();
-    	String domainName = appConfig.getProperty("domainname");
+    	String domainName = env.getProperty("domainname");
     	
     	// add homepage
     	XmlUrl xuRoot = new XmlUrl("http://" + domainName + "/", XmlUrl.Priority.TOP, "daily");
@@ -67,7 +65,7 @@ public class SitemapService {
 		//PageTree tree = pageTreeService.getPublicPageTree();
 		PageTree tree = null;
 		
-		GenericTreeNode<Page> home = tree.findPageNode(appConfig.getProperty("homePage"));
+		GenericTreeNode<Page> home = tree.findPageNode(env.getProperty("homePage"));
 		if (home != null) {
 			auxAddPages(home, xmlUrlSet);
 		}
@@ -76,7 +74,7 @@ public class SitemapService {
 	}
 	
 	private void auxAddPages(GenericTreeNode<Page> parent, XmlUrlSet xmlUrlSet) {
-		String domainName = appConfig.getProperty("domainname");
+		String domainName = env.getProperty("domainname");
 
 		if (parent.hasChildren()) {
 			for(GenericTreeNode<Page> child: parent.getChildren()) {
@@ -93,20 +91,20 @@ public class SitemapService {
 	}
 	
     public void saveSitemapCompressed(XmlUrlSet xmlUrlSet) {
-    	String sitemapFile = appConfig.getProperty("sitemapPath");
+    	String sitemapFile = env.getProperty("sitemapPath");
     	
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("urlset", xmlUrlSet);
-		model.put("appConfig", appConfig);
+		model.put("env", env);
 		
         GZIPOutputStream out;
 		try {
 			out = new GZIPOutputStream(new FileOutputStream(sitemapFile));
 			Writer w = new OutputStreamWriter(out);
 			Template t = freemarkerCfg.getTemplate("commons/sitemap.ftl");
-			Environment env = t.createProcessingEnvironment(model, w);
-			env.setOutputEncoding(getCharset());
-			env.process();
+			freemarker.core.Environment e = t.createProcessingEnvironment(model, w);
+			e.setOutputEncoding(getCharset());
+			e.process();
 			out.flush();
 			out.close();
 		} catch (FileNotFoundException e) {
@@ -119,20 +117,20 @@ public class SitemapService {
     }
     
     public void saveSitemapUncompressed(XmlUrlSet xmlUrlSet) {
-    	String sitemapFile = appConfig.getProperty("sitemapPath");
+    	String sitemapFile = env.getProperty("sitemapPath");
     	
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("urlset", xmlUrlSet);
-		model.put("appConfig", appConfig);
+		model.put("env", env);
 		
         FileOutputStream out;
 		try {
 			out = new FileOutputStream(sitemapFile);
 			Writer w = new OutputStreamWriter(out);
 			Template t = freemarkerCfg.getTemplate("commons/sitemap.ftl");
-			Environment env = t.createProcessingEnvironment(model, w);
-			env.setOutputEncoding(getCharset());
-			env.process();
+			freemarker.core.Environment e = t.createProcessingEnvironment(model, w);
+			e.setOutputEncoding(getCharset());
+			e.process();
 			out.flush();
 			out.close();
 		} catch (FileNotFoundException e) {
@@ -146,8 +144,8 @@ public class SitemapService {
 	
     private String getCharset() {
         String c = "ISO-8859-1";
-        if (appConfig.containsKey("sitemapCharset")) {
-            c = appConfig.getProperty("sitemapCharset");
+        if (env.containsProperty("sitemapCharset")) {
+            c = env.getProperty("sitemapCharset");
         }
         return c;
     }
@@ -157,7 +155,7 @@ public class SitemapService {
     	
     	if (s != null) {
     		logger.debug(s.getXmlUrls().size() + " urls in sitemap");
-    		if (appConfig.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
+    		if (env.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
     			saveSitemapCompressed(s);
     			logger.debug("gziped sitemap saved");
     		}
@@ -173,7 +171,7 @@ public class SitemapService {
     	
     	if (s != null) {
     		logger.debug(s.getXmlUrls().size() + " urls in sitemap");
-    		if (appConfig.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
+    		if (env.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
     			saveSitemapCompressed(s);
     			logger.debug("gziped sitemap saved");
     		}
@@ -181,17 +179,17 @@ public class SitemapService {
     			saveSitemapUncompressed(s);
     		}
     		logger.info("xml sitemap saved, pages: " + s.getXmlUrls().size());
-    		if (appConfig.getProperty("sitemapSubmitSw").equalsIgnoreCase("on")) {
+    		if (env.getProperty("sitemapSubmitSw").equalsIgnoreCase("on")) {
     			submitSitemap();
     		}
     	}
     }
     
     public void submitSitemap() {
-    	String sitemapLocation = "http://" + appConfig.getProperty("domainname") + appConfig.getProperty("sitemapUrl");
+    	String sitemapLocation = "http://" + env.getProperty("domainname") + env.getProperty("sitemapUrl");
     	String url = "";
 		try {
-			url = appConfig.getProperty("sitemapSubmitUrl") + "?sitemap=" + URLEncoder.encode(sitemapLocation, "ISO-8859-1");
+			url = env.getProperty("sitemapSubmitUrl") + "?sitemap=" + URLEncoder.encode(sitemapLocation, "ISO-8859-1");
 		} catch (UnsupportedEncodingException e1) {
 			logger.error("UnsupportedEncodingException: " + e1);
 		}
