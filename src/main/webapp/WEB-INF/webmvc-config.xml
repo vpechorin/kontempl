@@ -36,17 +36,12 @@
         <property name="templateLoaderPaths" value="${templateLoaderPaths}" />
         <property name="freemarkerSettings">
             <props>
-                <prop key="output_encoding">UTF-F</prop>
+                <prop key="output_encoding">UTF-8</prop>
                 <prop key="url_escaping_charset">ISO-8859-1</prop>
                 <prop key="number_format">0.##</prop>
             </props>
         </property>
     </bean>
-    
-	<!-- bean id="freemarkerConfig"
-		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
-		<property name="configuration" ref="freemarkerCommonConfiguration"/>
-	</bean -->
 
 	<bean id="fmViewResolver"
 		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
@@ -65,7 +60,6 @@
 	</mvc:interceptors>
 	
     <mvc:resources mapping="/resources/**" location="/resources/"/>
-    <mvc:resources mapping="/public/**" location="classpath:/public/"/>
     <mvc:resources mapping="/att/**" location="file:${fileStoragePath}/"/>
     
     <mvc:default-servlet-handler />

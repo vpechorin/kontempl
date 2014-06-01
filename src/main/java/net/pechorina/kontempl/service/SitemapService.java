@@ -63,7 +63,9 @@ public class SitemapService {
     	XmlUrl xuRoot = new XmlUrl("http://" + domainName + "/", XmlUrl.Priority.TOP, "daily");
 		xmlUrlSet.addUrl(xuRoot);
 		
-		PageTree tree = pageTreeService.getPublicPageTree();
+		//TO DO
+		//PageTree tree = pageTreeService.getPublicPageTree();
+		PageTree tree = null;
 		
 		GenericTreeNode<Page> home = tree.findPageNode(appConfig.getProperty("homePage"));
 		if (home != null) {

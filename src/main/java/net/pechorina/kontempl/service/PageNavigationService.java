@@ -7,8 +7,9 @@ import java.util.List;
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageTree;
-import net.pechorina.kontempl.repos.PageElementRepo;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.repos.PageRepo;
+import net.pechorina.kontempl.repos.SiteRepo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,8 @@ public class PageNavigationService {
 	@Autowired
 	private PageRepo pageRepo;
 	
-    @Autowired
-    private PageElementRepo pageElementRepo;
+	@Autowired
+	private SiteRepo siteRepo;
     
     @Autowired
     private ImageFileService imageFileService;
@@ -40,8 +41,9 @@ public class PageNavigationService {
 	
 	@Transactional
 	public List<Page> getBreadcrumbs(Page page) {
+
 		List<Page> pages = new ArrayList<Page>();
-		PageTree tree = pageTreeService.getPublicPageTree();
+		PageTree tree = pageTreeService.getPublicPageTree(page.getSite().getName());
 		
 		GenericTreeNode<Page> n = tree.findPageNode(page.getId());
 		

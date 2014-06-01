@@ -1,24 +1,26 @@
 package net.pechorina.kontempl.data;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Map;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import net.pechorina.kontempl.utils.StringUtils;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @Entity
 @Table(name = "page", indexes={
+		@Index(name="nameIDX", columnList="name"),
 		@Index(name="parentIDX", columnList="parentId"),
 		@Index(name="sortIndexIDX", columnList="sortindex"),
 		@Index(name="pubIDX", columnList="publicPage")
@@ -43,6 +46,10 @@ public class Page implements Serializable, Cloneable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
+	@ManyToOne( fetch=FetchType.EAGER )
+	@JoinColumn(name = "siteId")
+	private Site site;
+	
 	@NotNull
 	private Integer parentId;
 	
@@ -54,16 +61,13 @@ public class Page implements Serializable, Cloneable {
 	private boolean hideTitle;
 	private boolean placeholder;
 
-	@Column(unique = true)
 	private String name;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date created;
+	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime created;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updated;
-	
-	private Integer updatedBy;
+	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime updated;
 
 	private String title;
 
@@ -76,8 +80,9 @@ public class Page implements Serializable, Cloneable {
 	@Lob
 	private String body;
 	
-	@Transient
-	private Map<String, PageElement> pageElements;
+	@OneToMany(mappedBy="page", fetch=FetchType.EAGER)
+	@MapKey(name="name")
+	private Map<String, PageProperty> properties;
 	
 	@Transient
 	private ImageFile mainImage;
@@ -92,40 +97,33 @@ public class Page implements Serializable, Cloneable {
 		this.description = "";
 		this.body = "";
 		this.tags = "";
-		this.updated = new Date();
+		this.updated = new DateTime();
 		this.hideTitle = false;
 	}
 
-	/**
-	 * @return the id
-	 */
 	public Integer getId() {
 		return id;
 	}
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the parentId
-	 */
+	public Site getSite() {
+		return site;
+	}
+
+	public void setSite(Site site) {
+		this.site = site;
+	}
+
 	public Integer getParentId() {
 		return parentId;
 	}
 
-	/**
-	 * @param parentId
-	 *            the parentId to set
-	 */
 	public void setParentId(Integer parentId) {
 		this.parentId = parentId;
 	}
-
 
 	public boolean isPublicPage() {
 		return publicPage;
@@ -151,19 +149,19 @@ public class Page implements Serializable, Cloneable {
 		this.name = name;
 	}
 
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
-	public void setCreated(Date created) {
+	public void setCreated(DateTime created) {
 		this.created = created;
 	}
 
-	public Date getUpdated() {
+	public DateTime getUpdated() {
 		return updated;
 	}
 
-	public void setUpdated(Date updated) {
+	public void setUpdated(DateTime updated) {
 		this.updated = updated;
 	}
 
@@ -199,22 +197,6 @@ public class Page implements Serializable, Cloneable {
 		this.body = body;
 	}
 
-	public Map<String, PageElement> getPageElements() {
-		return pageElements;
-	}
-
-	public void setPageElements(Map<String, PageElement> pageElements) {
-		this.pageElements = pageElements;
-	}
-
-	public Integer getUpdatedBy() {
-		return updatedBy;
-	}
-
-	public void setUpdatedBy(Integer updatedBy) {
-		this.updatedBy = updatedBy;
-	}
-
 	public boolean isHideTitle() {
 		return hideTitle;
 	}
@@ -239,6 +221,14 @@ public class Page implements Serializable, Cloneable {
 		this.mainImage = mainImage;
 	}
 
+	public Map<String, PageProperty> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, PageProperty> properties) {
+		this.properties = properties;
+	}
+
 	public void checkName() {
 		if (this.getName().isEmpty()) {
 			String pl = StringUtils.convertNameToPath(this.title)
@@ -256,14 +246,6 @@ public class Page implements Serializable, Cloneable {
 		if (this.getDescription() != null && this.getDescription().length() > 2) {
 			d += StringUtils.clearDescription(this.getDescription());
 		}
-		
-/*		if (d.length() < size) {
-			if (this.getBody() != null && this.getBody().length() > 2) {
-				String body = StringUtils.clearDescription(this.getBody());
-				TextContentUtils tp = new TextContentUtils();
-			    d+= " " +  tp.extractTextFromHTML(body);
-			}
-		}*/
 
 		d = d.trim();
 		if (d.length() > size) {
@@ -276,8 +258,7 @@ public class Page implements Serializable, Cloneable {
 		if (this.getUpdated() == null) {
 			return null;
 		}
-		DateTime d = new DateTime(this.getUpdated());
-		DateTime dtUTC = d.withZone(DateTimeZone.UTC);
+		DateTime dtUTC = this.getUpdated().withZone(DateTimeZone.UTC);
 		return dtUTC.toString(fmtW3C) + " GMT"; 
 	}
 	
@@ -285,46 +266,8 @@ public class Page implements Serializable, Cloneable {
 		if (this.getUpdated() == null) {
 			return null;
 		}
-		DateTime d = new DateTime(this.getUpdated());
-		DateTime dtUTC = d.withZone(DateTimeZone.UTC);
+		DateTime dtUTC = this.getUpdated().withZone(DateTimeZone.UTC);
 		return dtUTC.toString(fmtW3CDate); 
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Page [id=");
-		builder.append(id);
-		builder.append(", parentId=");
-		builder.append(parentId);
-		builder.append(", sortindex=");
-		builder.append(sortindex);
-		builder.append(", publicPage=");
-		builder.append(publicPage);
-		builder.append(", hideTitle=");
-		builder.append(hideTitle);
-		builder.append(", name=");
-		builder.append(name);
-		builder.append(", created=");
-		builder.append(created);
-		builder.append(", updated=");
-		builder.append(updated);
-		builder.append(", updatedBy=");
-		builder.append(updatedBy);
-		builder.append(", title=");
-		builder.append(title);
-		builder.append(", description=");
-		builder.append(description);
-		builder.append(", tags=");
-		builder.append(tags);
-		builder.append(", body=");
-		builder.append(body);
-		if (this.pageElements != null) {
-			builder.append(", pageElementsNum=");
-			builder.append(this.pageElements.size());
-		}
-		builder.append("]");
-		return builder.toString();
 	}
 
 	@Override
@@ -332,6 +275,7 @@ public class Page implements Serializable, Cloneable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -341,13 +285,18 @@ public class Page implements Serializable, Cloneable {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Page))
+		if (getClass() != obj.getClass())
 			return false;
 		Page other = (Page) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}

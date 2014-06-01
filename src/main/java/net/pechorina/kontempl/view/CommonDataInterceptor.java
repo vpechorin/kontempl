@@ -4,8 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.pechorina.kontempl.data.OptiUserDetails;
-import net.pechorina.kontempl.data.Page;
-import net.pechorina.kontempl.data.PageTree;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.PageTreeService;
@@ -60,39 +58,18 @@ public class CommonDataInterceptor implements WebRequestInterceptor  {
 	public void postHandle(WebRequest webRequest, ModelMap model) throws Exception {
 		logger.debug("CommonDataInterceptor::postHandle");
 		if (model != null) {
-//			logger.debug("==================================");
-//			logger.debug("model1: " + model.toString());
-//			logger.debug("==================================");
 			
 			model.addAttribute("appVersion", appConfig.getProperty("application.build"));
 			model.addAttribute("appConfig", appConfig);
-			logger.debug("added appConfig to the model");
 			
 			User user = this.getUser();
 			if (user != null) {
 				model.addAttribute("user", user);
 				logger.debug("added user to the model");
 			}
-			String httpProtocol = "http";
-			if(webRequest.isSecure()) {
-				httpProtocol = "https";
-			}
-			if (!model.containsAttribute("httpProtocol")) {
-				model.addAttribute("httpProtocol", httpProtocol);
-			}
 			
 			TextContentUtils tc = new TextContentUtils();
 			model.addAttribute("textProcessor", tc);
-		    
-			PageTree pt = pageTreeService.getPublicPageTree();
-			model.addAttribute("pageTree", pt);
-			
-			Page home = pageService.getPageWithInheritedElements(appConfig.getProperty("homePage"));
-			model.addAttribute("homePage", home);
-			
-//			logger.debug("==================================");
-//			logger.debug("model: " + model.toString());
-//			logger.debug("==================================");
 
 		}
 		else {

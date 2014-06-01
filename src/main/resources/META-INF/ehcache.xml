@@ -16,8 +16,9 @@
             <terracotta clustered="false"/>
         </defaultCache>
     
-    <cache name="publicPageTreeCache"  timeToLiveSeconds="86400" maxElementsInMemory="1" eternal="false" overflowToDisk="false" />
-    <cache name="pageWithElementsCache"  timeToLiveSeconds="86400" maxElementsInMemory="200" eternal="false" overflowToDisk="false" />
+    <cache name="publicPageTreeCache"  timeToLiveSeconds="864000" maxElementsInMemory="1" eternal="false" overflowToDisk="false" />
+    <cache name="pageCache"  timeToLiveSeconds="864000" maxElementsInMemory="2000" eternal="false" overflowToDisk="false" />
+    <cache name="siteCache"  timeToLiveSeconds="864000" maxElementsInMemory="2000" eternal="false" overflowToDisk="false" />
     
     <cache name="org.hibernate.cache.StandardQueryCache"
         maxElementsInMemory="1000"

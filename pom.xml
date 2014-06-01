@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.pechorina.kontempl</groupId>
 	<artifactId>kontempl</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<version>1.2.0</version>
 	<name>Kontempl</name>
 	<description>Kontempl - web site management system</description>
@@ -22,21 +22,188 @@
 		</developer>
 	</developers>
 
-	<scm>
-		<connection>scm:git:file:///home/victor/workspace/kontempl</connection>
-	</scm>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>4.0.4.RELEASE</org.springframework.version>
-		<org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
+		<org.springframework.version>4.0.5.RELEASE</org.springframework.version>
+		<org.springframework.security.version>3.2.4.RELEASE</org.springframework.security.version>
 		<org.hibernate.version>4.3.5.Final</org.hibernate.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<cglib.version>2.2.2</cglib.version>
 		<jackson-2-version>2.2.3</jackson-2-version>
+		<usertype.version>3.1.0.GA</usertype.version>
+		<java.version>1.7</java.version>
+		<servlet-api.version>3.1.0</servlet-api.version>
+		<metrics.version>3.0.1</metrics.version>
+		<usertype.version>3.1.0.GA</usertype.version>
 	</properties>
 
+	<!-- Inherit defaults from Spring Boot -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.1.0.M2</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jadira.usertype</groupId>
+			<artifactId>usertype.core</artifactId>
+			<version>${usertype.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils-core</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+		</dependency>
+
+		<dependency>
+			<!-- jsoup HTML parser library @ http://jsoup.org/ -->
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.7.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.imgscalr</groupId>
+			<artifactId>imgscalr-lib</artifactId>
+			<version>4.2</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.name}</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+			</plugin>
+		</plugins>
+
+	</build>
+
 	<repositories>
+		<repository>
+			<id>spring-snapshots</id>
+			<url>http://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<url>http://repo.spring.io/milestone</url>
+		</repository>
 		<repository>
 			<id>central</id>
 			<url>http://repo1.maven.org/maven2/</url>
@@ -46,396 +213,20 @@
 			<url>https://repository.jboss.org/nexus/content/repositories/groups/public-jboss/</url>
 		</repository>
 		<repository>
-			<id>spring-release</id>
-			<name>Spring Maven Release Repository</name>
-			<url>http://repo.springsource.org/libs-release</url>
-		</repository>
-		<repository>
-			<id>spring-snapshot</id>
-			<name>Spring Maven SNAPSHOT Repository</name>
-			<url>http://maven.springframework.org/snapshot</url>
-		</repository>
-		<repository>
-			<id>codehaus-snapshots</id>
-			<url>http://snapshots.repository.codehaus.org</url>
-		</repository>
-		<repository>
 			<id>snapshot-repository.java.net</id>
 			<name>Java.net Snapshot Repository for Maven</name>
 			<url>https://maven.java.net/content/repositories/snapshots/</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.6</version>
-		</dependency>
-		
-		<dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils-core</artifactId>
-            <version>1.8.3</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.30</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aspects</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-expression</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
-			<scope>runtime</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- Various Application Context utilities, including EhCache, JavaMail, 
-			Quartz, and Freemarker integration Define this if you need any of these integrations -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<!-- JDBC Data Access Library (depends on spring-core, spring-beans, spring-context, 
-			spring-tx) Define this if you use Spring's JdbcTemplate API (org.springframework.jdbc.*) -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<!-- Object-to-Relation-Mapping (ORM) integration with Hibernate, JPA, 
-			and iBatis. (depends on spring-core, spring-beans, spring-context, spring-tx) 
-			Define this if you need ORM (org.springframework.orm.*) -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<!-- Object-to-XML Mapping (OXM) abstraction and integration with JAXB, 
-			JiBX, Castor, XStream, and XML Beans. (depends on spring-core, spring-beans, 
-			spring-context) Define this if you need OXM (org.springframework.oxm.*) -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-oxm</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-
-		<!-- Support for testing Spring applications with tools such as JUnit and 
-			TestNG This artifact is generally always defined with a 'test' scope for 
-			the integration testing framework and unit testing stubs -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${org.springframework.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-	<dependency>
-		<groupId>org.springframework.security</groupId>
-		<artifactId>spring-security-core</artifactId>
-		<version>${org.springframework.security.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-asm</artifactId>
-			</exclusion>
-		</exclusions>
-	</dependency>
-
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-web</artifactId>
-			<version>${org.springframework.security.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-			<version>${org.springframework.security.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-taglibs</artifactId>
-			<version>${org.springframework.security.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jpa</artifactId>
-			<version>1.5.2.RELEASE</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<version>${cglib.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-
-		<dependency>
-    		<groupId>ch.qos.logback</groupId>
-    		<artifactId>logback-classic</artifactId>
-    		<version>1.1.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${org.hibernate.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${org.hibernate.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-ehcache</artifactId>
-			<version>${org.hibernate.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>4.3.1.Final</version>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-			<version>2.3.20</version>
-		</dependency>
-		
-		<dependency>
-            <groupId>com.maxmind.geoip</groupId>
-            <artifactId>geoip-api</artifactId>
-            <version>1.2.10</version>
-        </dependency>
-
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>17.0</version>
-		</dependency>
-		
-		 <!-- the core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
- <dependency>
-   <groupId>com.fasterxml.jackson.core</groupId>
-   <artifactId>jackson-core</artifactId>
-   <version>${jackson-2-version}</version>
- </dependency>
- 
- <!-- databinding; ObjectMapper, JsonNode and related classes are here -->
-<dependency>
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-databind</artifactId>
-  <version>${jackson-2-version}</version>
-</dependency>
-
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.3</version>
-		</dependency>
-		
-		<dependency>
-			<!-- jsoup HTML parser library @ http://jsoup.org/ -->
-			<groupId>org.jsoup</groupId>
-			<artifactId>jsoup</artifactId>
-			<version>1.7.2</version>
-		</dependency>
-        
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.3.1</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.2.5</version>
-        </dependency>
-
-	<dependency>
-		<groupId>org.imgscalr</groupId>
-		<artifactId>imgscalr-lib</artifactId>
-		<version>4.2</version>
-		<type>jar</type>
-		<scope>compile</scope>
-	</dependency>
-	
-	</dependencies>
-
-	<build>
-		<finalName>kontempl</finalName>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.2</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<doCheck>true</doCheck>
-					<doUpdate>true</doUpdate>
-					<revisionOnScmFailure>true</revisionOnScmFailure>
-					<shortRevisionLength>5</shortRevisionLength>
-					<format>${project.version}_b{0,number}</format>
-					<items>
-						<item>buildNumber0</item>
-					</items>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-						<manifestEntries>
-							<Implementation-Build>${buildNumber}</Implementation-Build>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-
-		</plugins>
-	</build>
-
-
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-snapshots</id>
+			<url>http://repo.spring.io/snapshot</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<url>http://repo.spring.io/milestone</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>

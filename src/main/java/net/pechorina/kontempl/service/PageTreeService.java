@@ -5,7 +5,9 @@ import java.util.List;
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageTree;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.repos.PageRepo;
+import net.pechorina.kontempl.repos.SiteRepo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,9 @@ public class PageTreeService {
 	private PageRepo pageRepo;
 	
 	@Autowired
+	private SiteRepo siteRepo;
+	
+	@Autowired
 	private ImageFileService imageFileService;
     
 	@Autowired
@@ -30,10 +35,29 @@ public class PageTreeService {
 	public java.util.Properties appConfig;
 
 	@Transactional
-	public PageTree getPageTree() {
+	public List<Site> getSiteTree() {
+		List<Site> sites = siteRepo.findAll();
+		
+		for(Site site: sites) {
+			PageTree pageTree = new PageTree();
+
+			List<Page> pages = pageRepo.listRootPages(site);
+
+			for (Page p : pages) {
+				GenericTreeNode<Page> node = new GenericTreeNode<Page>(p);
+				pageTree.addChild(node);
+				auxiliaryAddChildren(node);
+			}
+		}
+		
+		return sites;
+	}
+	
+	@Transactional
+	public PageTree getPageTree(Site site) {
 		PageTree pageTree = new PageTree();
 
-		List<Page> pages = pageRepo.listSubPages(0);
+		List<Page> pages = pageRepo.listRootPages(site);
 
 		for (Page p : pages) {
 			GenericTreeNode<Page> node = new GenericTreeNode<Page>(p);
@@ -75,12 +99,14 @@ public class PageTreeService {
 
 	@Transactional
 	@Cacheable("publicPageTreeCache")
-	public PageTree getPublicPageTree() {
+	public PageTree getPublicPageTree(String sitename) {
 		logger.debug("getPublicPageTree");
+		
+		Site site = siteRepo.findByName(sitename);
 		PageTree pageTree = new PageTree();
 
 		// find home page
-		Page homePage = pageRepo.findByName(appConfig.getProperty("homePage"));
+		Page homePage = pageRepo.findBySiteAndName(site, appConfig.getProperty("homePage"));
 		
 		if (homePage == null) {
 			logger.warn("Homepage not found");
@@ -97,6 +123,5 @@ public class PageTreeService {
 		}
 		return pageTree;
 	}
-	
 	
 }

@@ -9,30 +9,23 @@
 	<security:http pattern="/public/**" security="none" />
 	<security:http pattern="/resources/**" security="none" />
 
-	<security:http auto-config="true">
-	   <security:intercept-url pattern="/do/signon/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
-       <security:intercept-url pattern="/do/login/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
-       <security:intercept-url pattern="/page/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
-       <security:intercept-url pattern="/image/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
-       <security:intercept-url pattern="/images/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
-       <security:intercept-url pattern="/profile/**" access="ROLE_ADMIN,ROLE_EDITOR" requires-channel="any" />
-       <security:intercept-url pattern="/user/**" access="ROLE_ADMIN" requires-channel="any" />
-       <security:intercept-url pattern="/do/sitemap/**" access="ROLE_ADMIN" requires-channel="any" />
-	   <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" requires-channel="any" />
-        			
-		<security:session-management>
-			<security:concurrency-control
-				max-sessions="1" />
-		</security:session-management>
-		<security:form-login 
-		  login-page="/do/signon"
-		  login-processing-url="/do/login"
-		  authentication-failure-url="/do/signon?error=auth_fail"
-		  password-parameter="password"
-		  username-parameter="email" 
-		  default-target-url="/" />
-		<security:logout logout-success-url="/" logout-url="/do/signoff" />
-		<security:remember-me user-service-ref="customUserDetailsService" />
+	<security:http
+		realm="KontemplAPI"
+		use-expressions="true"
+		auto-config="false"
+		create-session="stateless"
+		entry-point-ref="unauthorizedEntryPoint"
+		authentication-manager-ref="authenticationManager">
+
+	   <security:custom-filter ref="authenticationTokenProcessingFilter" position="FORM_LOGIN_FILTER" />
+	   <security:intercept-url pattern="/api/user/authenticate" access="permitAll" />
+	   <security:intercept-url pattern="/api/users/**" access="hasRole('admin')" />
+	   <security:intercept-url pattern="/api/sites/**" access="hasRole('editor')" />
+	   <security:intercept-url pattern="/api/pages/**" access="hasRole('editor')"  />
+	   <security:intercept-url pattern="/api/images/**" access="hasRole('editor')" />
+	   <security:intercept-url pattern="/api/sitemaps/**" access="hasRole('editor')" />
+       <security:intercept-url pattern="/api/profile/**" access="hasRole('user')" />
+
 	</security:http>
 
 	<bean id="customUserDetailsService" class="net.pechorina.kontempl.service.CustomUserDetailsService" />
@@ -46,15 +39,16 @@
         </property>
     </bean>
     
-	<security:authentication-manager>
-		<!--  security:authentication-provider
-			user-service-ref="customUserDetailsService">
-			<security:password-encoder hash="md5" />
-		</security:authentication-provider -->
+	<security:authentication-manager id="authenticationManager">
 		<security:authentication-provider ref="localAuthProvider" />
 	</security:authentication-manager>
 
 	<bean id="localAuthProvider" class="net.pechorina.kontempl.service.LocalAuthProvider" />
+	<bean id="unauthorizedEntryPoint" class="net.pechorina.kontempl.view.UnauthorizedEntryPoint" />
+	
+	<bean class="net.pechorina.kontempl.view.AuthenticationTokenProcessingFilter" id="authenticationTokenProcessingFilter">
+		<constructor-arg ref="userService" />
+	</bean>
 
 	<!-- Automatically receives AuthenticationEvent messages -->
 	<bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener" />

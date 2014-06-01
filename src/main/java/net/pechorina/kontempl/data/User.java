@@ -1,8 +1,9 @@
 package net.pechorina.kontempl.data;
 
+import static javax.persistence.CascadeType.ALL;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,18 +13,17 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.persistence.Index;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -31,8 +31,6 @@ import org.joda.time.format.DateTimeFormatter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
-
-import static javax.persistence.CascadeType.ALL;
 
 /**
  * Entity implementation class for Entity: User
@@ -44,7 +42,9 @@ import static javax.persistence.CascadeType.ALL;
 		@Index(name="activeIdx", columnList="active")
 })
 public class User implements Serializable {
-
+	
+	private static final DateTimeFormatter dateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -65,12 +65,16 @@ public class User implements Serializable {
 	private Set<Role> roles;
 	
 	@JsonIgnore
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date created;
+	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime created;
 	
 	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = ALL)
 	@JsonIgnore
 	private Set<Credential> credentials;
+	
+	@OneToMany(mappedBy="user", fetch = FetchType.LAZY)
+	@JsonIgnore
+	private Set<AuthToken> authTokens;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -78,12 +82,12 @@ public class User implements Serializable {
 		super();
 		this.active = true;
 		this.locked = false;
-		this.created = new Date();
+		this.created = new DateTime();
 	}
 
 	public User(String name) {
 		super();
-		this.created = new Date();		
+		this.created = new DateTime();		
 		this.active = true;
 		this.locked = false;
 		this.name = name;
@@ -117,11 +121,7 @@ public class User implements Serializable {
 	@Transient
 	@JsonProperty("createdDate")
 	public String getCreatedDate() {
-		DateTime dt = new DateTime(this.getCreated());
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-		String strOutputDateTime = fmt.print(dt);
-
-		 return strOutputDateTime;
+		return this.getCreated().toString(dateFmt);
 	}	
 	
 	public Integer getId() {
@@ -156,18 +156,11 @@ public class User implements Serializable {
 		this.active = active;
 	}
 
-	/**
-	 * @return the created
-	 */
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
-	/**
-	 * @param created
-	 *            the created to set
-	 */
-	public void setCreated(Date created) {
+	public void setCreated(DateTime created) {
 		this.created = created;
 	}
 
@@ -214,6 +207,14 @@ public class User implements Serializable {
 		this.roles = roles;
 	}
 
+	public Set<AuthToken> getAuthTokens() {
+		return authTokens;
+	}
+
+	public void setAuthTokens(Set<AuthToken> authTokens) {
+		this.authTokens = authTokens;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -227,6 +228,8 @@ public class User implements Serializable {
 		builder.append(active);
 		builder.append(", roles=");
 		builder.append(roles);
+		builder.append(", authTokens=");
+		builder.append(authTokens);		
 		builder.append(", created=");
 		builder.append(created);
 		builder.append("]");

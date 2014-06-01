@@ -2,15 +2,15 @@ package net.pechorina.kontempl.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
-import net.pechorina.kontempl.data.PageElement;
-import net.pechorina.kontempl.repos.PageElementRepo;
+import net.pechorina.kontempl.data.PageProperty;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.repos.PageRepo;
+import net.pechorina.kontempl.repos.SiteRepo;
 import net.pechorina.kontempl.utils.StringUtils;
 
 import org.slf4j.Logger;
@@ -29,8 +29,8 @@ public class PageService {
 	@Autowired
 	private PageRepo pageRepo;
 	
-    @Autowired
-    private PageElementRepo pageElementRepo;
+	@Autowired
+	private SiteRepo siteRepo;
     
     @Autowired
     private ImageFileService imageFileService;
@@ -38,86 +38,26 @@ public class PageService {
 	@Autowired
 	@Qualifier("appConfig")
 	public java.util.Properties appConfig;
-
+	
 	@Transactional
 	public Page getPage(Integer id) {
 		logger.debug("getPage(" + id + ")");
-		return pageRepo.findOne(id);
-	}
-
-	@Transactional
-	public Page getPage(String name) {
-		logger.debug("getPage(" + name + ")");
-		return pageRepo.findByName(name);
-	}
-
-	@Transactional
-	public Page getPageWithElements(String name) {
-		logger.debug("getPageWithElements(" + name + ")");
-		Page p = pageRepo.findByName(name);
-		if (p != null) {
-			retrievePageElements(p);
-		}
-		
-		return p;
-	}
-	
-	private void retrievePageElements(Page p) {
-		Map<String, PageElement> m = getPageElementsMap(p.getId());
-		if (m != null && m.size() > 0) {
-			p.setPageElements(m);
-		}
-	}
-	
-	private Map<String, PageElement> getPageElementsMap(Integer pageId) {
-		List<PageElement> elements = listPageElements(pageId);
-		Map<String, PageElement> m = new HashMap<String, PageElement>();
-		if (elements != null) {
-			for(PageElement pe: elements) {
-				m.put(pe.getName(), pe);
-			}
-		}
-		return m;
-	}
-	
-	@Transactional
-	public List<PageElement> listPageElements(Integer pageId) {
-		return pageElementRepo.listPageElements(pageId);
-	}
-	
-	@Transactional
-	public Map<String, PageElement> listInheritedPageElements(Page page) {
-		List<Page> parents = listPageParents(page);
-		parents.add(page);
-
-		Map<String, PageElement> pageElements = new HashMap<String, PageElement>();
-
-		for (Page parent : parents) {
-			Map<String, PageElement> parentPageElements = getPageElementsMap(parent.getId());
-			// logger.debug("Parent: " + parent);
-			// logger.debug("elements: " + parentPageElements);
-			if (parentPageElements != null) {
-				parent.setPageElements(parentPageElements);
-				for (String key : parentPageElements.keySet()) {
-//					logger.debug("Processing key: " + key + " of page: "
-//							+ parent.getId() + " " + parent.getName());
-					pageElements.put(key, parentPageElements.get(key));
-				}
-			}
-		}
-
-		return pageElements;
-	}
-
-	@Transactional
-	public Page getPageWithElements(Integer id) {
-		logger.debug("getPageWithElements(" + id + ")");
 		Page p = pageRepo.findOne(id);
-		if (p != null) {
-			retrievePageElements(p);
-		}
-		
+		fetchPageProperties(p);
 		return p;
+	}
+
+	@Transactional
+	public Page getPage(Site site, String name) {
+		logger.debug("getPage(" + name + ")");
+		Page p = pageRepo.findBySiteAndName(site, name);
+		fetchPageProperties(p);
+		return p;
+	}
+	
+	private void fetchPageProperties(Page p) {
+		Map<String,PageProperty> props = p.getProperties();
+		if (props != null) props.size();
 	}
 	
 	@Transactional
@@ -126,6 +66,7 @@ public class PageService {
 		Page thisPage = page;
 		while (thisPage.getParentId() != 0) {
 			Page parent = pageRepo.findOne(thisPage.getParentId());
+			fetchPageProperties(parent);
 			pages.add(parent);
 			thisPage = parent;
 		}
@@ -136,29 +77,11 @@ public class PageService {
 	}
 
 	@Transactional
-	public Page getPageWithInheritedElements(Integer id) {
-		logger.debug("getPageWithElements(" + id + ")");
-		Page p = pageRepo.findOne(id);
+	@Cacheable("pageCache")
+	public Page getPageCached(String siteName, String pageName) {
+		Site s = siteRepo.findByName(siteName);
+		Page p = getPage(s, pageName);
 		if (p != null) {
-			Map<String, PageElement> m = listInheritedPageElements(p);
-			if (m != null) {
-				p.setPageElements(m);
-			}
-		}
-
-		return p;
-	}
-
-	@Transactional
-	@Cacheable("pageWithElementsCache")
-	public Page getPageWithInheritedElements(String pageName) {
-		logger.debug("getPageWithElements(" + pageName + ")");
-		Page p = pageRepo.findByName(pageName);
-		if (p != null) {
-			Map<String, PageElement> m = listInheritedPageElements(p);
-			if (m != null) {
-				p.setPageElements(m);
-			}
 			
 			ImageFile im = imageFileService.getMainImageForPage(p.getId());
 			logger.debug("ImageFile: " + im);
@@ -174,7 +97,7 @@ public class PageService {
 	}
 
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
 	public void savePage(Page page) {
 		pageRepo.save(page);
 	}
@@ -183,31 +106,19 @@ public class PageService {
 	@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
 	public void deletePage(Page page) {
 		deleteSubPages(page.getId());
-		deletePageWithElements(page);
+		// remove images
+		imageFileService.removeAllImagesForPage(page.getId());
+		
+		pageRepo.delete(page);
+		logger.debug("Page: " + page.getId() + "/" + page.getName() + " removed");
 	}
 	
 	@Transactional
 	public void deleteSubPages(Integer parentId) {
 		List<Page> pages = pageRepo.listSubPages(parentId);
 		for(Page p: pages) {
-			deleteSubPages(p.getId());
-			deletePageWithElements(p);
-			logger.debug("Page: " + p.getId() + "/" + p.getName() + " removed");
+			deletePage(p);
 		}
-	}
-	
-	@Transactional
-	public void deletePageWithElements(Page p) {
-		// remove page elements
-		List<PageElement> elements = listPageElements(p.getId());
-		for(PageElement pe: elements) {
-			pageElementRepo.delete(pe);
-		}
-		
-		// remove images
-		imageFileService.removeAllImagesForPage(p.getId());
-		
-		pageRepo.delete(p);
 	}
 
 	public Page beforeSave(Page page) {
@@ -216,13 +127,6 @@ public class PageService {
 			page.setName(pl);
 		}
 		return page;
-	}
-
-	@Transactional
-	public List<Page> listRootPages() {
-		List<Page> l = pageRepo.listSubPages(0);
-
-		return l;
 	}
 
 	@Transactional
@@ -240,7 +144,7 @@ public class PageService {
 	}
 	
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
 	public void movePage(Integer pageId, String direction) {
 		Page p = getPage(pageId);
 		if (p == null) return;
@@ -281,29 +185,16 @@ public class PageService {
 	}
 	
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
 	public Page copyPage(Page src) {
 		Page newPage = src.copy();
-		String newName = findNewPageName(src.getName());
+		String newName = findNewPageName(src.getSite(), src.getName());
 		newPage.setName(newName);
 		String newTitle = src.getTitle() + " - Copy";
 		newPage.setTitle(newTitle);
 		int sortIndex = getMaxSortindex(src.getParentId()) + 10;
 		newPage.setSortindex(sortIndex);
 		Page savedNewPage = pageRepo.saveAndFlush(newPage); 
-		
-		// copy page elements
-		List<PageElement> elements = pageElementRepo.listPageElements(src.getId());
-		if (elements != null && (elements.size() > 0)) {
-			Map<String, PageElement> m = new HashMap<String, PageElement>();
-			for(PageElement el: elements) {
-				PageElement newEl = el.copy();
-				newEl.setPageId(savedNewPage.getId());
-				PageElement savedPageEl = pageElementRepo.saveAndFlush(newEl);
-				m.put(savedPageEl.getName(), savedPageEl);
-			}
-			savedNewPage.setPageElements(m);
-		}
 		
 		// copy page images
 		List<ImageFile> images = imageFileService.listImagesForPage(src.getId());
@@ -317,13 +208,13 @@ public class PageService {
 	}
 	
 	@Transactional
-	public String findNewPageName(String name) {
+	public String findNewPageName(Site site, String name) {
 		int idx = 1;
 		boolean run = true;
 		String newName = name + "-" + idx;
 		
 		while(run) {
-			long c = pageRepo.countPagesForName(newName);
+			long c = pageRepo.countPagesForName(site, newName);
 			if (c > 0) {
 				idx++;
 				newName = name + "-" + idx;
@@ -336,7 +227,7 @@ public class PageService {
 		return newName;
 	}
 	
-	@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
 	public void resetPageCache() {
 		
 	}

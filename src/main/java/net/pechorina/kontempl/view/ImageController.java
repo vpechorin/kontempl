@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.service.ImageFileService;
-import net.pechorina.kontempl.service.PageElementTypeService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.utils.ImageUtils;
 
@@ -35,9 +34,6 @@ public class ImageController extends AbstractController {
 
 	@Autowired
 	private PageService pageService;
-
-	@Autowired
-	private PageElementTypeService pageElementTypeService;
 
 	@Autowired
 	private ImageFileService imageFileService;

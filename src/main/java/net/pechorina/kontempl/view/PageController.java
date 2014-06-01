@@ -1,6 +1,5 @@
 package net.pechorina.kontempl.view;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,19 +10,18 @@ import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
-import net.pechorina.kontempl.data.PageElement;
 import net.pechorina.kontempl.data.PageTree;
-import net.pechorina.kontempl.data.User;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.service.DocFileService;
 import net.pechorina.kontempl.service.ImageFileService;
-import net.pechorina.kontempl.service.PageElementService;
-import net.pechorina.kontempl.service.PageElementTypeService;
 import net.pechorina.kontempl.service.PageNavigationService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.PageTreeService;
+import net.pechorina.kontempl.service.SiteService;
 import net.pechorina.kontempl.utils.StringUtils;
 import net.pechorina.kontempl.view.forms.PageForm;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +40,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class PageController extends AbstractController {
 	static final Logger logger = LoggerFactory.getLogger(PageController.class);
     
-    @Autowired
-    private PageElementService pageElementService;
-    
 	@Autowired
     private PageService pageService;    
+	
+	@Autowired
+	private SiteService siteService;
 	
 	@Autowired
 	private PageTreeService pageTreeService;
@@ -59,9 +57,6 @@ public class PageController extends AbstractController {
 	
 	@Autowired
 	private DocFileService docFileService;
-	
-	@Autowired
-	private PageElementTypeService pageElementTypeService;
     
     @RequestMapping(value="/{pageId}/add-child", method=RequestMethod.GET)
     public String pageAddChildOld(@PathVariable("pageId") Integer parentId, Model model) {    
@@ -71,7 +66,10 @@ public class PageController extends AbstractController {
     }
     
     @RequestMapping(value="/add", method=RequestMethod.GET)
-    public String pageAddChild(@RequestParam(value="parentId", required=false) Integer parentId, Model model) {    
+    public String pageAddChild(@RequestParam(value="parentId", required=false) Integer parentId,
+    		@RequestParam(value="site", required=true) String siteName,
+    		Model model) {    
+    	Site site = siteService.findByNameCached(siteName);
     	if (parentId == null) { parentId = 0; }
         PageForm newPage = new PageForm();
         newPage.setAutoName(true);
@@ -81,7 +79,7 @@ public class PageController extends AbstractController {
         sortindex += 10;
         newPage.setSortindex(sortindex);
         model.addAttribute("pagenode", newPage);
-        model.addAttribute("parents", getParentsMap());
+        model.addAttribute("parents", getParentsMap(site));
         
         return "commons/pageedit";        
     }
@@ -90,13 +88,11 @@ public class PageController extends AbstractController {
     public String pageAddChild(@ModelAttribute PageForm pageform, BindingResult result, HttpSession session, Model model) {
         
         logger.debug("pageEditSubmit:: pageform=" + pageform);
-
-        User u = getUser();
         
         Page page = new Page();
-        page.setUpdatedBy(u.getId());
-        page.setCreated(new Date());
-        page.setUpdated(new Date());
+
+        page.setCreated(new DateTime());
+        page.setUpdated(new DateTime());
         page.setParentId(pageform.getParentId());
         
         page.setTitle(pageform.getTitle());
@@ -115,13 +111,14 @@ public class PageController extends AbstractController {
         
         model.addAttribute("pagenode", page);
         
-        return "redirect:/page/" + page.getId() +"/edit";
+        return "redirect:/page/edit/" + page.getId();
     } 
     
     @RequestMapping(value="/{pageId}/edit", method=RequestMethod.GET)
     public String pageEdit(@PathVariable("pageId") Integer pageId, Model model) {    
         logger.debug("pageEdit:: pageId=" + pageId);
-        Page p = pageService.getPageWithElements(pageId);
+        Page p = pageService.getPage(pageId);
+        Site s = p.getSite();
         PageForm pageform = new PageForm(p);
         if (p != null) {
             logger.debug("Page:" + p);
@@ -146,19 +143,17 @@ public class PageController extends AbstractController {
         }
         model.addAttribute("imagesNum", imagesNum);
         model.addAttribute("filesNum", filesNum);
-        model.addAttribute("parents", getParentsMap());
+        model.addAttribute("parents", getParentsMap(s));
         
         return "commons/pageedit";
     }
     
-    @RequestMapping(value="/{pageId}/edit", method=RequestMethod.POST)
+    @RequestMapping(value="/edit/{pageId}", method=RequestMethod.POST)
     public String pageEditSubmit(@PathVariable("pageId") Integer pageId, 
             @ModelAttribute PageForm pageform, BindingResult result, HttpSession session, Model model) {
         
         logger.debug("pageId: " + pageId);
         logger.debug("pageEditSubmit:: pageform=" + pageform);
-
-        User u = getUser();
         
         Page page = new Page();
         if (pageId > 0) {
@@ -166,11 +161,10 @@ public class PageController extends AbstractController {
             logger.debug("loaded page from DB: id=" + pageId);
         } else {
             // creating a new page
-            page.setCreated(new Date());
+            page.setCreated(new DateTime());
         }
         
-        page.setUpdated(new Date());
-        page.setUpdatedBy(u.getId());
+        page.setUpdated(new DateTime());
         
         page.setTitle(pageform.getTitle());
         page.setDescription(pageform.getDescription());
@@ -188,19 +182,20 @@ public class PageController extends AbstractController {
         
         model.addAttribute("pagenode", page);
         
-        return "redirect:/page/" + page.getId() +"/edit";
+        return "redirect:/page/edit/" + page.getId();
     }    
     
-    @RequestMapping(value="/tree", method=RequestMethod.GET)
-    public String pageTree(Model model) {    
-        logger.debug("pageTree method called");
-        PageTree t = pageTreeService.getPageTree();
+    @RequestMapping(value="/tree/{site}", method=RequestMethod.GET)
+    public String pageTree(@PathVariable("site") String siteName, Model model) {    
+        logger.debug("pageTree method called, site=" + siteName);
+        Site s = siteService.findByNameCached(siteName);
+        PageTree t = pageTreeService.getPageTree(s);
 
         model.addAttribute("pagetree", t);
         return "commons/pagetree";
     } 
     
-    @RequestMapping(value="/{pageId}/delete")
+    @RequestMapping(value="/delete/{pageId}")
     public String pageDelete(@PathVariable("pageId") Integer pageId) {    
         logger.debug("delete page, pageId=" + pageId);
         Page p = pageService.getPage(pageId);
@@ -210,7 +205,7 @@ public class PageController extends AbstractController {
         return "redirect:/page/tree";
     }
     
-    @RequestMapping(value="/{pageId}/asyncdelete")
+    @RequestMapping(value="/asyncdelete/{pageId}")
     public @ResponseBody String pageDeleteAsync(@PathVariable("pageId") Integer pageId) {    
         logger.debug("delete page, pageId=" + pageId);
         Page p = pageService.getPage(pageId);
@@ -220,94 +215,8 @@ public class PageController extends AbstractController {
         return "OK";
     }
 
-    @RequestMapping(value="/{pageId}/add-element", method=RequestMethod.GET)
-    public String pageElementAdd(@PathVariable("pageId") Integer pageId, Model model) {    
-        logger.debug("pageElementAdd:: pageId=" + pageId);
-        Page p = pageService.getPageWithElements(pageId);
-        
-        if (p != null) {
-            logger.debug("Page:" + p);
-        }
-        
-        List<String> types = pageElementTypeService.getTypeList();
-        //Map<String,String> types = pageElementTypeService.getTypeMap();
-        model.addAttribute("types", types);
-        
-        PageElement pe = new PageElement();
-        pe.setPageId(pageId);
-        model.addAttribute("pagenode", p);
-        model.addAttribute("pageelement", pe);
-        
-        return "commons/pageeledit";
-    } 
     
-    @RequestMapping(value="/{pageId}/edit-element", method=RequestMethod.GET)
-    public String pageElementEdit(@PathVariable("pageId") Integer pageId,
-        @RequestParam(value="id", required=false) Integer pageElementId, Model model) {    
-        logger.debug("pageElementEdit:: pageId=" + pageId + " pageElementId=" + pageElementId);
-        
-        List<String> types = pageElementTypeService.getTypeList();
-        // Map<String,String> types = pageElementTypeService.getTypeMap();
-        model.addAttribute("types", types);
-
-        Page p = pageService.getPageWithElements(pageId);
-        PageElement pe = new PageElement();
-        if (pageElementId != null) {
-            pe = pageElementService.getPageElementById(pageElementId);
-        }
-        
-        model.addAttribute("pagenode", p);
-        model.addAttribute("pageelement", pe);        
-        return "commons/pageeledit";
-    }    
-    
-    @RequestMapping(value="/{pageId}/edit-element", method=RequestMethod.POST)
-    public String pageElementSubmit(@PathVariable("pageId") Integer pageId,
-        @ModelAttribute PageElement pageElementForm, HttpSession session, Model model) {    
-        logger.debug("pageElementSubmit:: pageId=" + pageId);
-        logger.debug("Page element form" + pageElementForm);
-    	
-        User u = getUser();
-        
-        List<String> types = pageElementTypeService.getTypeList();
-        // Map<String,String> types = pageElementTypeService.getTypeMap();
-
-        model.addAttribute("types", types);
-        
-        PageElement pe = new PageElement();
-        Integer pageElementId = pageElementForm.getId();
-        if (pageElementId != null) {
-        	if (pageElementId != 0) {
-        		pe = pageElementService.getPageElementById(pageElementId);
-        	}
-        }
-        
-        pe.setName(pageElementForm.getName());
-
-        pe.setBody(pageElementForm.getBody());
-        pe.setPageId(pageId);
-        
-        pe.setUpdated(new Date());
-        pe.setUpdatedBy(u.getId());
-        
-        pageElementService.savePageElement(pe);
-        
-        return "redirect:/page/" + pageId +"/edit";
-    }     
-    
-    @RequestMapping(value="/{pageId}/delete-element", method=RequestMethod.GET)
-    public String pageElementDelete(@PathVariable("pageId") Integer pageId,
-        @RequestParam(value="id", required=true) Integer pageElementId, Model model) {    
-        logger.debug("pageElementDelete:: pageId=" + pageId + " pageElementId=" + pageElementId);
-        PageElement pe = pageElementService.getPageElementById(pageElementId);
-        if (pe != null) {
-            pageElementService.deletePageElement(pe);
-        }
-
-        return "redirect:/page/{pageId}/edit";
-    }    
-    
-    @RequestMapping(value="/{pageId}/images", method=RequestMethod.GET)
+    @RequestMapping(value="/imgaes/{pageId}", method=RequestMethod.GET)
     public String getPageImages(@PathVariable("pageId") Integer pageId, Model model) {    
 
     	List<ImageFile> images = imageFileService.listImagesForPageOrdered(pageId);
@@ -316,7 +225,7 @@ public class PageController extends AbstractController {
     	return "commons/pageimages2";
     }
     
-    @RequestMapping(value="/{pageId}/files", method=RequestMethod.GET)
+    @RequestMapping(value="/files/{pageId}", method=RequestMethod.GET)
     public String getPageFiles(@PathVariable("pageId") Integer pageId, Model model) {    
 
     	List<DocFile> images = docFileService.listDocsForPageOrdered(pageId);
@@ -325,19 +234,19 @@ public class PageController extends AbstractController {
     	return "commons/pagefiles";
     }
     
-    @RequestMapping(value="/{pageId}/move")
+    @RequestMapping(value="/move/{pageId}")
     public String pageMove(@PathVariable("pageId") Integer pageId, @RequestParam(value="direction", required=true) String dir) {    
         logger.debug("move page, pageId=" + pageId + " - " + dir);
         pageService.movePage(pageId, dir);
         return "redirect:/page/tree";
     }
     
-    @RequestMapping(value="/{pageId}/copy")
+    @RequestMapping(value="/copy/{pageId}")
     public String pageCopy(@PathVariable("pageId") Integer pageId) {    
         logger.debug("copy page, pageId=" + pageId);
-        Page p = pageService.getPageWithElements(pageId);
+        Page p = pageService.getPage(pageId);
         Page newPage = pageService.copyPage(p);
-        return "redirect:/page/" + newPage.getId() + "/edit";
+        return "redirect:/page/edit/" + newPage.getId();
     }
     
     @RequestMapping(value="/titleToName")
@@ -345,10 +254,10 @@ public class PageController extends AbstractController {
     	return StringUtils.clearPageName(title);
     }
     
-	private Map<String,String> getParentsMap() {
+	private Map<String,String> getParentsMap(Site site) {
 		Map<String,String> map = new LinkedHashMap<String, String>();
 		map.put("0", "ROOT");
-		PageTree t = pageTreeService.getPageTree();
+		PageTree t = pageTreeService.getPageTree(site);
 		int level = 0;
 		for(GenericTreeNode<Page> node: t.getChildren()) {
 			map.put(node.getData().getId().toString(), node.getData().getName());

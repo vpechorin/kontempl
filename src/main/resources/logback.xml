@@ -8,6 +8,7 @@
   </appender>
    
   <logger name="net.pechorina.kontempl" level="DEBUG"/>
+  <logger name="org.hibernate" level="DEBUG"/>
  
   <root level="debug">
     <appender-ref ref="STDOUT" />

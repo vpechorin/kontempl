@@ -17,7 +17,9 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service("customUserDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
 
 	static final Logger logger = LoggerFactory.getLogger(UserDetailsService.class);

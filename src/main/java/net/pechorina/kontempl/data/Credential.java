@@ -1,24 +1,20 @@
 package net.pechorina.kontempl.data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.persistence.Index;
-//import javax.persistence.UniqueConstraint;
 
-
-
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -38,7 +34,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 		@Index(name="uidIdx", columnList="uid")
 })
 public class Credential implements Serializable {
-
+	
+	private static final DateTimeFormatter dateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -52,12 +50,12 @@ public class Credential implements Serializable {
 	private User user;
 
 	@JsonIgnore
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date created;
+	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime created;
 
 	@JsonIgnore
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updated;
+	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime updated;
 
 	private boolean active;
 	private boolean verified;
@@ -83,8 +81,8 @@ public class Credential implements Serializable {
 
 	public Credential() {
 		super();
-		this.created = new Date();
-		this.updated = new Date();		
+		this.created = new DateTime();
+		this.updated = new DateTime();		
 		this.active = true;
 		this.verified = false;
 	}
@@ -108,8 +106,8 @@ public class Credential implements Serializable {
 	public Credential(User user, String authServiceType, String uid,
 			String email, String authData) {
 		super();
-		this.created = new Date();
-		this.updated = new Date();
+		this.created = new DateTime();
+		this.updated = new DateTime();
 		this.active = true;
 		this.verified = false;
 		this.user = user;
@@ -135,33 +133,19 @@ public class Credential implements Serializable {
 		this.userId = userId;
 	}
 
-	/**
-	 * @return the created
-	 */
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
-	/**
-	 * @param created
-	 *            the created to set
-	 */
-	public void setCreated(Date created) {
+	public void setCreated(DateTime created) {
 		this.created = created;
 	}
 
-	/**
-	 * @return the updated
-	 */
-	public Date getUpdated() {
+	public DateTime getUpdated() {
 		return updated;
 	}
 
-	/**
-	 * @param updated
-	 *            the updated to set
-	 */
-	public void setUpdated(Date updated) {
+	public void setUpdated(DateTime updated) {
 		this.updated = updated;
 	}
 
@@ -248,26 +232,15 @@ public class Credential implements Serializable {
 	@Transient
 	@JsonProperty("createdDate")
 	public String getCreatedDate() {
-		DateTime dt = new DateTime(this.getCreated());
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-		String strOutputDateTime = fmt.print(dt);
-
-		 return strOutputDateTime;
+		return this.getCreated().toString(dateFmt);
 	}	
 	
 	@Transient
 	@JsonProperty("updatedDate")
 	public String getUpdatedDate() {
-		DateTime dt = new DateTime(this.getUpdated());
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-		String strOutputDateTime = fmt.print(dt);
-
-		 return strOutputDateTime;
+		return this.getUpdated().toString(dateFmt);
 	}	
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

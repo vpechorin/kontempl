@@ -7,10 +7,12 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.pechorina.kontempl.data.AuthToken;
 import net.pechorina.kontempl.data.Credential;
 import net.pechorina.kontempl.data.OptiUserDetails;
 import net.pechorina.kontempl.data.Role;
 import net.pechorina.kontempl.data.User;
+import net.pechorina.kontempl.repos.AuthTokenRepo;
 import net.pechorina.kontempl.repos.CredentialRepo;
 import net.pechorina.kontempl.repos.RoleRepo;
 import net.pechorina.kontempl.repos.UserRepo;
@@ -39,10 +41,30 @@ public class UserService {
 
 	@Autowired
 	private RoleRepo roleRepo;
+	
+	@Autowired
+	private AuthTokenRepo authTokenRepo;
 
 	@Autowired
 	@Qualifier("appConfig")
 	public java.util.Properties appConfig;
+	
+	@Transactional
+	public AuthToken getAuthToken(String uuid) {
+		
+		int tokenExpireMinutes = Integer.parseInt( appConfig.getProperty("auth_token_expire") );
+		
+		AuthToken a = authTokenRepo.findOne(uuid);
+		logger.debug("Token retrieved: " + a);
+		// check if it is not expired
+		if ( (a!= null) && (a.getUpdated().plusMinutes(tokenExpireMinutes).isBeforeNow()) ) {
+			// expired
+			authTokenRepo.delete(uuid);
+			logger.debug("Token expired: " + a);
+			return null;
+		}
+		return a;
+	}
 	
 	@Transactional
 	public void saveNewUser(User u, String roleName, String email, String password) {

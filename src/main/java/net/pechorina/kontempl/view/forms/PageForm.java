@@ -20,6 +20,9 @@ public class PageForm implements Serializable {
 
 	@NotNull
 	private Integer parentId;
+	
+	@NotNull
+	private String siteName;
 
 	@NotNull
 	private int sortindex;
@@ -35,8 +38,6 @@ public class PageForm implements Serializable {
 	private Date created;
 
 	private Date updated;
-
-	private Integer updatedBy;
 
 	private String title;
 
@@ -70,9 +71,8 @@ public class PageForm implements Serializable {
 		this.description = p.getDescription();
 		this.body = p.getBody();
 		this.tags = p.getTags();
-		this.updated = p.getUpdated();
-		this.created = p.getCreated();
-		this.updatedBy = p.getUpdatedBy();
+		this.updated = p.getUpdated().toDate();
+		this.created = p.getCreated().toDate();
 		this.hideTitle = p.isHideTitle();
 		this.placeholder = p.isPlaceholder();
 	}
@@ -157,14 +157,6 @@ public class PageForm implements Serializable {
 		this.updated = updated;
 	}
 
-	public Integer getUpdatedBy() {
-		return updatedBy;
-	}
-
-	public void setUpdatedBy(Integer updatedBy) {
-		this.updatedBy = updatedBy;
-	}
-
 	public String getTitle() {
 		return title;
 	}
@@ -197,6 +189,14 @@ public class PageForm implements Serializable {
 		this.body = body;
 	}
 
+	public String getSiteName() {
+		return siteName;
+	}
+
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -204,6 +204,8 @@ public class PageForm implements Serializable {
 		builder.append(id);
 		builder.append(", parentId=");
 		builder.append(parentId);
+		builder.append(", siteName=");
+		builder.append(siteName);
 		builder.append(", sortindex=");
 		builder.append(sortindex);
 		builder.append(", publicPage=");
@@ -220,8 +222,6 @@ public class PageForm implements Serializable {
 		builder.append(created);
 		builder.append(", updated=");
 		builder.append(updated);
-		builder.append(", updatedBy=");
-		builder.append(updatedBy);
 		builder.append(", title=");
 		builder.append(title);
 		builder.append(", description=");
@@ -233,5 +233,7 @@ public class PageForm implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
+
+
 
 }

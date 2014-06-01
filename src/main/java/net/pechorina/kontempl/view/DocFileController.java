@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.service.DocFileService;
-import net.pechorina.kontempl.service.PageElementTypeService;
 import net.pechorina.kontempl.service.PageService;
 
 import org.slf4j.Logger;
@@ -33,9 +32,6 @@ public class DocFileController extends AbstractController {
 
 	@Autowired
 	private PageService pageService;
-
-	@Autowired
-	private PageElementTypeService pageElementTypeService;
 
 	@Autowired
 	private DocFileService docFileService;
