@@ -1,4 +1,4 @@
-package net.pechorina.kontempl.view;
+package net.pechorina.kontempl.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -7,8 +7,8 @@ import net.pechorina.kontempl.data.OptiUserDetails;
 import net.pechorina.kontempl.data.TokenTransfer;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.exceptions.UnauthorizedException;
-import net.pechorina.kontempl.service.RoleService;
 import net.pechorina.kontempl.service.UserService;
+import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +33,6 @@ public class UserResource extends AbstractController {
 	private UserService userService;
 	
 	@Autowired
-	private RoleService roleService;
-	
-	@Autowired
 	@Qualifier("authenticationManager")
 	private AuthenticationManager authManager;
 	
@@ -44,6 +41,7 @@ public class UserResource extends AbstractController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		User u = null;
+
 		if (authentication != null && authentication.isAuthenticated()) {
 			Object principal = authentication.getPrincipal();
 			if (principal instanceof String && ((String) principal).equals("anonymousUser")) {
@@ -62,7 +60,7 @@ public class UserResource extends AbstractController {
 		return u;
 	}
 	
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(method = RequestMethod.POST, value = "/authenticate")
 	public TokenTransfer authenicate(@RequestParam(value="username", required=true) String username, 
 			@RequestParam(value="password", required=true) String password,
 			HttpServletRequest request) {
@@ -76,7 +74,8 @@ public class UserResource extends AbstractController {
 		String ip = request.getRemoteAddr();
 		String ua = request.getHeader("User-Agent");
 		User u = getUserForAuth(authentication); 
-		AuthToken authToken = new AuthToken(u, ip, ua);
+		AuthToken authToken = userService.createNewAuthToken(u, ip, ua);
+		
 		logger.debug("New authToken: " + authToken);
 		logger.debug("AUTH OK");
 

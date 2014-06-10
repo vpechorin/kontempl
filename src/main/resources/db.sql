@@ -1,0 +1,10 @@
+INSERT INTO `site` VALUES (1, "localhost", "default", "Default");
+INSERT INTO `page` VALUES (1, "Welcome", NOW(), "Home page", FALSE, "home", 0, FALSE, TRUE, 1, NULL, "Home", NOW(), 1);
+INSERT INTO `page` VALUES (2, "", NOW(), "Products", FALSE, "products", 1, FALSE, TRUE, 100, NULL, "Products", NOW(), 1);
+INSERT INTO `page` VALUES (3, "", NOW(), "About us", FALSE, "aboutus", 1, FALSE, TRUE, 110, NULL, "Aboutus", NOW(), 1);
+INSERT INTO `page` VALUES (4, "", NOW(), "Contact us", FALSE, "contactus", 1, FALSE, TRUE, 120, NULL, "Contactus", NOW(), 1);
+INSERT INTO `user` VALUES (1,1,NOW(),0,'Administrator');
+INSERT INTO `user_role` VALUES (1,"admin");
+INSERT INTO `user_role` VALUES (1,"editor");
+INSERT INTO `user_role` VALUES (1,"user");
+INSERT INTO `credential` SET active=1,authData=SHA1('admin'), authServiceType='password',created=NOW(), email='admin', uid='password:admin', updated=NOW(), userId=1, verified=1;

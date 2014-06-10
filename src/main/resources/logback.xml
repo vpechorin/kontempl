@@ -6,9 +6,16 @@
       <Pattern>%d{HH:mm:ss.SSS} %-5level [%logger{36}:%L:%M] %msg%n</Pattern>
     </layout>
   </appender>
-   
-  <logger name="net.pechorina.kontempl" level="info"/>
+  
+  <logger name="net.pechorina.kontempl" level="debug"/>
+  
+  <!--  
+  <logger name="net.pechorina.kontempl" level="debug"/>
+  <logger name="org.springframework.web" level="debug"/>
+  <logger name="org.springframework.http" level="debug"/>
+  <logger name="org.springframework.beans" level="info"/>
   <logger name="org.hibernate" level="info"/>
+  -->
  
   <root level="info">
     <appender-ref ref="STDOUT" />

@@ -10,10 +10,16 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "authtoken", indexes={
@@ -22,19 +28,23 @@ import org.joda.time.DateTime;
 public class AuthToken implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final DateTimeFormatter dateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 	
 	@Id
 	@GeneratedValue(generator="system-uuid")
-	@GenericGenerator( name="system-uuid", strategy = "uuid")
+	@GenericGenerator( name="system-uuid", strategy = "uuid2")
 	private String uuid;
 	
+	@JsonIgnore
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "userId")
 	private User user;
 	
+	@JsonIgnore
 	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime created;
 	
+	@JsonIgnore
 	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime updated;
 	
@@ -104,6 +114,24 @@ public class AuthToken implements Serializable {
 
 	public void setUa(String ua) {
 		this.ua = ua;
+	}
+	
+	@Transient
+	@JsonProperty("createdDate")
+	public String getCreatedDate() {
+		return this.getCreated().toString(dateFmt);
+	}	
+	
+	@Transient
+	@JsonProperty("updatedDate")
+	public String getUpdatedDate() {
+		return this.getUpdated().toString(dateFmt);
+	}
+	
+	@Transient
+	@JsonProperty("updatedSec")
+	public long getUpdatedSec() {
+		return this.getUpdated().getMillis() / 1000;
 	}
 
 	@Override

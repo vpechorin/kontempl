@@ -1,8 +1,6 @@
-package net.pechorina.kontempl.view;
+package net.pechorina.kontempl.filters;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -12,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.pechorina.kontempl.data.AuthToken;
 import net.pechorina.kontempl.data.OptiUserDetails;
-import net.pechorina.kontempl.data.Role;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
 
@@ -42,20 +39,13 @@ public class AuthenticationTokenProcessingFilter extends GenericFilterBean {
 		String token = this.extractAuthTokenIdFromRequest(httpRequest);
 		logger.debug("Token found: " + token);
 		if (token != null) {
-			AuthToken authToken = userService.getAuthToken(token);
+			AuthToken authToken = userService.getCurrentAuthToken(token);
 			
 			if (authToken != null) {
 				User user = authToken.getUser();
 				logger.debug("User retrieved: " + user);
-				
-		       	Set<String> roles = new HashSet<String>();
-		       	if (user.getRoles() != null) {
-		       		for(Role r: user.getRoles()) {
-		       			roles.add(r.getName());
-		       		}
-		       	}
 		       	
-		       	UserDetails userDetails = new OptiUserDetails(user, roles);
+		       	UserDetails userDetails = new OptiUserDetails(user, user.getRoles());
 		       	UsernamePasswordAuthenticationToken authentication =
 						new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 		       	authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));

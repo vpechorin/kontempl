@@ -231,4 +231,10 @@ public class PageService {
 	public void resetPageCache() {
 		
 	}
+	
+	@Transactional
+	public List<Page> listAll() {
+		return pageRepo.findAll();
+	}
+	
 }

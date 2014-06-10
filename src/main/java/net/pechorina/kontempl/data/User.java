@@ -3,20 +3,19 @@ package net.pechorina.kontempl.data;
 import static javax.persistence.CascadeType.ALL;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -29,8 +28,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Joiner;
 
 /**
  * Entity implementation class for Entity: User
@@ -39,8 +38,9 @@ import com.google.common.base.Joiner;
 @Entity
 @Table(name = "user", indexes={
 		@Index(name="lockedIdx", columnList="locked"),
-		@Index(name="activeIdx", columnList="active")
+//		@Index(name="activeIdx", columnList="active")
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements Serializable {
 	
 	private static final DateTimeFormatter dateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
@@ -59,21 +59,20 @@ public class User implements Serializable {
 	@NotNull
 	private boolean active;
 	
-	@JsonIgnore
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "userrole", joinColumns = @JoinColumn(name = "userId"), inverseJoinColumns = @JoinColumn(name = "roleId"))
-	private Set<Role> roles;
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name="user_role")
+	private Set<String> roles = new HashSet<String>();
 	
 	@JsonIgnore
 	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime created;
 	
-	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = ALL)
 	@JsonIgnore
+	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = ALL)
 	private Set<Credential> credentials;
 	
-	@OneToMany(mappedBy="user", fetch = FetchType.LAZY)
 	@JsonIgnore
+	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = ALL)
 	private Set<AuthToken> authTokens;
 	
 	private static final long serialVersionUID = 1L;
@@ -94,35 +93,24 @@ public class User implements Serializable {
 	}
 	
 	@Transient
-	@JsonProperty("userroles")
-	public String getRoleNames() {
-		 Set<Role> roles = this.getRoles();
-		 int rolesNum = roles.size();
-		 List<String> l = new ArrayList<String>(rolesNum);
-		 for(Role r: roles) {
-			 l.add(r.getName());
-		 }
-		 
-		 return Joiner.on(", ").join(l) ;
-	}
-	
-	@Transient
-	@JsonIgnore
-	public Set<String> getRoleNamesSet() {
-		 Set<Role> roles = this.getRoles();
-		 int rolesNum = roles.size();
-		 Set<String> s = new HashSet<String>(rolesNum);
-		 for(Role r: roles) {
-			 s.add(r.getName());
-		 }
-		 return s;
-	}
-	
-	@Transient
 	@JsonProperty("createdDate")
 	public String getCreatedDate() {
-		return this.getCreated().toString(dateFmt);
-	}	
+		if (this.getCreated() != null)
+			return this.getCreated().toString(dateFmt);
+		return null;
+	}
+	
+	@Transient
+	@JsonProperty("roleMap")
+	public Map<String, Boolean> roleMap() {
+		Map<String, Boolean> m = new HashMap<String, Boolean>();
+		if (this.roles != null) {
+			for(String r: this.roles) {
+				m.put(r, true);
+			}
+		}
+		return m;
+	}
 	
 	public Integer getId() {
 		return this.id;
@@ -186,6 +174,8 @@ public class User implements Serializable {
 		return pwd;
 	}
 	
+	@Transient
+	@JsonIgnore
 	public String getEmail() {
 		Set<Credential> creds = this.getCredentials();
 		String email = null;
@@ -199,11 +189,11 @@ public class User implements Serializable {
 		return email;
 	}
 
-	public Set<Role> getRoles() {
+	public Set<String> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(Set<String> roles) {
 		this.roles = roles;
 	}
 
@@ -213,6 +203,15 @@ public class User implements Serializable {
 
 	public void setAuthTokens(Set<AuthToken> authTokens) {
 		this.authTokens = authTokens;
+	}
+	
+	public void addCredential(Credential c) {
+		if (this.getCredentials() != null) this.getCredentials().add(c);
+		else {
+			Set<Credential> creds = new HashSet<Credential>();
+			creds.add(c);
+			this.setCredentials(creds);
+		}
 	}
 
 	@Override
@@ -228,8 +227,6 @@ public class User implements Serializable {
 		builder.append(active);
 		builder.append(", roles=");
 		builder.append(roles);
-		builder.append(", authTokens=");
-		builder.append(authTokens);		
 		builder.append(", created=");
 		builder.append(created);
 		builder.append("]");

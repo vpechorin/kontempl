@@ -14,10 +14,10 @@ import static javax.persistence.FetchType.EAGER;
 
 @Entity
 @Table(name = "imagefile", indexes={
-		@Index(name="pageIdIdx", columnList="pageId"),
-		@Index(name="nameIdx", columnList="name"),
+//		@Index(name="pageIdIdx", columnList="pageId"),
+//		@Index(name="nameIdx", columnList="name"),
 		@Index(name="mainImgIdx", columnList="mainImage"),
-		@Index(name="sortIdx", columnList="sortIndex")
+//		@Index(name="sortIdx", columnList="sortIndex")
 })
 public class ImageFile implements Serializable, Cloneable {
 	static final Logger logger = LoggerFactory.getLogger(ImageFile.class);

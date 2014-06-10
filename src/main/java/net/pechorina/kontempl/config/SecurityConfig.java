@@ -2,7 +2,7 @@ package net.pechorina.kontempl.config;
 
 import javax.annotation.Resource;
 
-import net.pechorina.kontempl.view.AuthenticationTokenProcessingFilter;
+import net.pechorina.kontempl.filters.AuthenticationTokenProcessingFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+        	.csrf().disable()
         	.userDetailsService(customUserDetailsService)
         	.exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint)
         	.and()

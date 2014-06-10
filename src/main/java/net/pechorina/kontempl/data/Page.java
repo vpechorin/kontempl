@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @Entity
 @Table(name = "page", indexes={
-		@Index(name="nameIDX", columnList="name"),
+//		@Index(name="nameIDX", columnList="name"),
 		@Index(name="parentIDX", columnList="parentId"),
 		@Index(name="sortIndexIDX", columnList="sortindex"),
 		@Index(name="pubIDX", columnList="publicPage")

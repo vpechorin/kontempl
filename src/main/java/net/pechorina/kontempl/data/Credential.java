@@ -8,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
-
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -56,7 +55,7 @@ public class Credential implements Serializable {
 	@JsonIgnore
 	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime updated;
-
+	
 	private boolean active;
 	private boolean verified;
 
@@ -71,9 +70,13 @@ public class Credential implements Serializable {
 	private String email;
 	private String link;
 	
+	@Transient
+	private String password;
+	
 	@JsonIgnore
 	private String authData;
-
+	
+	@JsonIgnore
 	@Column(columnDefinition = "TEXT")
 	private String optData;
 
@@ -229,6 +232,14 @@ public class Credential implements Serializable {
 		this.authServiceType = authServiceType;
 	}
 	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	@Transient
 	@JsonProperty("createdDate")
 	public String getCreatedDate() {

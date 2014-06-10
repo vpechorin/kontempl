@@ -1,5 +1,8 @@
 package net.pechorina.kontempl.view.forms;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -12,32 +15,20 @@ public class UserFormNew {
 	@NotNull
 	@Size(min = 2)
 	private String email;
-	
-	@NotNull
-	private Boolean locked;
 
 	@NotNull
-	private Boolean active;
-
-	@NotNull
-	@Size(min = 6)
+	@Size(min = 7)
 	private String password;
-	private String passwordConfirm;
-	private String role;
+
+	private Set<String> roles = new HashSet<String>();
 
 	public UserFormNew() {
 		super();
-		this.active = true;
-		this.locked = false;
-		this.role = "editor";
 	}
 
 	public UserFormNew(String name) {
 		super();
-		this.active = true;
-		this.locked = false;
 		this.name = name;
-		this.role = "editor";
 	}
 
 	public String getName() {
@@ -48,20 +39,12 @@ public class UserFormNew {
 		this.name = name;
 	}
 
-	public Boolean getLocked() {
-		return locked;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setLocked(Boolean locked) {
-		this.locked = locked;
-	}
-
-	public Boolean getActive() {
-		return active;
-	}
-
-	public void setActive(Boolean active) {
-		this.active = active;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPassword() {
@@ -72,28 +55,27 @@ public class UserFormNew {
 		this.password = password;
 	}
 
-	public String getPasswordConfirm() {
-		return passwordConfirm;
+	public Set<String> getRoles() {
+		return roles;
 	}
 
-	public void setPasswordConfirm(String passwordConfirm) {
-		this.passwordConfirm = passwordConfirm;
+	public void setRoles(Set<String> roles) {
+		this.roles = roles;
 	}
 
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserFormNew [name=");
+		builder.append(name);
+		builder.append(", email=");
+		builder.append(email);
+		builder.append(", password=");
+		builder.append(password);
+		builder.append(", roles=");
+		builder.append(roles);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

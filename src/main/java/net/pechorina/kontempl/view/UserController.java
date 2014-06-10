@@ -2,12 +2,10 @@ package net.pechorina.kontempl.view;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.pechorina.kontempl.data.Credential;
 import net.pechorina.kontempl.data.User;
-import net.pechorina.kontempl.service.RoleService;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.view.forms.CredentialPasswordForm;
 import net.pechorina.kontempl.view.forms.UserForm;
@@ -33,9 +31,6 @@ public class UserController extends AbstractController {
 	
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private RoleService roleService;
 	
     @RequestMapping(value="/control", method=RequestMethod.GET)
     public String controlPage(Model model) {
@@ -70,15 +65,15 @@ public class UserController extends AbstractController {
         return rs;
     }	
     
-    @RequestMapping(value="/add", method=RequestMethod.GET)
+/*    @RequestMapping(value="/add", method=RequestMethod.GET)
     public String add(Model model) {
         logger.debug("add user form");
         UserFormNew userForm = new UserFormNew();
         model.addAttribute("userform", userForm);
         Map<String,String> roleMap = roleService.getRoleMap();
-        model.addAttribute("roleMap", roleMap);
+        model.addAttribute("roles", roleMap);
         return "commons/useradd";
-    }
+    }*/
     
     @RequestMapping(value="/add", method=RequestMethod.POST)
     public String add(@ModelAttribute("userform") UserFormNew userform,  BindingResult bindingResult, Model model) {
@@ -89,10 +84,11 @@ public class UserController extends AbstractController {
         } 
         User u = new User();
         u.setName(userform.getName());
-        u.setActive(userform.getActive());
-        u.setLocked(userform.getLocked());
+        u.setActive(true);
+        u.setLocked(false);
+        u.setRoles(userform.getRoles());
         
-        userService.saveNewUser(u, userform.getRole(), userform.getEmail(), userform.getPassword());
+        userService.saveNewUser(u, userform.getEmail(), userform.getPassword());
         
         return "redirect:/user/control";
     }

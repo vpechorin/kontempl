@@ -1,7 +1,6 @@
-package net.pechorina.kontempl.view;
+package net.pechorina.kontempl.filters;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import net.pechorina.kontempl.data.OptiUserDetails;
@@ -23,10 +22,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequestInterceptor;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-//@Component
-public class CommonDataInterceptor extends HandlerInterceptorAdapter  {
+@Component("commonDataInterceptor")
+public class CommonDataInterceptor implements  WebRequestInterceptor  {
 	static final Logger logger = LoggerFactory.getLogger(CommonDataInterceptor.class);
 	
     @Autowired
@@ -49,19 +47,11 @@ public class CommonDataInterceptor extends HandlerInterceptorAdapter  {
 	
 	@Autowired
 	private HttpServletRequest request;
-	
-	@Override
-	public void afterCompletion(HttpServletRequest request,
-    HttpServletResponse response,
-    Object handler,
-    Exception ex)
-			throws Exception {
-		
-	}
 
-	/*@Override
+	@Override
 	public void postHandle(WebRequest webRequest, ModelMap model) throws Exception {
 		logger.debug("CommonDataInterceptor::postHandle");
+
 		if (model != null) {
 			
 			model.addAttribute("appVersion", env.getProperty("application.build"));
@@ -102,5 +92,11 @@ public class CommonDataInterceptor extends HandlerInterceptorAdapter  {
     	}
     	
     	return user;
-    }*/
+    }
+
+	@Override
+	public void afterCompletion(WebRequest arg0, Exception arg1)
+			throws Exception {
+		
+	}
 }

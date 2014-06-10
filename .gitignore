@@ -3,5 +3,5 @@
 /.project
 /.springBeans
 /.classpath
-/buildNumber.properties
+/src/main/resources/git.properties
 /*.ppr

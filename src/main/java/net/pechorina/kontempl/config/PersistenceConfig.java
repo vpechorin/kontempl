@@ -63,14 +63,17 @@ public class PersistenceConfig {
 	public HibernateExceptionTranslator hibernateExceptionTranslator() {
 		return new HibernateExceptionTranslator();
 	}
-
-	@Bean
+	
+	@Bean(name="dataSource")
 	public DataSource dataSource() {
 		DataSource dataSource = new DataSource();
 		dataSource.setDriverClassName(env.getProperty("spring.datasource.driverClassName"));
 		dataSource.setUrl(env.getProperty("spring.datasource.url"));
 		dataSource.setUsername(env.getProperty("spring.datasource.username"));
 		dataSource.setPassword(env.getProperty("spring.datasource.password"));
+		dataSource.setTestOnBorrow(env.getProperty("spring.datasource.test-on-borrow", Boolean.class));
+		dataSource.setTestWhileIdle(env.getProperty("spring.datasource.test-while-idle", Boolean.class));
+		dataSource.setValidationQuery(env.getProperty("spring.datasource.validation-query"));
 		return dataSource;
 	}
 

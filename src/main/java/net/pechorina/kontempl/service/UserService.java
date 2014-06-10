@@ -10,11 +10,9 @@ import javax.servlet.http.HttpSession;
 import net.pechorina.kontempl.data.AuthToken;
 import net.pechorina.kontempl.data.Credential;
 import net.pechorina.kontempl.data.OptiUserDetails;
-import net.pechorina.kontempl.data.Role;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.repos.AuthTokenRepo;
 import net.pechorina.kontempl.repos.CredentialRepo;
-import net.pechorina.kontempl.repos.RoleRepo;
 import net.pechorina.kontempl.repos.UserRepo;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -38,9 +36,6 @@ public class UserService {
 	
 	@Autowired
 	private CredentialRepo credentialRepo;
-
-	@Autowired
-	private RoleRepo roleRepo;
 	
 	@Autowired
 	private AuthTokenRepo authTokenRepo;
@@ -49,7 +44,7 @@ public class UserService {
 	private Environment env;
 	
 	@Transactional
-	public AuthToken getAuthToken(String uuid) {
+	public AuthToken getCurrentAuthToken(String uuid) {
 		
 		int tokenExpireMinutes = Integer.parseInt( env.getProperty("auth_token_expire") );
 		
@@ -66,11 +61,14 @@ public class UserService {
 	}
 	
 	@Transactional
-	public void saveNewUser(User u, String roleName, String email, String password) {
-        Role role = roleRepo.findByName(roleName);
-		Set<Role> roleSet = new HashSet<Role>(1);
-		roleSet.add(role);
-        u.setRoles(roleSet);
+	public AuthToken createNewAuthToken(User user, String ipAddress, String userAgent) {
+		AuthToken a = new AuthToken(user, ipAddress, userAgent);
+		AuthToken authToken = authTokenRepo.saveAndFlush(a);
+		return authToken;
+	}
+	
+	@Transactional
+	public User saveNewUser(User u, String email, String password) {
         
         if (( email != null) && (password != null)) {
         	String pwdHash = DigestUtils.shaHex(password);
@@ -83,17 +81,26 @@ public class UserService {
     		u.setCredentials(userCredentials);
         }
         
-        userRepo.save(u);
-	}
-	
-	@Transactional
-	public Role getRoleByName(String roleName) {
-		return roleRepo.findByName(roleName);
+        User entity = userRepo.saveAndFlush(u);
+        return entity;
 	}
 
 	@Transactional
 	public User getUserById(int id) {
 		return userRepo.findOne(id);
+	}
+	
+	@Transactional
+	public User getUserByIdDetailed(int id) {
+		User u = userRepo.findOne(id);
+		retrieveDetails(u);
+		return u;
+	}
+	
+	private void retrieveDetails(User u) {
+		if (u.getCredentials() != null) u.getCredentials().size();
+		if (u.getAuthTokens() != null) u.getAuthTokens().size();
+		if (u.getRoles() != null) u.getRoles().size();
 	}
 	
 	@Transactional
@@ -149,10 +156,15 @@ public class UserService {
 
 		return c;
 	}
+	
+	@Transactional
+	public Credential getCredential(Integer id) {
+		return credentialRepo.findOne(id);
+	}
 
 	@Transactional
-	public void save(User user) {
-		userRepo.save(user);
+	public User save(User user) {
+		return userRepo.saveAndFlush(user);
 	}
 	
 	@Transactional
@@ -168,6 +180,21 @@ public class UserService {
 	@Transactional
 	public void deleteCredential(Credential entity) {
 		credentialRepo.delete(entity);
+	}
+	
+	@Transactional
+	public List<AuthToken> listAuthTokens(User u) {
+		return authTokenRepo.findByUser(u);
+	}
+	
+	@Transactional
+	public void deleteAuthToken(AuthToken token) {
+		authTokenRepo.delete(token);
+	}
+	
+	@Transactional
+	public AuthToken getAuthToken(String uuid) {
+		return authTokenRepo.findOne(uuid);
 	}
 	
 	@Transactional
@@ -191,8 +218,8 @@ public class UserService {
 	}
 	
 	public void setUserSession(HttpServletRequest request, User user) {
-       	Set<String> roles = user.getRoleNamesSet();
-       	UserDetails ud = new OptiUserDetails(user, roles);
+
+       	UserDetails ud = new OptiUserDetails(user, user.getRoles());
        	
        	UsernamePasswordAuthenticationToken t = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
         SecurityContext securityContext = SecurityContextHolder.getContext();

@@ -28,7 +28,7 @@ public class OptiUserDetails implements Serializable, UserDetails {
 		this.authorities = new HashSet<GrantedAuthority>();
 		for (String role : roles) {
 			authorities.add(new SimpleGrantedAuthority("ROLE_"
-					+ role.toUpperCase()));
+					+ role.toLowerCase()));
 		}
 	}
 

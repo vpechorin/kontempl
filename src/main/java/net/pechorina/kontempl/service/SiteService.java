@@ -53,5 +53,10 @@ public class SiteService {
 	public void delete(Site s) {
 		siteRepo.delete(s);
 	}
+	
+	@Transactional
+	public void delete(Integer id) {
+		siteRepo.delete(id);
+	}
 
 }

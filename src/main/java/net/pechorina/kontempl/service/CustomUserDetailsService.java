@@ -5,14 +5,12 @@ import java.util.Locale;
 import java.util.Set;
 
 import net.pechorina.kontempl.data.OptiUserDetails;
-import net.pechorina.kontempl.data.Role;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.utils.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,9 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
        	
        	Set<String> roles = new HashSet<String>();
        	if (user.getRoles() != null) {
-       		for(Role r: user.getRoles()) {
-       			roles.add(r.getName());
-       		}
+       		roles = user.getRoles();
        	}
        	
        	UserDetails ud = new OptiUserDetails(user, roles);

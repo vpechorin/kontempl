@@ -1,4 +1,4 @@
-package net.pechorina.kontempl.view;
+package net.pechorina.kontempl.filters;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-@Component("loggingInterceptor")
-public class LoggingInterceptor extends HandlerInterceptorAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
+@Component("headerInterceptor")
+public class HeaderInterceptor extends HandlerInterceptorAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(HeaderInterceptor.class);
 	
 	private static final DateTimeFormatter fmtW3C = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'");
 	
@@ -33,12 +33,6 @@ public class LoggingInterceptor extends HandlerInterceptorAdapter {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler) throws Exception {
-		if (request != null ) {
-			Integer h = request.hashCode();
-			request.setAttribute("requestId", h);
-			profilingService.onRequestStart("Request #" + h + " started");
-			logger.debug("user principal: " + request.getUserPrincipal());
-		}
         return true;
     }
 	
@@ -58,9 +52,6 @@ public class LoggingInterceptor extends HandlerInterceptorAdapter {
 		response.addHeader("Pragma", "no-cache");
 		response.addHeader("Cache-Control", "private");
 		response.addHeader("Expires", dtUTC.toString(fmtW3C));
-		
-		response.addHeader("X-App", env.getProperty("application.name") +"-" + env.getProperty("application.build"));
-		response.addHeader("X-Dev", env.getProperty("application.developer") + " " + env.getProperty("application.developerEmail"));
 	}
 	
 	public void afterCompletion(HttpServletRequest request,
@@ -68,13 +59,5 @@ public class LoggingInterceptor extends HandlerInterceptorAdapter {
             Object handler,
             Exception ex)
             throws Exception {
-		Integer h = (Integer) request.getAttribute("requestId");
-		profilingService.logElapsedTime("request #" + h + " processing completed - ");
-		if (response != null) {
-			logger.debug("Response: " + response.getStatus());
-		}
-		if (ex != null) {
-			logger.error("Exception: " + ex);
-		}
 	}
 }

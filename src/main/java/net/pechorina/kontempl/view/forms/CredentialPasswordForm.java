@@ -52,4 +52,19 @@ public class CredentialPasswordForm {
 		this.id = id;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CredentialPasswordForm [id=");
+		builder.append(id);
+		builder.append(", email=");
+		builder.append(email);
+		builder.append(", password=");
+		builder.append(password);
+		builder.append(", passwordConfirm=");
+		builder.append(passwordConfirm);
+		builder.append("]");
+		return builder.toString();
+	}
+
 }

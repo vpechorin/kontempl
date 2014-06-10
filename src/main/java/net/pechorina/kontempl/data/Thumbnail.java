@@ -18,8 +18,8 @@ import javax.persistence.Index;
 
 @Entity
 @Table(name = "thumbnail", indexes={
-		@Index(name="pageIdIdx", columnList="pageId"),
-		@Index(name="nameIdx", columnList="name")
+//		@Index(name="pageIdIdx", columnList="pageId"),
+//		@Index(name="nameIdx", columnList="name")
 })
 public class Thumbnail implements Serializable {
 	private static final long serialVersionUID = 1L;

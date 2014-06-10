@@ -46,6 +46,17 @@ public class Site implements Serializable {
 	@Transient
 	private PageTree pageTree;
 
+	public Site() {
+		super();
+	}
+
+	public Site(String name, String title, String domain) {
+		super();
+		this.name = name;
+		this.title = title;
+		this.domain = domain;
+	}
+
 	public Integer getId() {
 		return id;
 	}
