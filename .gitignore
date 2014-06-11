@@ -5,3 +5,4 @@
 /.classpath
 /src/main/resources/git.properties
 /*.ppr
+/*.pid
