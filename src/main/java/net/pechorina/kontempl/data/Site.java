@@ -3,8 +3,10 @@ package net.pechorina.kontempl.data;
 import static javax.persistence.CascadeType.ALL;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,15 +14,17 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "site")
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Site implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -35,9 +39,9 @@ public class Site implements Serializable {
 	
 	private String domain;
 	
-	@OneToMany(mappedBy="site", fetch=FetchType.EAGER)
-	@MapKey(name="name")
-	private Map<String, SiteProperty> properties;
+	@OneToMany(mappedBy="site", fetch=FetchType.EAGER, cascade=ALL, orphanRemoval=true)
+	@OrderBy("name ASC")
+	private List<SiteProperty> properties;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy="site", cascade = ALL)
@@ -48,6 +52,14 @@ public class Site implements Serializable {
 
 	public Site() {
 		super();
+	}
+
+	public Site(Integer id, String name, String title, String domain) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.title = title;
+		this.domain = domain;
 	}
 
 	public Site(String name, String title, String domain) {
@@ -105,12 +117,45 @@ public class Site implements Serializable {
 		this.title = title;
 	}
 
-	public Map<String, SiteProperty> getProperties() {
+	public List<SiteProperty> getProperties() {
 		return properties;
 	}
 
-	public void setProperties(Map<String, SiteProperty> properties) {
+	public void setProperties(List<SiteProperty> properties) {
 		this.properties = properties;
+	}
+	
+	@Transient
+	public void addProperty(SiteProperty p) {
+		List<SiteProperty> props = this.getProperties();
+		if (props == null) props = new ArrayList<SiteProperty>();
+		if (!hasSuchPropertyName(p.getName())) {
+			props.add(p);
+			this.setProperties(props);
+		}
+	}
+	
+	@Transient
+	public Map<String,String> getPropertyMap() {
+		if (this.getProperties() == null) return null;
+		Map<String,String> m = this.getProperties().stream().collect(Collectors.toMap(SiteProperty::getName, p -> p.getContent()));
+		return m;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public boolean hasSuchPropertyName(String n) {
+		if (this.getProperties() == null) return false;
+		SiteProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
+		return (sp != null);
+	}
+
+	@Transient
+	@JsonIgnore
+	public SiteProperty findPropertyByName(String n) {
+		if (this.getProperties() == null) return null;
+		SiteProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
+		return sp;
 	}
 
 	@Override
@@ -124,6 +169,8 @@ public class Site implements Serializable {
 		builder.append(title);
 		builder.append(", domain=");
 		builder.append(domain);
+		builder.append(", properties=");
+		builder.append(properties);
 		builder.append("]");
 		return builder.toString();
 	}

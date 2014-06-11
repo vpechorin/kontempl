@@ -11,8 +11,12 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "site_property")
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class SiteProperty implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1L;
@@ -20,15 +24,29 @@ public class SiteProperty implements Serializable, Cloneable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@ManyToOne
-	@JoinColumn(name="siteId")
+	@JoinColumn(name = "siteId")
+	@JsonIgnore
 	private Site site;
-	
+
 	private String name;
-	
+
 	@Lob
 	private String content;
+
+	public SiteProperty(Integer id, Site site, String name, String content) {
+		super();
+		this.id = id;
+		this.site = site;
+		this.name = name;
+		this.content = content;
+	}
+
+	public SiteProperty() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public Integer getId() {
 		return id;
@@ -65,7 +83,9 @@ public class SiteProperty implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SiteProperty [name=");
+		builder.append("SiteProperty [id=");
+		builder.append(id);
+		builder.append(", name=");
 		builder.append(name);
 		builder.append(", content=");
 		builder.append(content);
@@ -73,6 +93,4 @@ public class SiteProperty implements Serializable, Cloneable {
 		return builder.toString();
 	}
 
-
-	
 }
