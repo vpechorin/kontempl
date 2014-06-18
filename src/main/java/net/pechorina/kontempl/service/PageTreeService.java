@@ -1,9 +1,11 @@
 package net.pechorina.kontempl.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.Page;
+import net.pechorina.kontempl.data.PageNode;
 import net.pechorina.kontempl.data.PageTree;
 import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.repos.PageRepo;
@@ -12,7 +14,6 @@ import net.pechorina.kontempl.repos.SiteRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -69,8 +70,7 @@ public class PageTreeService {
 	}
 	
 	private void auxiliaryAddChildren(GenericTreeNode<Page> parent) {
-		Integer parentId = parent.getData().getId();
-		List<Page> subPages = pageRepo.listSubPages(parentId);
+		List<Page> subPages = pageRepo.listSubPages(parent.getData().getId(), parent.getData().getSiteId());
 
 		for (Page child : subPages) {
 			GenericTreeNode<Page> node = new GenericTreeNode<Page>(child);
@@ -81,8 +81,8 @@ public class PageTreeService {
 	}
 	
 	private void auxiliaryAddPublicChildren(GenericTreeNode<Page> parent) {
-		Integer parentId = parent.getData().getId();
-		List<Page> subPages = pageRepo.listSubPages(parentId);
+
+		List<Page> subPages = pageRepo.listSubPages(parent.getData().getId(), parent.getData().getSiteId());
 
 		for (Page child : subPages) {
 			if (child.isPublicPage()) {
@@ -124,4 +124,28 @@ public class PageTreeService {
 		return pageTree;
 	}
 	
+	@Transactional
+	public List<PageNode> getPageNodeTree(Site site) {
+		List<PageNode> tree = new ArrayList<PageNode>();
+
+		List<Page> pages = pageRepo.listRootPages(site);
+
+		for (Page p : pages) {
+			PageNode rootNode = new PageNode(p);
+			auxiliaryAddChildren(rootNode, p);
+			tree.add(rootNode);
+		}
+		
+		return tree;
+	}
+	
+	private void auxiliaryAddChildren(PageNode node, Page parentPage) {
+		List<Page> subPages = pageRepo.listSubPages(parentPage.getId(), parentPage.getSiteId());
+
+		for (Page child : subPages) {
+			PageNode childNode = new PageNode(child);
+			auxiliaryAddChildren(childNode, child);
+			node.addChild(childNode);
+		}
+	}
 }

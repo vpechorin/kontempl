@@ -11,6 +11,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "page_property")
 public class PageProperty implements Serializable, Cloneable {
@@ -23,6 +25,7 @@ public class PageProperty implements Serializable, Cloneable {
 	
 	@ManyToOne
 	@JoinColumn(name="pageId")
+	@JsonIgnore
 	private Page page;
 	
 	private String name;

@@ -1,11 +1,15 @@
 package net.pechorina.kontempl;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.Site;
+import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.Equals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +27,6 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @ActiveProfiles("test")
 @IntegrationTest
-@DirtiesContext
 public class PersistanceTests {
 	static final Logger logger = LoggerFactory
 			.getLogger(PersistanceTests .class);
@@ -42,6 +45,9 @@ public class PersistanceTests {
 
 	@Autowired
 	private SiteService siteService;
+	
+	@Autowired
+	private PageService pageService;
 
 	@Test
 	public void testSiteCreate() throws Exception {
@@ -49,6 +55,18 @@ public class PersistanceTests {
 		Site e = siteService.save(s);
 
 		assertNotNull(e);
+	}
+	
+	@Test
+	public void testPageMove() throws Exception {
+		Page p = pageService.getPage(10);
+		int currentIdx = pageService.getPosition(p);
+		logger.debug("current idx: " + currentIdx + " sortindex: " + p.getSortindex());
+		pageService.movePage(p, 2, p.getParentId());
+		int newIdx = pageService.getPosition(p);
+		logger.debug("new idx: " + newIdx + " sortindex: " + p.getSortindex());
+		assertThat(newIdx, equalTo(2));
+		assertThat(newIdx, not(9));
 	}
 
 }

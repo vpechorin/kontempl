@@ -59,15 +59,19 @@ public class SiteResource extends AbstractController {
 		return new ResponseEntity<Site>(savedEntity, HttpStatus.CREATED);
 	}
 	
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/{propName}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/{propId}")
 	public void saveProperty(@PathVariable("id") Integer siteId, 
-			@PathVariable("propName") String propName,
+			@PathVariable("propId") Integer propertyId,
 			@RequestBody SiteProperty siteProperty, 
 			HttpServletRequest request, HttpServletResponse response) {
 		Site site = siteService.findById(siteId);
 		
-		siteProperty.setSite(site);
-		site.addProperty(siteProperty);
+		// merge updates
+		SiteProperty existingProperty = site.findPropertyById(propertyId);
+		if (existingProperty != null) {
+			existingProperty.setName(siteProperty.getName().trim());
+			existingProperty.setContent(siteProperty.getContent().trim());
+		}
 
 		Site savedEntity = siteService.save(site);
 		logger.info("SITE PROPERTY SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());
@@ -100,8 +104,14 @@ public class SiteResource extends AbstractController {
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public void save(@PathVariable("id") Integer id, @RequestBody Site site, HttpServletRequest request, HttpServletResponse response) {
-		site.setId(id);
-		Site savedEntity = siteService.save(site);
+		Site existingEntity = siteService.findById(id);
+		
+		// merge data
+		existingEntity.setDomain(site.getDomain());
+		existingEntity.setTitle(site.getTitle());
+		existingEntity.setName(site.getName());
+		
+		Site savedEntity = siteService.save(existingEntity);
 		logger.info("SITE SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}

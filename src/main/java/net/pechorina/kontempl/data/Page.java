@@ -1,8 +1,14 @@
 package net.pechorina.kontempl.data;
 
-import java.io.Serializable;
-import java.util.Map;
+import static javax.persistence.CascadeType.ALL;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,8 +18,8 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
@@ -27,6 +33,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "page", indexes={
@@ -46,9 +54,13 @@ public class Page implements Serializable, Cloneable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@ManyToOne( fetch=FetchType.EAGER )
+	@JsonIgnore
+	@ManyToOne( fetch=FetchType.LAZY )
 	@JoinColumn(name = "siteId")
 	private Site site;
+	
+	@Column(name="siteId", insertable=false, updatable=false)
+	private int siteId;
 	
 	@NotNull
 	private Integer parentId;
@@ -57,9 +69,10 @@ public class Page implements Serializable, Cloneable {
 	private int sortindex;
 	
 	private boolean publicPage;
-	
+	private boolean autoName;
 	private boolean hideTitle;
 	private boolean placeholder;
+	private boolean richText;
 
 	private String name;
 
@@ -80,9 +93,9 @@ public class Page implements Serializable, Cloneable {
 	@Lob
 	private String body;
 	
-	@OneToMany(mappedBy="page", fetch=FetchType.EAGER)
-	@MapKey(name="name")
-	private Map<String, PageProperty> properties;
+	@OneToMany(mappedBy="page", fetch=FetchType.EAGER, cascade=ALL, orphanRemoval=true)
+	@OrderBy("name ASC")
+	private List<PageProperty> properties;
 	
 	@Transient
 	private ImageFile mainImage;
@@ -97,8 +110,14 @@ public class Page implements Serializable, Cloneable {
 		this.description = "";
 		this.body = "";
 		this.tags = "";
-		this.updated = new DateTime();
+		DateTime d = new DateTime(); 
+		this.updated = d;
+		this.created = d;
+		
+		this.publicPage = false;
 		this.hideTitle = false;
+		this.autoName = true;
+		this.richText = true;
 	}
 
 	public Integer getId() {
@@ -221,12 +240,36 @@ public class Page implements Serializable, Cloneable {
 		this.mainImage = mainImage;
 	}
 
-	public Map<String, PageProperty> getProperties() {
+	public List<PageProperty> getProperties() {
 		return properties;
 	}
 
-	public void setProperties(Map<String, PageProperty> properties) {
+	public void setProperties(List<PageProperty> properties) {
 		this.properties = properties;
+	}
+
+	public int getSiteId() {
+		return siteId;
+	}
+
+	public void setSiteId(int siteId) {
+		this.siteId = siteId;
+	}
+
+	public boolean isAutoName() {
+		return autoName;
+	}
+
+	public void setAutoName(boolean autoName) {
+		this.autoName = autoName;
+	}
+
+	public boolean isRichText() {
+		return richText;
+	}
+
+	public void setRichText(boolean richText) {
+		this.richText = richText;
 	}
 
 	public void checkName() {
@@ -268,6 +311,47 @@ public class Page implements Serializable, Cloneable {
 		}
 		DateTime dtUTC = this.getUpdated().withZone(DateTimeZone.UTC);
 		return dtUTC.toString(fmtW3CDate); 
+	}
+	
+	@Transient
+	public void addProperty(PageProperty p) {
+		List<PageProperty> props = this.getProperties();
+		if (props == null) props = new ArrayList<PageProperty>();
+		if (!hasSuchPropertyName(p.getName())) {
+			props.add(p);
+			this.setProperties(props);
+		}
+	}
+	
+	@Transient
+	public Map<String,String> getPropertyMap() {
+		if (this.getProperties() == null) return null;
+		Map<String,String> m = this.getProperties().stream().collect(Collectors.toMap(PageProperty::getName, p -> p.getContent()));
+		return m;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public boolean hasSuchPropertyName(String n) {
+		if (this.getProperties() == null) return false;
+		PageProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
+		return (sp != null);
+	}
+
+	@Transient
+	@JsonIgnore
+	public PageProperty findPropertyByName(String n) {
+		if (this.getProperties() == null) return null;
+		PageProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
+		return sp;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public PageProperty findPropertyById(int id) {
+		if (this.getProperties() == null) return null;
+		PageProperty sp = this.getProperties().stream().filter(p -> p.getId() == id).findFirst().orElse(null);
+		return sp;
 	}
 
 	@Override

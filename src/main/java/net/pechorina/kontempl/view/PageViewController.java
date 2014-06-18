@@ -3,7 +3,6 @@ package net.pechorina.kontempl.view;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
@@ -51,7 +50,6 @@ public class PageViewController extends AbstractController {
         model.addAttribute("pageName", pageName);
         model.addAttribute("txt", p);
     	model.addAttribute("pagenodeImages", imageFileService.listImagesForPageOrdered(p.getId()));
-    	model.addAttribute("ogproperties", getOgProperties(p));
         
     	return "pages/pageview";
     }
@@ -75,40 +73,11 @@ public class PageViewController extends AbstractController {
         model.addAttribute("pageName", pageName);
         model.addAttribute("txt", p);
         model.addAttribute("pagenodeImages", imageFileService.listImagesForPageOrdered(p.getId()));
-        model.addAttribute("ogproperties", getOgProperties(p));
         
         webRequest.setAttribute("last-modified", p.lastModified(), WebRequest.SCOPE_REQUEST);
         
         return "pages/pageview";
     }    
-    
-    private Map<String,String> getOgProperties(Page p) {
-    	Map<String,String> ogProperties = new HashMap<String, String>();
-    	if (p.getTitle() != null && (p.getTitle().trim().length()> 0)) {
-    		ogProperties.put("title", p.getTitle());
-    	}
-    	
-    	String desc = p.getTextDescription(Integer.parseInt( env.getProperty("ogDescriptionLength") ) );
-    	if (desc.length() > 0) {
-    		ogProperties.put("description", desc);
-    	}
-    	
-    	// "sitename":cmslib.getPageElementContent(txt, "sitename")
-    	if (p.getProperties() != null) {
-    		if( p.getProperties().containsKey("sitename") ) {
-    			ogProperties.put("sitename", p.getProperties().get("sitename").getContent() );
-    		}
-    	}
-    	
-    	if (p.getMainImage() != null) {
-    		if (p.getMainImage().getThumb() != null) {
-    			String thumbUrl = "http://" + env.getProperty("domainname") + env.getProperty("fileStorageUrl") + p.getMainImage().getThumb().getAbsolutePath();
-    			ogProperties.put("iconUrl", thumbUrl);
-    		}
-    	}
-    	
-    	return ogProperties;
-    }
     
     @RequestMapping(value="/{site}/{pageName}/agileImages")
     public @ResponseBody ArrayList<HashMap<String, String>> agileCarouselData(WebRequest webRequest, 

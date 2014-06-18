@@ -157,6 +157,14 @@ public class Site implements Serializable {
 		SiteProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
 		return sp;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public SiteProperty findPropertyById(int id) {
+		if (this.getProperties() == null) return null;
+		SiteProperty sp = this.getProperties().stream().filter(p -> p.getId() == id).findFirst().orElse(null);
+		return sp;
+	}
 
 	@Override
 	public String toString() {

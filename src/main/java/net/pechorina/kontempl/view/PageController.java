@@ -74,8 +74,9 @@ public class PageController extends AbstractController {
         PageForm newPage = new PageForm();
         newPage.setAutoName(true);
        	newPage.setParentId(parentId);
+       	Page parent = pageService.getPage(parentId);
 
-        int sortindex = pageService.getMaxSortindex(parentId);
+        int sortindex = pageService.getMaxSortindex(parent);
         sortindex += 10;
         newPage.setSortindex(sortindex);
         model.addAttribute("pagenode", newPage);
@@ -237,7 +238,8 @@ public class PageController extends AbstractController {
     @RequestMapping(value="/move/{pageId}")
     public String pageMove(@PathVariable("pageId") Integer pageId, @RequestParam(value="direction", required=true) String dir) {    
         logger.debug("move page, pageId=" + pageId + " - " + dir);
-        pageService.movePage(pageId, dir);
+        Page p = pageService.getPage(pageId);
+        pageService.movePage(p, dir);
         return "redirect:/page/tree";
     }
     

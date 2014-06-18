@@ -3,7 +3,6 @@ package net.pechorina.kontempl.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
@@ -16,9 +15,7 @@ import net.pechorina.kontempl.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +53,10 @@ public class PageService {
 	}
 	
 	private void fetchPageProperties(Page p) {
-		Map<String,PageProperty> props = p.getProperties();
-		if (props != null) props.size();
+		if (p != null) {
+			List<PageProperty> props = p.getProperties();
+			if (props != null) props.size();
+		}
 	}
 	
 	@Transactional
@@ -77,7 +76,7 @@ public class PageService {
 	}
 
 	@Transactional
-	@Cacheable("pageCache")
+	//@Cacheable("pageCache")
 	public Page getPageCached(String siteName, String pageName) {
 		Site s = siteRepo.findByName(siteName);
 		Page p = getPage(s, pageName);
@@ -97,15 +96,15 @@ public class PageService {
 	}
 
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
-	public void savePage(Page page) {
-		pageRepo.save(page);
+	//@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	public Page savePage(Page page) {
+		return pageRepo.saveAndFlush(page);
 	}
 
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	//@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
 	public void deletePage(Page page) {
-		deleteSubPages(page.getId());
+		deleteSubPages(page);
 		// remove images
 		imageFileService.removeAllImagesForPage(page.getId());
 		
@@ -114,8 +113,15 @@ public class PageService {
 	}
 	
 	@Transactional
-	public void deleteSubPages(Integer parentId) {
-		List<Page> pages = pageRepo.listSubPages(parentId);
+	//@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	public void deletePage(Integer id) {
+		Page p = pageRepo.findOne(id);
+		if (p != null) deletePage(p);
+	}
+	
+	@Transactional
+	public void deleteSubPages(Page parent) {
+		List<Page> pages = pageRepo.listSubPages(parent.getId(), parent.getSiteId());
 		for(Page p: pages) {
 			deletePage(p);
 		}
@@ -130,9 +136,9 @@ public class PageService {
 	}
 
 	@Transactional
-	public int getMaxSortindex(Integer parentId) {
+	public int getMaxSortindex(Page parent) {
 		int si = 0;
-		List<Page> l = pageRepo.listSubPages(parentId);
+		List<Page> l = pageRepo.listSubPages(parent.getId(), parent.getSiteId());
 		if (l != null && l.size() > 0) {
 			Page lastPage = l.get( l.size() - 1 );
 			if (lastPage != null) {
@@ -144,13 +150,11 @@ public class PageService {
 	}
 	
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
-	public void movePage(Integer pageId, String direction) {
-		Page p = getPage(pageId);
+	//@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	public void movePage(Page p, String direction) {
 		if (p == null) return;
 		
-		
-		List<Page> pages = pageRepo.listSubPages(p.getParentId());
+		List<Page> pages = pageRepo.listSubPages(p.getParentId(), p.getSiteId());
 		
 		int idx = pages.indexOf(p);
 		
@@ -185,14 +189,50 @@ public class PageService {
 	}
 	
 	@Transactional
-	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	public void movePage(Page p, int dstIndex, int newParentId) {
+		Page page = p;
+		if (newParentId != p.getParentId()) {
+			// change parent
+			p.setParentId(newParentId);
+			page = pageRepo.saveAndFlush(p);
+		}
+		setPosition(page, dstIndex);
+	}
+	
+	@Transactional
+	public int getPosition(Page p) {
+		List<Page> siblings = pageRepo.listSubPages(p.getParentId(), p.getSiteId());
+		if (siblings == null) return 0;
+		return siblings.indexOf(p);
+	}
+	
+	private void setPosition(Page p, int pos ) {
+		List<Page> siblings = pageRepo.listSubPages(p.getParentId(), p.getSiteId());
+		int currentIndex = siblings.indexOf(p);
+		if (currentIndex != pos) {
+			siblings.remove(currentIndex);
+			// 12345   2-4 1245 
+			siblings.add(pos, p);
+			logger.debug("save new order by altering sortindex");
+			int idx = 1;
+			for (Page pg: siblings) {
+				logger.debug(" -- "+ pg.getId() + "/" + pg.getName());
+				pg.setSortindex(idx);
+				pageRepo.save(pg);
+				idx++;
+			}
+		}
+	}
+	
+	@Transactional
+	//@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
 	public Page copyPage(Page src) {
 		Page newPage = src.copy();
 		String newName = findNewPageName(src.getSite(), src.getName());
 		newPage.setName(newName);
 		String newTitle = src.getTitle() + " - Copy";
 		newPage.setTitle(newTitle);
-		int sortIndex = getMaxSortindex(src.getParentId()) + 10;
+		int sortIndex = getMaxSortindex(src) + 10;
 		newPage.setSortindex(sortIndex);
 		Page savedNewPage = pageRepo.saveAndFlush(newPage); 
 		
@@ -235,6 +275,18 @@ public class PageService {
 	@Transactional
 	public List<Page> listAll() {
 		return pageRepo.findAll();
+	}
+	
+	@Transactional
+	public List<Page> listBySite(Site site) {
+		return pageRepo.findBySite(site);
+	}
+	
+	@Transactional
+	public boolean findOtherPagesWithSameName(Integer pageId, String name) {
+		Page p = pageRepo.findOne(pageId);
+		long c = pageRepo.countOtherPagesForName(p.getSite(), pageId, name);
+		return (c > 0);
 	}
 	
 }
