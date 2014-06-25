@@ -148,4 +148,33 @@ public class PageTreeService {
 			node.addChild(childNode);
 		}
 	}
+	
+	@Transactional
+	public List<PageNode> getPageNodeTreePublic(Site site) {
+		List<PageNode> tree = new ArrayList<PageNode>();
+
+		List<Page> pages = pageRepo.listRootPages(site);
+
+		for (Page p : pages) {
+			if (p.isPublicPage()) {
+				PageNode rootNode = new PageNode(p);
+				auxiliaryAddPublicChildren(rootNode, p);
+				tree.add(rootNode);
+			}
+		}
+		
+		return tree;
+	}
+	
+	private void auxiliaryAddPublicChildren(PageNode node, Page parentPage) {
+		List<Page> subPages = pageRepo.listSubPages(parentPage.getId(), parentPage.getSiteId());
+
+		for (Page child : subPages) {
+			if (child.isPublicPage()) {
+				PageNode childNode = new PageNode(child);
+				auxiliaryAddChildren(childNode, child);
+				node.addChild(childNode);
+			}
+		}
+	}
 }

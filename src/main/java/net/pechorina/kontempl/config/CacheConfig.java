@@ -17,13 +17,19 @@ public class CacheConfig implements CachingConfigurer {
 	
 	@Bean(destroyMethod="shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
+		net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
+		
         CacheConfiguration pageCache = new CacheConfiguration();
         pageCache.setName("pageCache");
         pageCache.setTimeToLiveSeconds(864000);
         pageCache.setMaxEntriesLocalHeap(1000);
-
-        net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
-        config.addCache(pageCache);
+        config.addCache(pageCache);        
+        
+        CacheConfiguration siteCache = new CacheConfiguration();
+        siteCache.setName("siteCache");
+        siteCache.setTimeToLiveSeconds(864000);
+        siteCache.setMaxEntriesLocalHeap(10);
+        config.addCache(siteCache);
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

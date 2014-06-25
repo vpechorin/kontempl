@@ -8,6 +8,8 @@ public class PageNode implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Integer id;
 	private String title;
+	private String name;
+	private boolean placeholder;
 	private List<PageNode> nodes;
 
 	public PageNode() {
@@ -19,6 +21,8 @@ public class PageNode implements Serializable {
 		super();
 		this.id = p.getId();
 		this.title = p.getTitle();
+		this.name = p.getName();
+		this.placeholder = p.isPlaceholder();
 	}
 
 	public Integer getId() {
@@ -48,6 +52,22 @@ public class PageNode implements Serializable {
 	public void addChild(PageNode n) {
 		if (this.nodes == null) this.nodes = new ArrayList<PageNode>();
 		this.nodes.add(n);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isPlaceholder() {
+		return placeholder;
+	}
+
+	public void setPlaceholder(boolean placeholder) {
+		this.placeholder = placeholder;
 	}
 
 	@Override

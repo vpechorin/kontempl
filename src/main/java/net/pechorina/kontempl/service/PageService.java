@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageProperty;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,9 @@ public class PageService {
     
     @Autowired
     private ImageFileService imageFileService;
+
+    @Autowired
+    private DocFileService docFileService;
     
 	@Autowired
 	private Environment env;
@@ -74,12 +79,11 @@ public class PageService {
 
 		return pages;
 	}
-
+	
 	@Transactional
-	//@Cacheable("pageCache")
-	public Page getPageCached(String siteName, String pageName) {
-		Site s = siteRepo.findByName(siteName);
-		Page p = getPage(s, pageName);
+	@Cacheable("pageCache")
+	public Page getPageCached(Site site, String pageName) {
+		Page p = getPage(site, pageName);
 		if (p != null) {
 			
 			ImageFile im = imageFileService.getMainImageForPage(p.getId());
@@ -89,6 +93,12 @@ public class PageService {
 				p.setMainImage(im);
 				logger.debug("Main image retrieved and set");
 			}
+			
+			List<ImageFile> images = imageFileService.listImagesForPageOrdered(p.getId());
+			if (images != null) p.setImages(images);
+			
+			List<DocFile> files =  docFileService.listDocsForPageOrdered(p.getId());
+			if (files != null) p.setDocs(files);
 
 		}
 

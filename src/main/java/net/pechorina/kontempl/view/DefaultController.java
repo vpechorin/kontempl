@@ -1,7 +1,9 @@
 package net.pechorina.kontempl.view;
 
 import net.pechorina.kontempl.data.Page;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.service.PageService;
+import net.pechorina.kontempl.service.SiteService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +24,17 @@ public class DefaultController {
     
 	@Autowired
     private PageService pageService; 
+	
+	@Autowired
+	private SiteService siteService;
     
     @RequestMapping(value="/v/{site}/robots.txt", method=RequestMethod.GET, produces="text/plain")
     @ResponseBody
     public String robotsPage(@PathVariable("site") String siteName) {
     	logger.debug("show robots.txt page");
+    	Site s =  siteService.findByNameCached(siteName);
     	String responseBody = "";
-    	Page p = pageService.getPageCached(siteName, "robotstxt");
+    	Page p = pageService.getPageCached(s, "robotstxt");
     	if (p != null) {
     		responseBody = p.getBody();
     	}

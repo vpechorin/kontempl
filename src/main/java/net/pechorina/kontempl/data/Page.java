@@ -35,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "page", indexes={
@@ -99,7 +101,14 @@ public class Page implements Serializable, Cloneable {
 	
 	@Transient
 	private ImageFile mainImage;
-
+	
+	@Transient
+	private List<ImageFile> images;
+	
+	@Transient
+	private List<DocFile> docs;
+	
+	@JsonIgnoreProperties(ignoreUnknown=true)
 	public Page() {
 		super();
 		this.parentId = 0;
@@ -272,6 +281,22 @@ public class Page implements Serializable, Cloneable {
 		this.richText = richText;
 	}
 
+	public List<ImageFile> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ImageFile> images) {
+		this.images = images;
+	}
+
+	public List<DocFile> getDocs() {
+		return docs;
+	}
+
+	public void setDocs(List<DocFile> docs) {
+		this.docs = docs;
+	}
+
 	public void checkName() {
 		if (this.getName().isEmpty()) {
 			String pl = StringUtils.convertNameToPath(this.title)
@@ -279,7 +304,8 @@ public class Page implements Serializable, Cloneable {
 			this.setName(pl);
 		}
 	}
-
+	
+	@JsonProperty(value="metadesc")
 	public String getTextDescription(Integer size) {
 		if (size == null) {
 			size = 500;
@@ -324,6 +350,7 @@ public class Page implements Serializable, Cloneable {
 	}
 	
 	@Transient
+	@JsonProperty(value="propertymap")
 	public Map<String,String> getPropertyMap() {
 		if (this.getProperties() == null) return null;
 		Map<String,String> m = this.getProperties().stream().collect(Collectors.toMap(PageProperty::getName, p -> p.getContent()));

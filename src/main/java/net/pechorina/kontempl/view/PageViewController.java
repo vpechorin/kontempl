@@ -6,11 +6,13 @@ import java.util.List;
 
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.exceptions.PageNotFoundException;
 import net.pechorina.kontempl.exceptions.SiteNotFoundException;
 import net.pechorina.kontempl.service.ImageFileService;
 import net.pechorina.kontempl.service.PageNavigationService;
 import net.pechorina.kontempl.service.PageService;
+import net.pechorina.kontempl.service.SiteService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +36,17 @@ public class PageViewController extends AbstractController {
 	private PageNavigationService pageNavService;
 	
 	@Autowired
+	private SiteService siteService;
+	
+	@Autowired
 	private ImageFileService imageFileService;
 	
     @RequestMapping(value="/{site}/index.html")
     public String homePage(@PathVariable("site") String siteName, Model model) throws PageNotFoundException, SiteNotFoundException {    
         logger.debug("show home page");
         String pageName = env.getProperty("homePage");
-        
-        Page p = pageService.getPageCached(siteName, pageName);
+        Site s =  siteService.findByNameCached(siteName);
+        Page p = pageService.getPageCached(s, pageName);
         
         if (p == null) {
         	throw new PageNotFoundException("No home page configured");
@@ -60,7 +65,8 @@ public class PageViewController extends AbstractController {
                 @PathVariable("pageName") String pageName, Model model) throws PageNotFoundException {   
         logger.debug("webRequest: " + webRequest.getDescription(true));
         
-        Page p = pageService.getPageCached(siteName, pageName);
+        Site s =  siteService.findByNameCached(siteName);
+        Page p = pageService.getPageCached(s, pageName);
         
         if (p == null) {
             logger.warn("Page not found: /" + pageName + "/ webrq: " + webRequest.getDescription(true));
@@ -83,7 +89,8 @@ public class PageViewController extends AbstractController {
     public @ResponseBody ArrayList<HashMap<String, String>> agileCarouselData(WebRequest webRequest, 
     		@PathVariable("site") String siteName,
             @PathVariable("pageName") String pageName, Model model) throws PageNotFoundException {
-    	Page p = pageService.getPageCached(siteName, pageName);
+    	Site s =  siteService.findByNameCached(siteName);
+    	Page p = pageService.getPageCached(s, pageName);
     	ArrayList<HashMap<String, String>> l = new ArrayList<HashMap<String, String>>();
     	List<ImageFile> images = imageFileService.listImagesForPageOrdered(p.getId());
     	for(ImageFile img: images) {

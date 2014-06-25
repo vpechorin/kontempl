@@ -8,6 +8,7 @@ import net.pechorina.kontempl.repos.SiteRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -45,16 +46,19 @@ public class SiteService {
 	}
 
 	@Transactional
+	@CacheEvict(value = {"siteCache"}, allEntries = true)
 	public Site save(Site s) {
 		return siteRepo.saveAndFlush(s);
 	}
 	
 	@Transactional
+	@CacheEvict(value = {"siteCache"}, allEntries = true)
 	public void delete(Site s) {
 		siteRepo.delete(s);
 	}
 	
 	@Transactional
+	@CacheEvict(value = {"siteCache"}, allEntries = true)
 	public void delete(Integer id) {
 		siteRepo.delete(id);
 	}

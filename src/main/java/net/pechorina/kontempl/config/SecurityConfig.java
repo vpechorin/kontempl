@@ -49,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         	.and()
         	.addFilterBefore(authenticationTokenProcessingFilter, BasicAuthenticationFilter.class)
             .authorizeRequests()
-                .antMatchers("/resources/**", "/public/**", "/pv/**").permitAll()
+                .antMatchers("/resources/**", "/public/**", "/pv/**", "/api/browse/**").permitAll()
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/users/**").hasRole("admin")
                 .antMatchers("/api/sites/**", "/api/pages/**", "/api/images/**", "/api/sitemap/**").hasRole("editor")
