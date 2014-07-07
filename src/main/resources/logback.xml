@@ -7,15 +7,17 @@
     </layout>
   </appender>
   
-  <logger name="net.pechorina.kontempl" level="debug"/>
-  
   <!--  
   <logger name="net.pechorina.kontempl" level="debug"/>
   <logger name="org.springframework.web" level="debug"/>
   <logger name="org.springframework.http" level="debug"/>
   <logger name="org.springframework.beans" level="info"/>
   <logger name="org.hibernate" level="info"/>
+  <logger name="org.hibernate.SQL" level="trace" />
+  <logger name="org.hibernate.type" level="trace" />  
   -->
+ 
+  <logger name="net.pechorina.kontempl" level="debug"/>
  
   <root level="info">
     <appender-ref ref="STDOUT" />

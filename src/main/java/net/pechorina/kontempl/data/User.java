@@ -1,13 +1,12 @@
 package net.pechorina.kontempl.data;
 
-import static javax.persistence.CascadeType.ALL;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -68,11 +67,11 @@ public class User implements Serializable {
 	private DateTime created;
 	
 	@JsonIgnore
-	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = ALL)
+	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval=true)
 	private Set<Credential> credentials;
 	
 	@JsonIgnore
-	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = ALL)
+	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
 	private Set<AuthToken> authTokens;
 	
 	private static final long serialVersionUID = 1L;
@@ -82,6 +81,9 @@ public class User implements Serializable {
 		this.active = true;
 		this.locked = false;
 		this.created = new DateTime();
+		this.roles = new HashSet<>();
+		this.credentials = new HashSet<>();
+		this.authTokens = new HashSet<>();
 	}
 
 	public User(String name) {
@@ -90,6 +92,9 @@ public class User implements Serializable {
 		this.active = true;
 		this.locked = false;
 		this.name = name;
+		this.roles = new HashSet<>();
+		this.credentials = new HashSet<>();
+		this.authTokens = new HashSet<>();		
 	}
 	
 	@Transient
@@ -157,7 +162,8 @@ public class User implements Serializable {
 	}
 
 	public void setCredentials(Set<Credential> credentials) {
-		this.credentials = credentials;
+		this.credentials.clear();
+		this.credentials.addAll( credentials );
 	}
 	
 	@JsonIgnore
@@ -202,15 +208,14 @@ public class User implements Serializable {
 	}
 
 	public void setAuthTokens(Set<AuthToken> authTokens) {
-		this.authTokens = authTokens;
+		this.authTokens.clear();
+		this.authTokens.addAll( authTokens );
 	}
 	
 	public void addCredential(Credential c) {
-		if (this.getCredentials() != null) this.getCredentials().add(c);
-		else {
-			Set<Credential> creds = new HashSet<Credential>();
-			creds.add(c);
-			this.setCredentials(creds);
+		this.getCredentials().add(c);
+		if (c.getUser() != this) {
+			c.setUser(this);
 		}
 	}
 

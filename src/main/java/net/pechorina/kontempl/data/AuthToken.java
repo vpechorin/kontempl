@@ -1,10 +1,10 @@
 package net.pechorina.kontempl.data;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -12,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -31,8 +30,6 @@ public class AuthToken implements Serializable {
 	private static final DateTimeFormatter dateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 	
 	@Id
-	@GeneratedValue(generator="system-uuid")
-	@GenericGenerator( name="system-uuid", strategy = "uuid2")
 	private String uuid;
 	
 	@JsonIgnore
@@ -53,6 +50,8 @@ public class AuthToken implements Serializable {
 
 	public AuthToken() {
 		super();
+		this.uuid = UUID.randomUUID().toString();
+		
 		DateTime now = new DateTime();
 		this.created = now;
 		this.updated = now;
@@ -60,6 +59,8 @@ public class AuthToken implements Serializable {
 
 	public AuthToken(User user, String ip, String ua) {
 		super();
+		this.uuid = UUID.randomUUID().toString();
+		
 		DateTime now = new DateTime();
 		this.user = user;
 		this.created = now;
@@ -82,6 +83,9 @@ public class AuthToken implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+		if (!user.getAuthTokens().contains(this)) {
+			user.getAuthTokens().add(this);
+		}
 	}
 
 	public DateTime getCreated() {

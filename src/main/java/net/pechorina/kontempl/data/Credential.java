@@ -214,6 +214,9 @@ public class Credential implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+		if (!user.getCredentials().contains(this)) {
+			user.getCredentials().add(this);
+		}
 	}
 
 	public String getAuthData() {

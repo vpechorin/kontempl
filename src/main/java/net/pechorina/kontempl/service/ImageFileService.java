@@ -16,14 +16,13 @@ import net.pechorina.kontempl.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.io.Files;
 
-@Service("imageFileService")
+@Service
 public class ImageFileService {
 	static final Logger logger = LoggerFactory.getLogger(ImageFileService.class);
 
@@ -121,7 +120,7 @@ public class ImageFileService {
 		List<ImageFile> images = imageFileRepo.locateMainImageForPage(pageId);
 		ImageFile im = null;
 		if (images != null && (images.size() > 0)) im = images.get(0);
-		// logger.debug("Image found: " + im);
+		logger.debug("Image found: " + im + " for page: " + pageId);
 		return im;
 	}
 	
@@ -148,7 +147,7 @@ public class ImageFileService {
 			logger.debug("imageFile DB record removed");
 		}
 		else {
-			logger.debug("Will not remove ImageFIle DB record as can't delete the file from the disk");
+			logger.debug("Will not remove ImageFile DB record as can't delete the file from the disk");
 		}
 		
 		logger.debug("deleteImage success=" + success);

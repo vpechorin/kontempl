@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,7 +40,7 @@ public class SiteBrowseResource extends AbstractController {
 		return new ResponseEntity<Site>(s, HttpStatus.OK);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/pages//{pageName}")
+	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/pages/{pageName}")
 	public ResponseEntity<Page> getPageByName(@PathVariable("siteName") String siteName, 
 			@PathVariable("pageName") String pageName) {
 		Site s =  siteService.findByNameCached(siteName);
@@ -47,10 +48,22 @@ public class SiteBrowseResource extends AbstractController {
 		return new ResponseEntity<Page>(p, HttpStatus.OK);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/tree")
-	public List<PageNode> getPageTree(@PathVariable("siteName") String siteName) {
+	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/pages/{pageName}/children")
+	public List<Page> getPageChildrenByName(@PathVariable("siteName") String siteName, 
+			@PathVariable("pageName") String pageName) {
 		Site s =  siteService.findByNameCached(siteName);
-		List<PageNode> tree = pageTreeService.getPageNodeTreePublic(s);
+		Page p = pageService.getPageCached(s, pageName);
+		List<Page> children = pageService.listPageChildren(p);
+		return children;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/tree")
+	public List<PageNode> getPageTree(@PathVariable("siteName") String siteName, 
+			@RequestParam(value="files", required=false) boolean includeFiles,
+			@RequestParam(value="images", required=false) boolean includeImages) {
+		logger.debug("Site tree: " + siteName + ", images:" + includeImages + ", files:" + includeFiles);
+		Site s =  siteService.findByNameCached(siteName);
+		List<PageNode> tree = pageTreeService.getPageNodeTreePublic(s, includeImages, includeFiles);
 		return tree;
 	}
 }

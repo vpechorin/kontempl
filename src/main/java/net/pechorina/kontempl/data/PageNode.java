@@ -11,14 +11,22 @@ public class PageNode implements Serializable {
 	private String name;
 	private boolean placeholder;
 	private List<PageNode> nodes;
+	private List<DocFile> files;
+	private List<ImageFile> images;
 
 	public PageNode() {
 		super();
-		// TODO Auto-generated constructor stub
+		this.nodes = new ArrayList<>();
+		this.files = new ArrayList<>();
+		this.images = new ArrayList<>();
 	}
 	
 	public PageNode(Page p) {
 		super();
+		this.nodes = new ArrayList<>();
+		this.files = new ArrayList<>();
+		this.images = new ArrayList<>();
+		
 		this.id = p.getId();
 		this.title = p.getTitle();
 		this.name = p.getName();
@@ -50,7 +58,6 @@ public class PageNode implements Serializable {
 	}
 	
 	public void addChild(PageNode n) {
-		if (this.nodes == null) this.nodes = new ArrayList<PageNode>();
 		this.nodes.add(n);
 	}
 
@@ -68,6 +75,24 @@ public class PageNode implements Serializable {
 
 	public void setPlaceholder(boolean placeholder) {
 		this.placeholder = placeholder;
+	}
+
+	public List<DocFile> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<DocFile> files) {
+		this.files.clear();
+		this.files.addAll( files );
+	}
+
+	public List<ImageFile> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ImageFile> images) {
+		this.images.clear();
+		this.images.addAll(images);
 	}
 
 	@Override

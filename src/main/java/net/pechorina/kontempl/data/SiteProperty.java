@@ -45,7 +45,6 @@ public class SiteProperty implements Serializable, Cloneable {
 
 	public SiteProperty() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public Integer getId() {
@@ -62,6 +61,9 @@ public class SiteProperty implements Serializable, Cloneable {
 
 	public void setSite(Site site) {
 		this.site = site;
+		if (!site.getProperties().contains(this)) {
+			site.getProperties().add(this);
+		}
 	}
 
 	public String getName() {

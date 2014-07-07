@@ -3,7 +3,9 @@ package net.pechorina.kontempl.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.GenericTreeNode;
+import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageNode;
 import net.pechorina.kontempl.data.PageTree;
@@ -32,6 +34,9 @@ public class PageTreeService {
 	@Autowired
 	private ImageFileService imageFileService;
     
+	@Autowired
+	private DocFileService docFileService;
+	
 	@Autowired
 	private Environment env;
 
@@ -150,7 +155,7 @@ public class PageTreeService {
 	}
 	
 	@Transactional
-	public List<PageNode> getPageNodeTreePublic(Site site) {
+	public List<PageNode> getPageNodeTreePublic(Site site, boolean includeImages, boolean includeFiles) {
 		List<PageNode> tree = new ArrayList<PageNode>();
 
 		List<Page> pages = pageRepo.listRootPages(site);
@@ -158,7 +163,8 @@ public class PageTreeService {
 		for (Page p : pages) {
 			if (p.isPublicPage()) {
 				PageNode rootNode = new PageNode(p);
-				auxiliaryAddPublicChildren(rootNode, p);
+				updateAttachments(rootNode, includeImages, includeFiles);
+				auxiliaryAddPublicChildren(rootNode, p, includeImages, includeFiles);
 				tree.add(rootNode);
 			}
 		}
@@ -166,13 +172,25 @@ public class PageTreeService {
 		return tree;
 	}
 	
-	private void auxiliaryAddPublicChildren(PageNode node, Page parentPage) {
+	private void updateAttachments(PageNode node, boolean includeImages, boolean includeFiles) {
+		if (includeFiles) {
+			List<DocFile> files =  docFileService.listDocsForPageOrdered(node.getId());
+			if (files != null) node.setFiles(files);
+		}
+		if (includeImages) {
+			List<ImageFile> images = imageFileService.listImagesForPageOrdered(node.getId());
+			if (images != null) node.setImages(images);;
+		}
+	}
+	
+	private void auxiliaryAddPublicChildren(PageNode node, Page parentPage, boolean includeImages, boolean includeFiles) {
 		List<Page> subPages = pageRepo.listSubPages(parentPage.getId(), parentPage.getSiteId());
 
 		for (Page child : subPages) {
 			if (child.isPublicPage()) {
 				PageNode childNode = new PageNode(child);
-				auxiliaryAddChildren(childNode, child);
+				updateAttachments(childNode, includeImages, includeFiles);
+				auxiliaryAddPublicChildren(childNode, child, includeImages, includeFiles);
 				node.addChild(childNode);
 			}
 		}

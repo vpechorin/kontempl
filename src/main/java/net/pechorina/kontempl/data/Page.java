@@ -1,13 +1,12 @@
 package net.pechorina.kontempl.data;
 
-import static javax.persistence.CascadeType.ALL;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,7 +39,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "page", indexes={
-//		@Index(name="nameIDX", columnList="name"),
 		@Index(name="parentIDX", columnList="parentId"),
 		@Index(name="sortIndexIDX", columnList="sortindex"),
 		@Index(name="pubIDX", columnList="publicPage")
@@ -95,7 +93,7 @@ public class Page implements Serializable, Cloneable {
 	@Lob
 	private String body;
 	
-	@OneToMany(mappedBy="page", fetch=FetchType.EAGER, cascade=ALL, orphanRemoval=true)
+	@OneToMany(mappedBy="page", fetch=FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval=true)
 	@OrderBy("name ASC")
 	private List<PageProperty> properties;
 	
@@ -119,6 +117,7 @@ public class Page implements Serializable, Cloneable {
 		this.description = "";
 		this.body = "";
 		this.tags = "";
+		
 		DateTime d = new DateTime(); 
 		this.updated = d;
 		this.created = d;
@@ -127,6 +126,7 @@ public class Page implements Serializable, Cloneable {
 		this.hideTitle = false;
 		this.autoName = true;
 		this.richText = true;
+		this.properties = new ArrayList<>();
 	}
 
 	public Integer getId() {
@@ -254,7 +254,8 @@ public class Page implements Serializable, Cloneable {
 	}
 
 	public void setProperties(List<PageProperty> properties) {
-		this.properties = properties;
+		this.properties.clear();
+		this.properties.addAll(properties);
 	}
 
 	public int getSiteId() {
@@ -341,18 +342,17 @@ public class Page implements Serializable, Cloneable {
 	
 	@Transient
 	public void addProperty(PageProperty p) {
-		List<PageProperty> props = this.getProperties();
-		if (props == null) props = new ArrayList<PageProperty>();
 		if (!hasSuchPropertyName(p.getName())) {
-			props.add(p);
-			this.setProperties(props);
+			this.properties.add(p);
+			if (p.getPage() != this) {
+	            p.setPage(this);
+	        }
 		}
 	}
 	
 	@Transient
 	@JsonProperty(value="propertymap")
 	public Map<String,String> getPropertyMap() {
-		if (this.getProperties() == null) return null;
 		Map<String,String> m = this.getProperties().stream().collect(Collectors.toMap(PageProperty::getName, p -> p.getContent()));
 		return m;
 	}
@@ -360,7 +360,6 @@ public class Page implements Serializable, Cloneable {
 	@Transient
 	@JsonIgnore
 	public boolean hasSuchPropertyName(String n) {
-		if (this.getProperties() == null) return false;
 		PageProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
 		return (sp != null);
 	}
@@ -368,7 +367,6 @@ public class Page implements Serializable, Cloneable {
 	@Transient
 	@JsonIgnore
 	public PageProperty findPropertyByName(String n) {
-		if (this.getProperties() == null) return null;
 		PageProperty sp = this.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase(n)).findFirst().orElse(null);
 		return sp;
 	}
@@ -376,7 +374,6 @@ public class Page implements Serializable, Cloneable {
 	@Transient
 	@JsonIgnore
 	public PageProperty findPropertyById(int id) {
-		if (this.getProperties() == null) return null;
 		PageProperty sp = this.getProperties().stream().filter(p -> p.getId() == id).findFirst().orElse(null);
 		return sp;
 	}
@@ -387,6 +384,7 @@ public class Page implements Serializable, Cloneable {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((site == null) ? 0 : site.hashCode());
 		return result;
 	}
 
@@ -409,6 +407,11 @@ public class Page implements Serializable, Cloneable {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (site == null) {
+			if (other.site != null)
+				return false;
+		} else if (!site.equals(other.site))
+			return false;
 		return true;
 	}
 
@@ -428,4 +431,53 @@ public class Page implements Serializable, Cloneable {
 		}
 		return newPage;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Page [id=");
+		builder.append(id);
+		builder.append(", site=");
+		builder.append(site);
+		builder.append(", parentId=");
+		builder.append(parentId);
+		builder.append(", sortindex=");
+		builder.append(sortindex);
+		builder.append(", publicPage=");
+		builder.append(publicPage);
+		builder.append(", autoName=");
+		builder.append(autoName);
+		builder.append(", hideTitle=");
+		builder.append(hideTitle);
+		builder.append(", placeholder=");
+		builder.append(placeholder);
+		builder.append(", richText=");
+		builder.append(richText);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", created=");
+		builder.append(created);
+		builder.append(", updated=");
+		builder.append(updated);
+		builder.append(", title=");
+		builder.append(title);
+		builder.append(", description=");
+		builder.append(description);
+		builder.append(", tags=");
+		builder.append(tags);
+		builder.append(", body=");
+		builder.append(body);
+		builder.append(", properties=");
+		builder.append(properties);
+		builder.append(", mainImage=");
+		builder.append(mainImage);
+		builder.append(", images=");
+		builder.append(images);
+		builder.append(", docs=");
+		builder.append(docs);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+	
 }

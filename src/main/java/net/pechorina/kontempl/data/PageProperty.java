@@ -47,6 +47,9 @@ public class PageProperty implements Serializable, Cloneable {
 
 	public void setPage(Page page) {
 		this.page = page;
+		if (!page.getProperties().contains(this)) {
+            page.getProperties().add(this);
+        }
 	}
 
 	public String getName() {

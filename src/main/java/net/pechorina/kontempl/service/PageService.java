@@ -22,7 +22,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("pageService")
+@Service
 public class PageService {
 	static final Logger logger = LoggerFactory.getLogger(PageService.class);
 
@@ -106,13 +106,13 @@ public class PageService {
 	}
 
 	@Transactional
-	//@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public Page savePage(Page page) {
 		return pageRepo.saveAndFlush(page);
 	}
 
 	@Transactional
-	//@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void deletePage(Page page) {
 		deleteSubPages(page);
 		// remove images
@@ -123,7 +123,7 @@ public class PageService {
 	}
 	
 	@Transactional
-	//@CacheEvict(value = {"publicPageTreeCache", "pageWithElementsCache"}, allEntries = true)
+	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void deletePage(Integer id) {
 		Page p = pageRepo.findOne(id);
 		if (p != null) deletePage(p);
@@ -160,7 +160,7 @@ public class PageService {
 	}
 	
 	@Transactional
-	//@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void movePage(Page p, String direction) {
 		if (p == null) return;
 		
@@ -235,7 +235,7 @@ public class PageService {
 	}
 	
 	@Transactional
-	//@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public Page copyPage(Page src) {
 		Page newPage = src.copy();
 		String newName = findNewPageName(src.getSite(), src.getName());
@@ -277,7 +277,7 @@ public class PageService {
 		return newName;
 	}
 	
-	@CacheEvict(value = {"publicPageTreeCache", "pageCache"}, allEntries = true)
+	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void resetPageCache() {
 		
 	}
@@ -297,6 +297,16 @@ public class PageService {
 		Page p = pageRepo.findOne(pageId);
 		long c = pageRepo.countOtherPagesForName(p.getSite(), pageId, name);
 		return (c > 0);
+	}
+	
+	@Transactional
+	public List<Page> listPageChildren(Page p) {
+		List<Page> children = pageRepo.listSubPages(p.getId(), p.getSiteId());
+		for(Page c: children) {
+			ImageFile f = imageFileService.getMainImageForPage(c.getId());
+			c.setMainImage(f);
+		}
+		return children;
 	}
 	
 }
