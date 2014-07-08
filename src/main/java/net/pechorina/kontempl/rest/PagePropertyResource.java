@@ -9,11 +9,11 @@ import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageProperty;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/pages/{pageId}/properties")
-public class PagePropertyResource extends AbstractController {
+public class PagePropertyResource {
 	static final Logger logger = LoggerFactory.getLogger(PagePropertyResource.class);
 	
 	@Autowired
@@ -32,6 +32,9 @@ public class PagePropertyResource extends AbstractController {
 	
 	@Autowired
 	private PageService pageService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<PageProperty> list(@PathVariable("pageId") Integer pageId) {

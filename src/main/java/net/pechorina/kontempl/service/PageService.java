@@ -38,6 +38,9 @@ public class PageService {
     @Autowired
     private DocFileService docFileService;
     
+    @Autowired
+    private PageTreeService pageTreeService;
+    
 	@Autowired
 	private Environment env;
 	
@@ -108,12 +111,14 @@ public class PageService {
 	@Transactional
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public Page savePage(Page page) {
+		pageTreeService.resetPageTreeCache();
 		return pageRepo.saveAndFlush(page);
 	}
 
 	@Transactional
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void deletePage(Page page) {
+		pageTreeService.resetPageTreeCache();
 		deleteSubPages(page);
 		// remove images
 		imageFileService.removeAllImagesForPage(page.getId());
@@ -125,6 +130,7 @@ public class PageService {
 	@Transactional
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void deletePage(Integer id) {
+		pageTreeService.resetPageTreeCache();
 		Page p = pageRepo.findOne(id);
 		if (p != null) deletePage(p);
 	}
@@ -162,6 +168,7 @@ public class PageService {
 	@Transactional
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void movePage(Page p, String direction) {
+		pageTreeService.resetPageTreeCache();
 		if (p == null) return;
 		
 		List<Page> pages = pageRepo.listSubPages(p.getParentId(), p.getSiteId());
@@ -237,6 +244,7 @@ public class PageService {
 	@Transactional
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public Page copyPage(Page src) {
+		pageTreeService.resetPageTreeCache();
 		Page newPage = src.copy();
 		String newName = findNewPageName(src.getSite(), src.getName());
 		newPage.setName(newName);
@@ -279,7 +287,7 @@ public class PageService {
 	
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public void resetPageCache() {
-		
+		pageTreeService.resetPageTreeCache();
 	}
 	
 	@Transactional

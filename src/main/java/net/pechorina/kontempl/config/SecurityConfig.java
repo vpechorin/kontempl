@@ -50,10 +50,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         	.addFilterBefore(authenticationTokenProcessingFilter, BasicAuthenticationFilter.class)
             .authorizeRequests()
                 .antMatchers("/resources/**", "/public/**", "/pv/**", "/api/browse/**").permitAll()
+                .antMatchers("/env/**", "/info/**", "/metrics/**", "/health/**").permitAll()
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/users/**").hasRole("admin")
                 .antMatchers("/api/sites/**", "/api/pages/**", "/api/images/**", "/api/sitemap/**").hasRole("editor")
                 .anyRequest().authenticated()
+                .and().httpBasic()
             ;
    
 

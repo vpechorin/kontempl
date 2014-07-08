@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.AuthToken;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/users/{userId}/authtokens")
-public class AuthTokensResource extends AbstractController {
+public class AuthTokensResource {
 	static final Logger logger = LoggerFactory.getLogger(AuthTokensResource.class);
 	
 	@Autowired

@@ -14,7 +14,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("siteService")
+@Service
 public class SiteService {
 	static final Logger logger = LoggerFactory.getLogger(SiteService.class);
 

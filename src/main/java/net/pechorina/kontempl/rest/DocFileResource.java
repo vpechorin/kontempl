@@ -15,11 +15,11 @@ import net.pechorina.kontempl.service.DocFileService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
 import net.pechorina.kontempl.utils.StringUtils;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +33,7 @@ import com.google.common.io.Files;
 
 @RestController
 @RequestMapping(value = "/api/pages/{pageId}/files")
-public class DocFileResource extends AbstractController {
+public class DocFileResource {
 	static final Logger logger = LoggerFactory.getLogger(DocFileResource.class);
 	
 	@Autowired
@@ -44,6 +44,9 @@ public class DocFileResource extends AbstractController {
 	
 	@Autowired
 	private DocFileService docFileService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<DocFile> list(@PathVariable("pageId") Integer pageId) {

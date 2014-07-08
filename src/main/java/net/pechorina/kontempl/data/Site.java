@@ -39,6 +39,8 @@ public class Site implements Serializable {
 	
 	private String domain;
 	
+	private String homePage;
+	
 	@OneToMany(mappedBy="site", fetch=FetchType.EAGER, cascade=ALL, orphanRemoval=true)
 	@OrderBy("name ASC")
 	private List<SiteProperty> properties;
@@ -122,6 +124,14 @@ public class Site implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getHomePage() {
+		return homePage;
+	}
+
+	public void setHomePage(String homePage) {
+		this.homePage = homePage;
 	}
 
 	public List<SiteProperty> getProperties() {

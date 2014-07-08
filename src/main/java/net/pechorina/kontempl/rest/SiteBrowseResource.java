@@ -8,11 +8,11 @@ import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.PageTreeService;
 import net.pechorina.kontempl.service.SiteService;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class SiteBrowseResource extends AbstractController {
+public class SiteBrowseResource {
 	static final Logger logger = LoggerFactory.getLogger(SiteBrowseResource.class);
 	
 	@Autowired
@@ -33,6 +33,9 @@ public class SiteBrowseResource extends AbstractController {
 
 	@Autowired
 	private PageTreeService pageTreeService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}")
 	public ResponseEntity<Site> getSiteByName(@PathVariable("siteName") String siteName) {

@@ -206,6 +206,13 @@ public class User implements Serializable {
 	public Set<AuthToken> getAuthTokens() {
 		return authTokens;
 	}
+	
+	public void addAuthToken(AuthToken t) {
+		this.authTokens.add(t);
+		if (t.getUser() != this) {
+			t.setUser(this);
+		}
+	}
 
 	public void setAuthTokens(Set<AuthToken> authTokens) {
 		this.authTokens.clear();
@@ -213,7 +220,7 @@ public class User implements Serializable {
 	}
 	
 	public void addCredential(Credential c) {
-		this.getCredentials().add(c);
+		this.credentials.add(c);
 		if (c.getUser() != this) {
 			c.setUser(this);
 		}

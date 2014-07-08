@@ -30,6 +30,12 @@ public class CacheConfig implements CachingConfigurer {
         siteCache.setTimeToLiveSeconds(864000);
         siteCache.setMaxEntriesLocalHeap(10);
         config.addCache(siteCache);
+        
+        CacheConfiguration treeCache = new CacheConfiguration();
+        treeCache.setName("treeCache");
+        treeCache.setTimeToLiveSeconds(864000);
+        treeCache.setMaxEntriesLocalHeap(10);
+        config.addCache(treeCache);
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

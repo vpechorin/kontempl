@@ -8,13 +8,13 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.Credential;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
-import net.pechorina.kontempl.view.AbstractController;
 import net.pechorina.kontempl.view.forms.CredentialPasswordForm;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,11 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/users/{userId}/credentials")
-public class UserCredentialsResource extends AbstractController {
+public class UserCredentialsResource {
 	static final Logger logger = LoggerFactory.getLogger(UserCredentialsResource.class);
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method = RequestMethod.GET) 
 	public Set<Credential> getCredentials(@PathVariable("userId") Integer userId) {
@@ -51,13 +54,12 @@ public class UserCredentialsResource extends AbstractController {
 		c.setActive(true);
 		c.setCreated(new DateTime());
 		c.setUpdated(new DateTime());
-		c.setUser(u);
 		c.setUsername(cr.getUsername());
 		c.setLink(cr.getLink());
 		c.setOptData(cr.getOptData());
 		userService.updatePasswordEmailCredential(c, cr.getEmail(), cr.getPassword());
 		u.addCredential(c);
-		userService.saveCredential(c);
+		userService.save(u);
 		logger.info("CREDENTIAL ADDED: " + c + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_CREATED);
 	}

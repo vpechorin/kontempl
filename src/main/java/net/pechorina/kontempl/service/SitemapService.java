@@ -1,41 +1,44 @@
 package net.pechorina.kontempl.service;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.GZIPOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageTree;
-import net.pechorina.kontempl.utils.XmlUrl;
-import net.pechorina.kontempl.utils.XmlUrlSet;
+import net.pechorina.kontempl.data.Site;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ParseException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.redfin.sitemapgenerator.ChangeFreq;
+import com.redfin.sitemapgenerator.W3CDateFormat;
+import com.redfin.sitemapgenerator.W3CDateFormat.Pattern;
+import com.redfin.sitemapgenerator.WebSitemapGenerator;
+import com.redfin.sitemapgenerator.WebSitemapUrl;
 
-@Service("sitemapService")
+@Service
 public class SitemapService {
 	static final Logger logger = LoggerFactory.getLogger(SitemapService.class);
 
@@ -44,149 +47,114 @@ public class SitemapService {
 	
 	@Autowired
 	private PageTreeService pageTreeService;
+	
+	@Autowired
+	private SiteService siteService;
     
 	@Autowired
-	private org.springframework.core.env.Environment env;
+	private Environment env;
 	
-	@Autowired
-	@Qualifier("freemarkerCommonConfiguration")
-	Configuration freemarkerCfg;
-
-	public XmlUrlSet makeSitemap() {
-    	logger.debug("make sitemap");
-    	XmlUrlSet xmlUrlSet = new XmlUrlSet();
-    	String domainName = env.getProperty("domainname");
-    	
-    	// add homepage
-    	XmlUrl xuRoot = new XmlUrl("http://" + domainName + "/", XmlUrl.Priority.TOP, "daily");
-		xmlUrlSet.addUrl(xuRoot);
+	public void makeSitemap(boolean submit) {
+		String sitemapDef = env.getProperty("sitemaps");
+		Iterable<String> sitemapItems = Splitter.on(',')
+	       .trimResults()
+	       .omitEmptyStrings()
+	       .split(sitemapDef);
 		
-		//TO DO
-		//PageTree tree = pageTreeService.getPublicPageTree();
-		PageTree tree = null;
-		
-		GenericTreeNode<Page> home = tree.findPageNode(env.getProperty("homePage"));
-		if (home != null) {
-			auxAddPages(home, xmlUrlSet);
+		for(String item: sitemapItems) {
+			Iterable<String> sitemapProps = Splitter.on(':').trimResults().split(item);
+			String siteName = Iterables.getFirst(sitemapProps, null);
+			String sitemapPath = Iterables.getLast(sitemapProps);
+			Site site = siteService.findByName(siteName);
+			makeSiteSitemap(site, sitemapPath, submit);
 		}
-		
-		return xmlUrlSet;
 	}
 	
-	private void auxAddPages(GenericTreeNode<Page> parent, XmlUrlSet xmlUrlSet) {
-		String domainName = env.getProperty("domainname");
-
-		if (parent.hasChildren()) {
-			for(GenericTreeNode<Page> child: parent.getChildren()) {
-				if (!child.getData().isPlaceholder()) {
-					String childUrl = "http://" + domainName + "/pv/" + child.getData().getName();
-					XmlUrl childXu = new XmlUrl(childUrl, XmlUrl.Priority.HIGH, "daily");
-					childXu.setLastmod(child.getData().lastModifiedDate());
-					xmlUrlSet.addUrl(childXu);
-				}
-
-				auxAddPages(child, xmlUrlSet);
+	private void makeSiteSitemap(Site site, String sitemapPath, boolean submit) {
+		List<WebSitemapUrl> urls = makeUrlList(site);
+		
+		String siteUrl = "http://" + site.getDomain() + "/";
+		
+		W3CDateFormat dateFormat = new W3CDateFormat(Pattern.DAY); 
+		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+		WebSitemapGenerator wsg = null;
+		try {
+			File path = new File(sitemapPath);
+			wsg = WebSitemapGenerator.builder(siteUrl, path).dateFormat(dateFormat).build();
+		} catch (MalformedURLException e) {
+			logger.error("Bad site url: " + e);
+		}
+		wsg.addUrls(urls);
+		wsg.write();
+		if (submit) {
+			try {
+				submitSitemap(site);
+			} catch (IOException e) {
+				logger.error("Error submitting sitemap:" + e);
 			}
 		}
 	}
 	
-    public void saveSitemapCompressed(XmlUrlSet xmlUrlSet) {
-    	String sitemapFile = env.getProperty("sitemapPath");
+	private List<WebSitemapUrl> makeUrlList(Site site) {
+    	logger.debug("make sitemap for " + site.getDomain());
+    	List<WebSitemapUrl> urls = new ArrayList<WebSitemapUrl>();
     	
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("urlset", xmlUrlSet);
-		model.put("env", env);
+    	String domainName = site.getDomain();
 		
-        GZIPOutputStream out;
+		PageTree tree = pageTreeService.getPublicPageTree(site);
+
+		String url = "http://" + domainName + "/"; 
+		WebSitemapUrl homeUrl = null;
 		try {
-			out = new GZIPOutputStream(new FileOutputStream(sitemapFile));
-			Writer w = new OutputStreamWriter(out);
-			Template t = freemarkerCfg.getTemplate("commons/sitemap.ftl");
-			freemarker.core.Environment e = t.createProcessingEnvironment(model, w);
-			e.setOutputEncoding(getCharset());
-			e.process();
-			out.flush();
-			out.close();
-		} catch (FileNotFoundException e) {
-			logger.error("File not found: " + sitemapFile + " " + e);
-		} catch (IOException e) {
-			logger.error("IO error: " + sitemapFile + " " + e);
-		} catch (TemplateException e) {
-			logger.error("Template error: " + sitemapFile + " " + e);
+			homeUrl = new WebSitemapUrl.Options(url)
+			.lastMod(new Date()).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
+			urls.add(homeUrl);
+		} catch (MalformedURLException e1) {
+			logger.error("Error generating hoem page url: " + e1);
 		}
-    }
-    
-    public void saveSitemapUncompressed(XmlUrlSet xmlUrlSet) {
-    	String sitemapFile = env.getProperty("sitemapPath");
-    	
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("urlset", xmlUrlSet);
-		model.put("env", env);
 		
-        FileOutputStream out;
-		try {
-			out = new FileOutputStream(sitemapFile);
-			Writer w = new OutputStreamWriter(out);
-			Template t = freemarkerCfg.getTemplate("commons/sitemap.ftl");
-			freemarker.core.Environment e = t.createProcessingEnvironment(model, w);
-			e.setOutputEncoding(getCharset());
-			e.process();
-			out.flush();
-			out.close();
-		} catch (FileNotFoundException e) {
-			logger.error("File not found: " + sitemapFile + " " + e);
-		} catch (IOException e) {
-			logger.error("IO error: " + sitemapFile + " " + e);
-		} catch (TemplateException e) {
-			logger.error("Template error: " + sitemapFile + " " + e);
+		List<GenericTreeNode<Page>> nodes = tree.listAllChildren();
+		for(GenericTreeNode<Page> node: nodes) {
+			Page p = node.getData();
+			if (p.getName().equalsIgnoreCase(site.getHomePage())) {
+				continue;
+			}
+			WebSitemapUrl u = null;
+			try {
+				u = makeSitemapUrl(p, site);
+				urls.add(u);
+			} catch (MalformedURLException e) {
+				logger.error("Bad url: " + e);
+			}
+			
 		}
-    }
+		
+		return urls;
+	}
 	
-    private String getCharset() {
-        String c = "ISO-8859-1";
-        if (env.containsProperty("sitemapCharset")) {
-            c = env.getProperty("sitemapCharset");
-        }
-        return c;
-    }
+	private WebSitemapUrl makeSitemapUrl(Page p, Site s) throws MalformedURLException {
+		String u = "http://" + s.getDomain() + "/pv/" + p.getName();
+		WebSitemapUrl url = new WebSitemapUrl.Options(u)
+	    .lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
+		return url;
+	}
     
     public void onlyUpdateSitemap() {
-    	XmlUrlSet s = makeSitemap();
-    	
-    	if (s != null) {
-    		logger.debug(s.getXmlUrls().size() + " urls in sitemap");
-    		if (env.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
-    			saveSitemapCompressed(s);
-    			logger.debug("gziped sitemap saved");
-    		}
-    		else {
-    			saveSitemapUncompressed(s);
-    		}
-    		logger.debug("xml sitemap saved");
-    	}
+    	makeSitemap(false);
     }
     
     public void updateSitemap() {
-    	XmlUrlSet s = makeSitemap();
-    	
-    	if (s != null) {
-    		logger.debug(s.getXmlUrls().size() + " urls in sitemap");
-    		if (env.getProperty("sitemapCompressed").equalsIgnoreCase("yes")) {
-    			saveSitemapCompressed(s);
-    			logger.debug("gziped sitemap saved");
-    		}
-    		else {
-    			saveSitemapUncompressed(s);
-    		}
-    		logger.info("xml sitemap saved, pages: " + s.getXmlUrls().size());
-    		if (env.getProperty("sitemapSubmitSw").equalsIgnoreCase("on")) {
-    			submitSitemap();
-    		}
-    	}
+    	makeSitemap(true);
     }
     
-    public void submitSitemap() {
-    	String sitemapLocation = "http://" + env.getProperty("domainname") + env.getProperty("sitemapUrl");
+    @Scheduled(cron="* 30 4 * * MON-SAT")
+    public void scheduledUpdate() {
+    	Boolean submit = env.getProperty("sitemapSubmit", Boolean.class);
+    	makeSitemap(submit);
+    }
+    
+    public void submitSitemap(Site site) throws IOException {
+    	String sitemapLocation = "http://" + site.getDomain() + env.getProperty("sitemapUrl");
     	String url = "";
 		try {
 			url = env.getProperty("sitemapSubmitUrl") + "?sitemap=" + URLEncoder.encode(sitemapLocation, "ISO-8859-1");
@@ -195,8 +163,7 @@ public class SitemapService {
 		}
 
 		logger.debug("URL: " + url);
-		HttpClient httpclient = new DefaultHttpClient();
-
+		CloseableHttpClient httpclient = HttpClients.createDefault();
     	try {
     		HttpGet httpget = new HttpGet(url);
     		
@@ -217,7 +184,7 @@ public class SitemapService {
     		logger.error("Fatal parse error: " + e.getMessage());    		
     	} finally {
     		// Release the connection.
-    		httpclient.getConnectionManager().shutdown();
+    		httpclient.close();
     	}  
     }
 }

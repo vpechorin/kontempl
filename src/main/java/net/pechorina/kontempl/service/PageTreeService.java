@@ -16,12 +16,13 @@ import net.pechorina.kontempl.repos.SiteRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("pageTreeService")
+@Service
 public class PageTreeService {
 	static final Logger logger = LoggerFactory.getLogger(PageTreeService.class);
 
@@ -103,15 +104,13 @@ public class PageTreeService {
 	}
 
 	@Transactional
-	@Cacheable("publicPageTreeCache")
-	public PageTree getPublicPageTree(String sitename) {
-		logger.debug("getPublicPageTree");
-		
-		Site site = siteRepo.findByName(sitename);
+	public PageTree getPublicPageTree(Site site) {
+		logger.debug("getPublicPageTree: " + site.getDomain());
+
 		PageTree pageTree = new PageTree();
 
 		// find home page
-		Page homePage = pageRepo.findBySiteAndName(site, env.getProperty("homePage"));
+		Page homePage = pageRepo.findBySiteAndName(site, site.getHomePage());
 		
 		if (homePage == null) {
 			logger.warn("Homepage not found");
@@ -155,6 +154,7 @@ public class PageTreeService {
 	}
 	
 	@Transactional
+	@Cacheable("treeCache")
 	public List<PageNode> getPageNodeTreePublic(Site site, boolean includeImages, boolean includeFiles) {
 		List<PageNode> tree = new ArrayList<PageNode>();
 
@@ -194,5 +194,10 @@ public class PageTreeService {
 				node.addChild(childNode);
 			}
 		}
+	}
+	
+	@CacheEvict(value = {"treeCache"}, allEntries = true)
+	public void resetPageTreeCache() {
+		
 	}
 }

@@ -7,12 +7,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
-import net.pechorina.kontempl.view.AbstractController;
 import net.pechorina.kontempl.view.forms.UserFormNew;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/users")
-public class UserAccountsResource extends AbstractController {
+public class UserAccountsResource {
 	static final Logger logger = LoggerFactory.getLogger(UserAccountsResource.class);
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method = RequestMethod.GET) 
 	public List<User> getUsers() {
@@ -63,7 +66,12 @@ public class UserAccountsResource extends AbstractController {
 	public void save(@PathVariable("id") Integer id, 
 			@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
 		
-		User entity = userService.save(user);
+		User existingUser = userService.getUserById(id);
+		existingUser.setActive(user.isActive());
+		existingUser.setLocked(user.isLocked());
+		existingUser.setName(user.getName());
+		existingUser.setRoles(user.getRoles());
+		User entity = userService.save(existingUser);
 
 		logger.info("USER SAVED: " + entity + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);

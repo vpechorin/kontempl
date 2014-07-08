@@ -17,11 +17,11 @@ import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
 import net.pechorina.kontempl.utils.ImageUtils;
 import net.pechorina.kontempl.utils.StringUtils;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +35,7 @@ import com.google.common.io.Files;
 
 @RestController
 @RequestMapping(value = "/api/pages/{pageId}/images")
-public class PageImagesResource extends AbstractController {
+public class PageImagesResource {
 	static final Logger logger = LoggerFactory.getLogger(PageImagesResource.class);
 	
 	@Autowired
@@ -46,6 +46,9 @@ public class PageImagesResource extends AbstractController {
 	
 	@Autowired
 	private ImageFileService imgService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<ImageFile> list(@PathVariable("pageId") Integer pageId) {

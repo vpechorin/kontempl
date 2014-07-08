@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.data.SiteProperty;
 import net.pechorina.kontempl.service.SiteService;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,11 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/sites")
-public class SiteResource extends AbstractController {
+public class SiteResource {
 	private static final Logger logger = LoggerFactory.getLogger(SiteResource.class);
 	
 	@Autowired
 	private SiteService siteService;
+	
+	@Autowired
+	private Environment env;
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Site> list() {
@@ -110,6 +113,7 @@ public class SiteResource extends AbstractController {
 		existingEntity.setDomain(site.getDomain());
 		existingEntity.setTitle(site.getTitle());
 		existingEntity.setName(site.getName());
+		existingEntity.setHomePage(site.getHomePage());
 		
 		Site savedEntity = siteService.save(existingEntity);
 		logger.info("SITE SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());

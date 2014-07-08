@@ -1,8 +1,8 @@
 package net.pechorina.kontempl.service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -16,10 +16,12 @@ import net.pechorina.kontempl.repos.CredentialRepo;
 import net.pechorina.kontempl.repos.UserRepo;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("userService")
+@Service
 public class UserService {
 	static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -51,13 +53,37 @@ public class UserService {
 		AuthToken a = authTokenRepo.findOne(uuid);
 		logger.debug("Token retrieved: " + a);
 		// check if it is not expired
-		if ( (a!= null) && (a.getUpdated().plusMinutes(tokenExpireMinutes).isBeforeNow()) ) {
+		if ( (a != null) && (a.getUpdated().plusMinutes(tokenExpireMinutes).isBeforeNow()) ) {
 			// expired
 			authTokenRepo.delete(uuid);
 			logger.debug("Token expired: " + a);
 			return null;
 		}
+		
+		if (a != null) {
+			// update token
+			a.setUpdated(new DateTime());
+			return authTokenRepo.saveAndFlush(a);
+		}
+		
 		return a;
+	}
+	
+	// run every two hours
+	@Scheduled(fixedRate=7200000)
+	@Transactional
+	public void removeExpiredTokens() {
+		List<AuthToken> tokens = authTokenRepo.findAll();
+		int tokenExpireMinutes = Integer.parseInt( env.getProperty("auth_token_expire") );
+		List<AuthToken> expiredTokens = tokens.stream().filter(t -> t.getUpdated().plusMinutes(tokenExpireMinutes).isBeforeNow() ).collect(Collectors.toList());
+		int cnt = 0;
+		for(AuthToken t: expiredTokens) {
+			authTokenRepo.delete(t);
+			cnt++;
+		}
+		if (cnt > 0) {
+			logger.info("Removed " + cnt + " expired auth tokens.");
+		}
 	}
 	
 	@Transactional
@@ -75,10 +101,7 @@ public class UserService {
         	String uid = "password:" + email;
         	Credential c = new Credential(u, "password", uid, email, pwdHash);
     		c.setVerified(true);
-    		logger.debug(c.toString());
-    		Set<Credential> userCredentials = new HashSet<Credential>();
-    		userCredentials.add(c);
-    		u.setCredentials(userCredentials);
+    		u.addCredential(c);
         }
         
         User entity = userRepo.saveAndFlush(u);
@@ -131,29 +154,18 @@ public class UserService {
 	@Transactional
 	public Set<Credential> getUserCredentials(Integer userId) {
 		User u = userRepo.findOne(userId);
-		Set<Credential> res = null;
 		int s = 0;
 		if (u.getCredentials() != null) {
 			s = u.getCredentials().size();
-			res = u.getCredentials();
 		}
 		logger.debug("total credentials found: " + s);
-		return res;
+		return u.getCredentials();
 	}
 	
 	@Transactional
 	public Credential getUserCredential(Integer userId, String authType) {
-		Credential c = null;
 		User u = userRepo.findOne(userId);
-		if (u.getCredentials() != null) {
-			for(Credential cr: u.getCredentials()) {
-				if (cr.getAuthServiceType().equalsIgnoreCase(authType)) {
-					c = cr;
-					break;
-				}
-			}
-		}
-
+		Credential c = u.getCredentials().stream().filter(cr -> cr.getAuthServiceType().equalsIgnoreCase(authType)).findFirst().orElse(null);
 		return c;
 	}
 	
@@ -174,7 +186,7 @@ public class UserService {
 	
 	@Transactional
 	public void saveCredential(Credential entity) {
-		credentialRepo.save(entity);
+		credentialRepo.saveAndFlush(entity);
 	}
 	
 	@Transactional
@@ -204,7 +216,7 @@ public class UserService {
     	c.setEmail(email);
     	c.setUid(uid);
     	c.setAuthData(pwdHash);
-    	credentialRepo.save(c);
+    	credentialRepo.saveAndFlush(c);
 	}
 	
 	@Transactional

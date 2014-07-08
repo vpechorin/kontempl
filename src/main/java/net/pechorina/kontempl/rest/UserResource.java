@@ -8,12 +8,12 @@ import net.pechorina.kontempl.data.TokenTransfer;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.exceptions.UnauthorizedException;
 import net.pechorina.kontempl.service.UserService;
-import net.pechorina.kontempl.view.AbstractController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,11 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/user")
-public class UserResource extends AbstractController {
+public class UserResource {
 	static final Logger logger = LoggerFactory.getLogger(UserResource.class);
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private Environment env;
 	
 	@Autowired
 	@Qualifier("authenticationManager")

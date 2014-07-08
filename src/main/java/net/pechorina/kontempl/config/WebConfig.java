@@ -1,7 +1,6 @@
 package net.pechorina.kontempl.config;
 
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.transform.Source;
 
@@ -11,7 +10,6 @@ import net.pechorina.kontempl.filters.LoggingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
@@ -24,13 +22,13 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
-import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.context.request.WebRequestInterceptor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +37,8 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages="net.pechorina.kontempl")
+@EnableAsync
+@EnableScheduling
 public class WebConfig extends WebMvcConfigurerAdapter {
 	
 	@Autowired
@@ -62,23 +61,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		registry.addInterceptor(loggingInterceptor).addPathPatterns("/**");
 		registry.addInterceptor(headerInterceptor).addPathPatterns("/view/**");
 		registry.addWebRequestInterceptor(commonDataInterceptor).addPathPatterns("/view/**");
-	}
-	
-	@Bean(name="freemarkerCommonConfiguration")
-	public FreeMarkerConfigurationFactoryBean freemarkerConfiguration() {
-		FreeMarkerConfigurationFactoryBean factory = new FreeMarkerConfigurationFactoryBean();
-		factory.setTemplateLoaderPaths(env.getProperty("spring.freemarker.templateLoaderPath"));
-		Properties settings = new Properties();
-		settings.setProperty("output_encoding", env.getProperty("spring.freemarker.templateEncoding"));
-		factory.setFreemarkerSettings(settings);
-		return factory;
-	}
-	
-	@Bean(name="freemarkerConfig")
-	public FreeMarkerConfigurer freeMarkerConfigurer() {
-	    FreeMarkerConfigurer fmc = new FreeMarkerConfigurer();
-	    fmc.setTemplateLoaderPath("classpath:/templates/");
-	    return fmc;
 	}
 	
 	@Override
