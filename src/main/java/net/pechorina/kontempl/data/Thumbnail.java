@@ -1,7 +1,5 @@
 package net.pechorina.kontempl.data;
 
-import static javax.persistence.CascadeType.PERSIST;
-
 import java.io.File;
 import java.io.Serializable;
 
@@ -14,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "thumbnail", indexes={
@@ -37,8 +37,9 @@ public class Thumbnail implements Serializable {
 	@Column(insertable = false, updatable = false, unique = true)
 	private Integer imageFileId;
 	
-	@OneToOne(cascade = PERSIST)
+	@OneToOne
 	@JoinColumn(name = "imageFileId", referencedColumnName = "id")
+	@JsonIgnore
 	private ImageFile imageFile;
 
 	public Thumbnail() {
@@ -111,6 +112,51 @@ public class Thumbnail implements Serializable {
 		this.imageFileId = imageFileId;
 	}
 
+	public ImageFile getImageFile() {
+		return imageFile;
+	}
+
+	public void setImageFile(ImageFile imageFile) {
+		this.imageFile = imageFile;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((pageId == null) ? 0 : pageId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Thumbnail other = (Thumbnail) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (pageId == null) {
+			if (other.pageId != null)
+				return false;
+		} else if (!pageId.equals(other.pageId))
+			return false;
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -124,25 +170,10 @@ public class Thumbnail implements Serializable {
 		builder.append(width);
 		builder.append(", height=");
 		builder.append(height);
+		builder.append(", imageFileId=");
+		builder.append(imageFileId);
 		builder.append("]");
 		return builder.toString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Thumbnail))
-			return false;
-		Thumbnail other = (Thumbnail) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
 	}
 
 }

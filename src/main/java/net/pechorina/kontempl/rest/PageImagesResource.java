@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,6 +66,9 @@ public class PageImagesResource {
 	public void setAsMainImage(@PathVariable("pageId") Integer pageId, @PathVariable("id") Integer id, HttpServletResponse response) {
 		ImageFile im = imgService.getImageById(id);
 		imgService.markImageAsMainImage(im);
+		
+		pageService.resetPageCache();
+		
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 	
@@ -72,6 +76,9 @@ public class PageImagesResource {
 	public void moveImageUp(@PathVariable("pageId") Integer pageId,@PathVariable("id") Integer id, HttpServletResponse response) {
 		ImageFile im = imgService.getImageById(id);
 		imgService.moveImage(im, "up");
+		
+		pageService.resetPageCache();
+		
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 	
@@ -79,6 +86,9 @@ public class PageImagesResource {
 	public void moveImageDown(@PathVariable("pageId") Integer pageId,@PathVariable("id") Integer id, HttpServletResponse response) {
 		ImageFile im = imgService.getImageById(id);
 		imgService.moveImage(im, "down");
+		
+		pageService.resetPageCache();
+		
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 	
@@ -87,6 +97,8 @@ public class PageImagesResource {
 	LinkedList<FileMeta> upload(@PathVariable("pageId") Integer pageId,
 			MultipartHttpServletRequest request, HttpServletResponse response) {
 		
+		String requestId = UUID.randomUUID().toString();
+		
 		LinkedList<FileMeta> files = new LinkedList<FileMeta>();
 
 		Iterator<String> itr = request.getFileNames();
@@ -94,8 +106,7 @@ public class PageImagesResource {
 
 		while (itr.hasNext()) {
 			mpf = request.getFile(itr.next());
-			System.out.println(mpf.getOriginalFilename() + " uploaded! "
-					+ files.size());
+			logger.debug( mpf.getOriginalFilename() + " uploaded! " + files.size());
 
 			FileMeta fileMeta = new FileMeta();
 			fileMeta.setFileName(StringUtils.prettifyFilename( mpf.getOriginalFilename().toLowerCase() ) );
@@ -103,29 +114,33 @@ public class PageImagesResource {
 			fileMeta.setFileType(mpf.getContentType());
 
 			try {
-				fileMeta.setBytes(mpf.getBytes());
+				fileMeta.setBytes( mpf.getBytes() );
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
+			
 			files.add(fileMeta);
+			logger.debug(requestId + " file uploaded: " + fileMeta);
 		}
+		
+		logger.debug(requestId + " files uploaded: " + files.size());
 
 		if (files.size() > 0) {
 			for (FileMeta fm : files) {
+				logger.debug(requestId + " Processing: " + fm.getFileName() + " -- " + fm.getFileType());
 				ImageFile im = new ImageFile(fm);
 				im.setPageId(pageId);
-				String filePath = env.getProperty("fileStoragePath")
-						+ im.getAbsolutePath();
-				String dirPath = env.getProperty("fileStoragePath")
-						+ im.getDirectoryPath();
+				String filePath = env.getProperty("fileStoragePath") + im.getAbsolutePath();
+				logger.debug(requestId + " filePath: " + filePath);
+				String dirPath = env.getProperty("fileStoragePath") + im.getDirectoryPath();
+				logger.debug(requestId + " dirPath: " + dirPath);
+				
 				boolean success = false;
 				try {
 					File f = new File(filePath);
 					File d = new File(dirPath);
 					if (!d.exists()) {
-						logger.debug("Image directory do not exists, create new: "
-								+ dirPath);
+						logger.debug("Image directory do not exists, create new: " + dirPath);
 						Files.createParentDirs(f);
 					}
 					Files.write(fm.getBytes(), f);
@@ -140,16 +155,13 @@ public class PageImagesResource {
 					success = false;
 				}
 				if (success) {
-					int sortIndex = imgService.getNextImageSortIndex(pageId);
-					im.setSortIndex(sortIndex);
-					imgService.adjustMainImageStatusForNewImage(im);
-					ImageFile i = imgService.save(im);
-					logger.debug("Image " + filePath + " saved: " + i);
+					ImageFile i = imgService.saveNew(im);
+					logger.debug(requestId + " Image " + filePath + " saved: " + i);
 				}
 			}
 		}
 		
-		// pageService.resetPageCache();
+		pageService.resetPageCache();
 
 		return files;
 	}
@@ -165,6 +177,9 @@ public class PageImagesResource {
 		existingEntity.setSortIndex(im.getSortIndex());
 		
 		ImageFile savedEntity = imgService.save(existingEntity);
+		
+		pageService.resetPageCache();
+		
 		logger.info("IMAGE UPDATE/SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
@@ -174,6 +189,9 @@ public class PageImagesResource {
 			HttpServletRequest request, HttpServletResponse response) {
 		ImageFile im = imgService.getImageById(id);
 		imgService.deleteImage(im);
+		
+		pageService.resetPageCache();
+		
 		logger.info("IMAGE DELETE: " + im + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}

@@ -43,8 +43,6 @@ public class PersistenceConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		vendorAdapter.setGenerateDdl(Boolean.TRUE);
-		vendorAdapter.setShowSql(Boolean.TRUE);
 		factory.setDataSource(dataSource());
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan("net.pechorina.kontempl.data");

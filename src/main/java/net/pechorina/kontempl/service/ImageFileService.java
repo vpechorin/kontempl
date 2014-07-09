@@ -1,17 +1,12 @@
 package net.pechorina.kontempl.service;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 import net.pechorina.kontempl.data.ImageFile;
-import net.pechorina.kontempl.data.Thumbnail;
 import net.pechorina.kontempl.repos.ImageFileRepo;
-import net.pechorina.kontempl.repos.ThumbnailRepo;
-import net.pechorina.kontempl.utils.ImageUtils;
+import net.pechorina.kontempl.utils.FileUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +25,7 @@ public class ImageFileService {
 	private ImageFileRepo imageFileRepo;
 	
 	@Autowired
-	private ThumbnailRepo thumbRepo;
+	private ImageThumbService thumbService;
 	
 	@Autowired
 	private Environment env;
@@ -49,8 +44,27 @@ public class ImageFileService {
 	public ImageFile save(ImageFile im) {
 		ImageFile imageFile = imageFileRepo.saveAndFlush(im);
 		if (imageFile != null) {
-			clearAndRegenThumbs(imageFile);
+			thumbService.asyncRegenThumbs(imageFile);
 		}
+		return imageFile;
+	}
+	
+	@Transactional
+	public ImageFile saveNew(ImageFile im) {
+		logger.debug("Saving a new uploaded image: " + im.getName());
+		int sortIndex = getNextImageSortIndex(im.getPageId());
+		im.setSortIndex(sortIndex);
+		logger.debug("Sortindex: " + im.getSortIndex());
+		
+		adjustMainImageStatusForNewImage(im);
+		
+		ImageFile imageFile = imageFileRepo.saveAndFlush(im);
+		if (imageFile != null) {
+			logger.debug("Caller async thumbs creation");
+			thumbService.asyncRegenThumbs(imageFile);
+		}
+		logger.debug("Image save completed: " + imageFile);
+		
 		return imageFile;
 	}
 	
@@ -62,52 +76,7 @@ public class ImageFileService {
 		}
 		String pageImagesDir = env.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "images";
 		File dir = new File(pageImagesDir);
-		deleteDirectory(dir);
-	}
-	
-	public boolean deleteFileByName(String fileName) {
-		logger.debug("Delete file: " + fileName);
-		if (fileName == null) {
-			logger.warn("missed filename");
-			return false;
-		}
-
-		boolean success = false;
-		try{
-			File file = new File(fileName);
-
-			if(file.delete()){
-				logger.debug(file.getName() + " is deleted!");
-				success = true;
-
-			}else{
-				logger.error(file.getName() + " - file delete operation failed.");
-			}
-
-		}catch(Exception e){
-			logger.error(fileName + " - file delete operation failed: " + e);
-		}
-
-		return success;
-	}
-
-	/**
-	 * Force deletion of directory
-	 * @param path
-	 * @return
-	 */
-	static public boolean deleteDirectory(File path) {
-	    if (path.exists()) {
-	        File[] files = path.listFiles();
-	        for (int i = 0; i < files.length; i++) {
-	            if (files[i].isDirectory()) {
-	                deleteDirectory(files[i]);
-	            } else {
-	                files[i].delete();
-	            }
-	        }
-	    }
-	    return (path.delete());
+		FileUtils.deleteDirectory(dir);
 	}
 	
 	@Transactional
@@ -127,7 +96,7 @@ public class ImageFileService {
 	@Transactional
 	public boolean deleteImage(ImageFile im) {
 		String filename = env.getProperty("fileStoragePath") + im.getAbsolutePath();
-		boolean success = deleteFileByName( filename );
+		boolean success = FileUtils.deleteFileByName( filename );
 		// check if file still exists
 		if (!success) {
 			logger.debug("Checking if file still exists: " + filename);
@@ -142,7 +111,7 @@ public class ImageFileService {
 		}
 		
 		if (success) {
-			deleteThumb(im.getId());
+			thumbService.deleteThumb(im.getId());
 			imageFileRepo.delete(im);
 			logger.debug("imageFile DB record removed");
 		}
@@ -254,79 +223,6 @@ public class ImageFileService {
 			imageFileRepo.save(imageFile);
 			i++;
 		}
-	}
-	
-	private void deleteThumb(Integer imageFileId) {
-		Thumbnail t = thumbRepo.findByImageFileId(imageFileId);
-		if (t != null) {
-			deleteThumb(t);
-		}
-	}
-	
-	private void deleteThumb(Thumbnail t) {
-		String thumbFile = env.getProperty("fileStoragePath") + t.getAbsolutePath();
-		boolean fileDeleted = deleteFileByName( thumbFile );
-		if (!fileDeleted) {
-			File f = new File(thumbFile);
-			if (!f.exists()) {
-				logger.debug("File does not exists");
-				fileDeleted = true;
-			}
-		}
-		if (fileDeleted) 	thumbRepo.delete(t);
-	}
-	
-	private void clearAndRegenThumbs(ImageFile imageFile) {
-		deleteThumb(imageFile.getId());
-		
-		Thumbnail newThumb = new Thumbnail(imageFile);
-		boolean thumbCreated = makeThumbnail(imageFile, newThumb);
-		if (thumbCreated) {
-			newThumb = thumbRepo.saveAndFlush(newThumb);
-			imageFile.setThumb(newThumb);
-		}
-	}
-	
-	public boolean makeThumbnail(ImageFile imageFile, Thumbnail thumb) {
-		String imgFilename = env.getProperty("fileStoragePath") + imageFile.getAbsolutePath();
-		String thumbFilename = env.getProperty("fileStoragePath") + thumb.getAbsolutePath();
-		String thumbDir = env.getProperty("fileStoragePath") + thumb.getDirectoryPath();
-		
-		BufferedImage scaledImage = null;
-		try {
-			File file = new File(imgFilename);
-			BufferedImage in = ImageIO.read( file );
-			scaledImage = ImageUtils.createThumbnail(in, Integer.parseInt( env.getProperty("thumbSize") ));
-			in.flush();
-		} catch (IOException e) {
-			logger.error("Cant read image: " + imgFilename + " exception: " + e);
-		}
-		
-		boolean success = false;
-		if (scaledImage != null) {
-			thumb.setHeight(scaledImage.getHeight());
-			thumb.setWidth(scaledImage.getWidth());
-			
-			try {
-				File outputFile = new File(thumbFilename);
-
-				File d = new File(thumbDir);
-				if (!d.exists()) {
-					logger.debug("Thumb directory does not exists, create new: " + thumbDir);
-					Files.createParentDirs(outputFile);
-				}
-				ImageIO.write(scaledImage, env.getProperty("thumbFormat"), outputFile);
-				success = true;
-			} catch (IOException e) {
-				logger.error("Cant save image: " + thumbFilename + " exception: " + e);
-				success = false;
-			}
-			finally {
-				scaledImage.flush();
-			}
-		}
-
-		return success;
 	}
 	
 	@Transactional

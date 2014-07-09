@@ -22,8 +22,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.context.request.WebRequestInterceptor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -37,8 +35,6 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 @Configuration
 @EnableWebMvc
-@EnableAsync
-@EnableScheduling
 public class WebConfig extends WebMvcConfigurerAdapter {
 	
 	@Autowired
