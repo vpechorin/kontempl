@@ -28,7 +28,7 @@ public class RobotsController {
 	@Autowired
 	private SiteService siteService;
     
-    @RequestMapping(value="/v/{site}/robots.txt", method=RequestMethod.GET, produces="text/plain")
+    @RequestMapping(value="/api/browse/sites/{site}/robotstxt", method=RequestMethod.GET, produces="text/plain")
     @ResponseBody
     public String robotsPage(@PathVariable("site") String siteName) {
     	logger.debug("show robots.txt page");
