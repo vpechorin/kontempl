@@ -47,9 +47,16 @@ class Prerender {
 		
 		PageTree tree = pageTreeService.getPublicPageTree(site)
 		
+		// generate home page
+		def uHome = "http://" + site.getDomain() + "/";
+		def fHome = "$snapshotsPath/${site.getName()}/index$snapshotsSuffix"
+		String urlHomeStr = prerenderServer + uHome.toString()
+		renderAndSavePage(urlHomeStr, f)
+		
+		// generate other pages
 		tree.listAllChildren().each { 
 			Page p = it.getData();
-			if (p.getName() != site.getHomePage()) {
+			if ((p.getName() != site.getHomePage()) && (!p.isPlaceholder())) {
 				def u = "http://" + site.getDomain() + m + p.getName()
 				def f = "$snapshotsPath/${site.getName()}/${p.getName()}$snapshotsSuffix"
 				String urlStr = prerenderServer + u.toString()

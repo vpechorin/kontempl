@@ -21,7 +21,7 @@ apply plugin: 'maven'
 apply plugin: 'artifactory'
 
 group = 'net.pechorina.kontempl'
-version = '1.2.2'
+version = '1.2.3'
 
 description = "Kontempl - web site management system"
 
