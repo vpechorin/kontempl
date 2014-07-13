@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.ImageFile;
+import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.service.ImageFileService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
@@ -97,6 +98,8 @@ public class PageImagesResource {
 	LinkedList<FileMeta> upload(@PathVariable("pageId") Integer pageId,
 			MultipartHttpServletRequest request, HttpServletResponse response) {
 		
+		Page page = pageService.getPage(pageId);
+		
 		String requestId = UUID.randomUUID().toString();
 		
 		LinkedList<FileMeta> files = new LinkedList<FileMeta>();
@@ -130,9 +133,11 @@ public class PageImagesResource {
 				logger.debug(requestId + " Processing: " + fm.getFileName() + " -- " + fm.getFileType());
 				ImageFile im = new ImageFile(fm);
 				im.setPageId(pageId);
-				String filePath = env.getProperty("fileStoragePath") + im.getAbsolutePath();
+				
+				String filePath = env.getProperty("fileStoragePath") + File.separator + page.getSiteId() + im.getAbsolutePath();
 				logger.debug(requestId + " filePath: " + filePath);
-				String dirPath = env.getProperty("fileStoragePath") + im.getDirectoryPath();
+				
+				String dirPath = env.getProperty("fileStoragePath") + File.separator + page.getSiteId() + im.getDirectoryPath();
 				logger.debug(requestId + " dirPath: " + dirPath);
 				
 				boolean success = false;

@@ -14,12 +14,15 @@ import javax.persistence.Transient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "docfile", indexes={
 		@Index(name="pageIdIdx", columnList="pageId"),
 		@Index(name="nameIdx", columnList="name"),
 		@Index(name="sortIdx", columnList="sortIndex")
 })
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class DocFile implements Serializable, Cloneable {
 	static final Logger logger = LoggerFactory.getLogger(DocFile.class);
 	private static final long serialVersionUID = 1L;

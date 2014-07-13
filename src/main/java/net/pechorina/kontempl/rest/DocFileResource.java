@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.FileMeta;
+import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.service.DocFileService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
@@ -78,6 +79,8 @@ public class DocFileResource {
 	LinkedList<FileMeta> upload(@PathVariable("pageId") Integer pageId,
 			MultipartHttpServletRequest request, HttpServletResponse response) {
 		
+		Page page = pageService.getPage(pageId);
+		
 		LinkedList<FileMeta> files = new LinkedList<FileMeta>();
 
 		Iterator<String> itr = request.getFileNames();
@@ -106,10 +109,13 @@ public class DocFileResource {
 			for (FileMeta fm : files) {
 				DocFile df = new DocFile(fm);
 				df.setPageId(pageId);
-				String filePath = env.getProperty("fileStoragePath")
-						+ df.getAbsolutePath();
-				String dirPath = env.getProperty("fileStoragePath")
-						+ df.getDirectoryPath();
+				
+				String filePath = env.getProperty("fileStoragePath") + File.separator 
+						+ page.getSiteId() + df.getAbsolutePath();
+				
+				String dirPath = env.getProperty("fileStoragePath") + File.separator 
+						+ page.getSiteId() + df.getDirectoryPath();
+				
 				boolean success = false;
 				try {
 					File f = new File(filePath);
@@ -144,8 +150,10 @@ public class DocFileResource {
 		DocFile existingEntity = docFileService.getDocById(id);
 		
 		// merge data
+		existingEntity.setTitle(df.getTitle());
 		existingEntity.setName(df.getName());
 		existingEntity.setSortIndex(df.getSortIndex());
+		
 		DocFile savedEntity = docFileService.save(existingEntity);
 		logger.info("DOCFILE UPDATE/SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);

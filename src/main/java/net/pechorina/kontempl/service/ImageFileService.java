@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import net.pechorina.kontempl.data.ImageFile;
+import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.repos.ImageFileRepo;
 import net.pechorina.kontempl.utils.FileUtils;
 
@@ -28,6 +29,9 @@ public class ImageFileService {
 	private ImageThumbService thumbService;
 	
 	@Autowired
+	private PageService pageService;
+	
+	@Autowired
 	private Environment env;
 	
 	@Transactional
@@ -42,9 +46,10 @@ public class ImageFileService {
 	
 	@Transactional
 	public ImageFile save(ImageFile im) {
+		Page page = pageService.getPage(im.getPageId());
 		ImageFile imageFile = imageFileRepo.saveAndFlush(im);
 		if (imageFile != null) {
-			thumbService.asyncRegenThumbs(imageFile);
+			thumbService.asyncRegenThumbs(imageFile, page);
 		}
 		return imageFile;
 	}
@@ -52,6 +57,7 @@ public class ImageFileService {
 	@Transactional
 	public ImageFile saveNew(ImageFile im) {
 		logger.debug("Saving a new uploaded image: " + im.getName());
+		Page page = pageService.getPage(im.getPageId());
 		int sortIndex = getNextImageSortIndex(im.getPageId());
 		im.setSortIndex(sortIndex);
 		logger.debug("Sortindex: " + im.getSortIndex());
@@ -61,7 +67,7 @@ public class ImageFileService {
 		ImageFile imageFile = imageFileRepo.saveAndFlush(im);
 		if (imageFile != null) {
 			logger.debug("Caller async thumbs creation");
-			thumbService.asyncRegenThumbs(imageFile);
+			thumbService.asyncRegenThumbs(imageFile, page);
 		}
 		logger.debug("Image save completed: " + imageFile);
 		
@@ -69,12 +75,13 @@ public class ImageFileService {
 	}
 	
 	@Transactional
-	public void removeAllImagesForPage(Integer pageId) {
-		List<ImageFile> images = imageFileRepo.findByPageId(pageId);
+	public void removeAllImagesForPage(Page page) {
+		List<ImageFile> images = imageFileRepo.findByPageId(page.getId());
 		for(ImageFile im: images) {
 			deleteImage(im);
 		}
-		String pageImagesDir = env.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "images";
+		String pageImagesDir = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + File.separator + page.getId() + File.separator + "images";
 		File dir = new File(pageImagesDir);
 		FileUtils.deleteDirectory(dir);
 	}
@@ -95,7 +102,9 @@ public class ImageFileService {
 	
 	@Transactional
 	public boolean deleteImage(ImageFile im) {
-		String filename = env.getProperty("fileStoragePath") + im.getAbsolutePath();
+		Page page = pageService.getPage(im.getPageId());
+		String filename = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + im.getAbsolutePath();
 		boolean success = FileUtils.deleteFileByName( filename );
 		// check if file still exists
 		if (!success) {
@@ -111,7 +120,7 @@ public class ImageFileService {
 		}
 		
 		if (success) {
-			thumbService.deleteThumb(im.getId());
+			thumbService.deleteThumb(im.getId(), page);
 			imageFileRepo.delete(im);
 			logger.debug("imageFile DB record removed");
 		}
@@ -226,16 +235,23 @@ public class ImageFileService {
 	}
 	
 	@Transactional
-	public ImageFile copyFileToPage(ImageFile src, Integer pageId) {
+	public ImageFile copyFileToPage(ImageFile src, Page srcPage, Page targetPage) {
 		ImageFile target = src.copy();
-		target.setPageId(pageId);
+		target.setPageId(targetPage.getId());
 		ImageFile savedFile = null;
-		logger.debug("Copy " + src.getName() + " file from page #" + src.getPageId() + " to page #" + pageId);
+		logger.debug("Copy " + src.getName() + " file from page #" + src.getPageId() + " to page #" + targetPage.getId());
 		try {
-			File srcFile = new File(env.getProperty("fileStoragePath") + src.getAbsolutePath());
-			File targetFile = new File(env.getProperty("fileStoragePath") + target.getAbsolutePath());
-			String targetDir = env.getProperty("fileStoragePath") + target.getDirectoryPath();
+			File srcFile = new File( env.getProperty("fileStoragePath") + File.separator 
+					+ srcPage.getSiteId() + src.getAbsolutePath());
+			
+			File targetFile = new File(env.getProperty("fileStoragePath") + File.separator 
+					+ targetPage.getSiteId() + target.getAbsolutePath());
+			
+			String targetDir = env.getProperty("fileStoragePath") + File.separator 
+					+ targetPage.getSiteId() + target.getDirectoryPath();
+			
 			File d = new File(targetDir);
+			
 			if (!d.exists()) {
 				logger.debug("new file directory does not exists, create new: " + targetDir);
 				Files.createParentDirs(targetFile);

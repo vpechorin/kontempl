@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import net.pechorina.kontempl.data.DocFile;
+import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.repos.DocFileRepo;
 import net.pechorina.kontempl.utils.FileUtils;
 
@@ -27,6 +28,9 @@ public class DocFileService {
 	@Autowired
 	private Environment env;
 	
+	@Autowired
+	private PageService pageService;
+	
 	@Transactional
 	public List<DocFile> listDocsForPage(Integer pageId) {
 		return docFileRepo.findByPageId(pageId);
@@ -45,12 +49,13 @@ public class DocFileService {
 	}
 	
 	@Transactional
-	public void removeAllDocsForPage(Integer pageId) {
-		List<DocFile> docs = docFileRepo.findByPageId(pageId);
+	public void removeAllDocsForPage(Page page) {
+		List<DocFile> docs = docFileRepo.findByPageId(page.getId());
 		for(DocFile d: docs) {
 			deleteDoc(d);
 		}
-		String pageDocsDir = env.getProperty("fileStoragePath") + File.separator + pageId + File.separator + "docs";
+		String pageDocsDir = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + File.separator + page.getId() + File.separator + "docs";
 		File dir = new File(pageDocsDir);
 		FileUtils.deleteDirectory(dir);
 	}
@@ -62,7 +67,9 @@ public class DocFileService {
 	
 	@Transactional
 	public boolean deleteDoc(DocFile d) {
-		String filename = env.getProperty("fileStoragePath") + d.getAbsolutePath();
+		Page page = pageService.getPage(d.getPageId());
+		String filename = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + d.getAbsolutePath();
 		boolean success = FileUtils.deleteFileByName( filename );
 		// check if file still exists
 		if (!success) {
@@ -161,15 +168,21 @@ public class DocFileService {
 	}
 	
 	@Transactional
-	public DocFile copyFileToPage(DocFile src, Integer pageId) {
+	public DocFile copyFileToPage(DocFile src,  Page srcPage, Page targetPage) {
 		DocFile target = src.copy();
-		target.setPageId(pageId);
+		target.setPageId(targetPage.getId());
 		DocFile savedFile = null;
-		logger.debug("Copy " + src.getName() + " file from page #" + src.getPageId() + " to page #" + pageId);
+		logger.debug("Copy " + src.getName() + " file from page #" + srcPage.getId() + " to page #" + targetPage.getId());
 		try {
-			File srcFile = new File(env.getProperty("fileStoragePath") + src.getAbsolutePath());
-			File targetFile = new File(env.getProperty("fileStoragePath") + target.getAbsolutePath());
-			String targetDir = env.getProperty("fileStoragePath") + target.getDirectoryPath();
+			File srcFile = new File(env.getProperty("fileStoragePath") + File.separator 
+					+ srcPage.getSiteId() + src.getAbsolutePath());
+			
+			File targetFile = new File(env.getProperty("fileStoragePath") + File.separator 
+					+ srcPage.getSiteId() + target.getAbsolutePath());
+			
+			String targetDir = env.getProperty("fileStoragePath") + File.separator 
+					+ srcPage.getSiteId() + target.getDirectoryPath();
+			
 			File d = new File(targetDir);
 			if (!d.exists()) {
 				logger.debug("new file directory does not exists, create new: " + targetDir);

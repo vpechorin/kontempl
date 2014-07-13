@@ -121,7 +121,7 @@ public class PageService {
 		pageTreeService.resetPageTreeCache();
 		deleteSubPages(page);
 		// remove images
-		imageFileService.removeAllImagesForPage(page.getId());
+		imageFileService.removeAllImagesForPage(page);
 		
 		pageRepo.delete(page);
 		logger.debug("Page: " + page.getId() + "/" + page.getName() + " removed");
@@ -258,7 +258,7 @@ public class PageService {
 		List<ImageFile> images = imageFileService.listImagesForPage(src.getId());
 		if (images != null &&(images.size() > 0)) {
 			for(ImageFile im: images) {
-				imageFileService.copyFileToPage(im, savedNewPage.getId());
+				imageFileService.copyFileToPage(im, src, savedNewPage);
 			}
 		}
 		

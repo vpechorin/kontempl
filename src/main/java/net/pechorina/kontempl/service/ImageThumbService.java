@@ -7,6 +7,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import net.pechorina.kontempl.data.ImageFile;
+import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.Thumbnail;
 import net.pechorina.kontempl.repos.ImageFileRepo;
 import net.pechorina.kontempl.repos.ThumbnailRepo;
@@ -34,20 +35,24 @@ public class ImageThumbService {
 	private ThumbnailRepo thumbRepo;
 	
 	@Autowired
+	private PageService pageService;
+	
+	@Autowired
 	private Environment env;
 	
 	@Transactional
-	public void deleteThumb(Integer imageFileId) {
+	public void deleteThumb(Integer imageFileId, Page page) {
 		logger.debug("deleteThumb: imageId=" + imageFileId);
 		Thumbnail t = thumbRepo.findByImageFileId(imageFileId);
 		if (t != null) {
-			deleteThumb(t);
+			deleteThumb(t, page);
 		}
 	}
 	
 	@Transactional
-	public void deleteThumb(Thumbnail t) {
-		String thumbFile = env.getProperty("fileStoragePath") + t.getAbsolutePath();
+	public void deleteThumb(Thumbnail t, Page page) {
+		String thumbFile = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + t.getAbsolutePath();
 		boolean fileDeleted = FileUtils.deleteFileByName( thumbFile );
 		if (!fileDeleted) {
 			File f = new File(thumbFile);
@@ -61,18 +66,18 @@ public class ImageThumbService {
 	
 	@Async("KtExecutor")
 	@Transactional
-	public void asyncRegenThumbs(ImageFile imageFile) {
+	public void asyncRegenThumbs(ImageFile imageFile, Page p) {
 		logger.debug("asyncRegenThumbs for " + imageFile);
-		clearAndRegenThumbs(imageFile);
+		clearAndRegenThumbs(imageFile, p);
 	}
 	
 	@Transactional
-	public void clearAndRegenThumbs(ImageFile imageFile) {
+	public void clearAndRegenThumbs(ImageFile imageFile, Page page) {
 		logger.debug("clearAndRegenThumbs: " + imageFile.getName());
-		deleteThumb(imageFile.getId());
+		deleteThumb(imageFile.getId(), page);
 		logger.debug("Ready to create a new thumb for image: " + imageFile.getName());
 		Thumbnail newThumb = new Thumbnail(imageFile);
-		boolean thumbCreated = makeThumbnail(imageFile, newThumb);
+		boolean thumbCreated = makeThumbnail(imageFile, newThumb, page);
 		logger.debug("thumpCreated=" + thumbCreated);
 		if (thumbCreated) {
 			newThumb = thumbRepo.saveAndFlush(newThumb);
@@ -81,10 +86,16 @@ public class ImageThumbService {
 		}
 	}
 	
-	public boolean makeThumbnail(ImageFile imageFile, Thumbnail thumb) {
-		String imgFilename = env.getProperty("fileStoragePath") + imageFile.getAbsolutePath();
-		String thumbFilename = env.getProperty("fileStoragePath") + thumb.getAbsolutePath();
-		String thumbDir = env.getProperty("fileStoragePath") + thumb.getDirectoryPath();
+	public boolean makeThumbnail(ImageFile imageFile, Thumbnail thumb, Page page) {
+		
+		String imgFilename = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + File.separator + imageFile.getAbsolutePath();
+		
+		String thumbFilename = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + File.separator + thumb.getAbsolutePath();
+		
+		String thumbDir = env.getProperty("fileStoragePath") + File.separator 
+				+ page.getSiteId() + File.separator + thumb.getDirectoryPath();
 		
 		BufferedImage scaledImage = null;
 		try {

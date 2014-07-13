@@ -42,7 +42,6 @@ public class PageResource {
 	
 	@Autowired
 	private Environment env;
-
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<Page> list(@RequestParam(value="siteId", required=true) Integer siteId) {
@@ -96,6 +95,8 @@ public class PageResource {
 		
 		Page savedEntity = pageService.savePage(newPage);
 		
+		pageService.resetPageCache();
+		
 		logger.info("PAGE SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());
 		return new ResponseEntity<Page>(savedEntity, HttpStatus.CREATED);
 	}
@@ -134,6 +135,8 @@ public class PageResource {
 		int dstParentId = Integer.parseInt(movement.get("dstParentId"));
 		pageService.movePage(page, dstIndex, dstParentId);
 		
+		pageService.resetPageCache();
+		
 		logger.info("PAGE MOVED: " + movement + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
@@ -141,6 +144,9 @@ public class PageResource {
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void remove(@PathVariable("id") Integer id, HttpServletRequest request, HttpServletResponse response) {
 		pageService.deletePage(id);
+		
+		pageService.resetPageCache();
+		
 		logger.info("PAGE DELETE: " + id + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
