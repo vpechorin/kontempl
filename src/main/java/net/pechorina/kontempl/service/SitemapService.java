@@ -134,7 +134,10 @@ public class SitemapService {
 	}
 	
 	private WebSitemapUrl makeSitemapUrl(Page p, Site s) throws MalformedURLException {
-		String u = "http://" + s.getDomain() + "/#!/pv/" + p.getName();
+		boolean useHtml5Urls = env.getProperty("useHtml5Urls", Boolean.class);
+		String m = "/#!/pv/";
+		if (useHtml5Urls) m = "/pv";
+		String u = "http://" + s.getDomain() + m + p.getName();
 		WebSitemapUrl url = new WebSitemapUrl.Options(u)
 	    .lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
 		return url;
