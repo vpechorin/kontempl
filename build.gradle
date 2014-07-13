@@ -1,0 +1,107 @@
+buildscript {
+    repositories {
+        maven {
+            url 'http://mvn.home.pechorina.net:8081/artifactory/plugins-release'
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
+    }
+    dependencies {
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.4.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'maven'
+apply plugin: 'artifactory'
+
+group = 'net.pechorina.kontempl'
+version = '1.2.1'
+
+description = "Kontempl - web site management system"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    baseName = 'kontempl'
+    version = "$version"
+}
+
+//sourceSets.main.java.srcDirs = []
+//sourceSets.main.groovy.srcDirs += ["src/main/java"]
+
+repositories {
+        maven {
+            url 'http://mvn.home.pechorina.net:8081/artifactory/plugins-release'
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
+
+//     mavenCentral()
+//     maven { url "http://repo.spring.io/snapshot" }
+//     maven { url "http://repo.spring.io/milestone" }
+//     maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    def jettyVersion = '9.2.1.v20140609'
+    compile 'mysql:mysql-connector-java'
+    compile group: 'com.h2database', name: 'h2', version:'1.4.179'
+    compile('org.springframework.boot:spring-boot-starter-web') {
+	exclude(module: 'spring-boot-starter-tomcat')
+    }
+    compile "org.eclipse.jetty:jetty-webapp:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-jsp:$jettyVersion"
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'org.springframework.boot:spring-boot-starter-security'
+    compile 'org.springframework.boot:spring-boot-starter-logging'
+    compile 'org.springframework:spring-context-support'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda'
+    compile 'org.jadira.usertype:usertype.core:3.1.0.GA'
+    compile 'joda-time:joda-time'
+    compile('org.apache.httpcomponents:httpclient') {
+	exclude(module: 'commons-logging')
+    }
+    compile 'net.sf.ehcache:ehcache:2.8.3'
+    compile group: 'commons-codec', name: 'commons-codec', version:'1.9'
+    compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
+    compile group: 'commons-validator', name: 'commons-validator', version:'1.4.0'
+    compile group: 'com.google.guava', name: 'guava', version:'17.0'
+    compile group: 'org.jsoup', name: 'jsoup', version:'1.7.3'
+    compile group: 'commons-fileupload', name: 'commons-fileupload', version:'1.3.1'
+    compile group: 'commons-io', name: 'commons-io', version:'2.4'
+    compile group: 'org.imgscalr', name: 'imgscalr-lib', version:'4.2'
+    compile group: 'com.google.code', name: 'sitemapgen4j', version:'1.0.1'
+    testCompile('org.springframework.boot:spring-boot-starter-test') {
+	exclude(module: 'commons-logging')
+    }
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'libs-release-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-release'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}

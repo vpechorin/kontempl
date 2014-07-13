@@ -6,3 +6,7 @@
 /src/main/resources/git.properties
 /*.ppr
 /*.pid
+/.gradle
+/gradle.properties
+/build
+/bin
