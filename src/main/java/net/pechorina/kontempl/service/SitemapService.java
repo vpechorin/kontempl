@@ -119,6 +119,7 @@ public class SitemapService {
 			if (p.getName().equalsIgnoreCase(site.getHomePage())) {
 				continue;
 			}
+			if (p.isPlaceholder()) continue;
 			WebSitemapUrl u = null;
 			try {
 				u = makeSitemapUrl(p, site);
@@ -133,7 +134,7 @@ public class SitemapService {
 	}
 	
 	private WebSitemapUrl makeSitemapUrl(Page p, Site s) throws MalformedURLException {
-		String u = "http://" + s.getDomain() + "/pv/" + p.getName();
+		String u = "http://" + s.getDomain() + "/#!/pv/" + p.getName();
 		WebSitemapUrl url = new WebSitemapUrl.Options(u)
 	    .lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
 		return url;
