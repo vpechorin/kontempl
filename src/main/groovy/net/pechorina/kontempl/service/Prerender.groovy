@@ -38,9 +38,9 @@ class Prerender {
 	}
 	
 	public void sitePrerender(Site site) {
-		def prerenderServer = env.getProperty('prerender.server')
-		def snapshotsPath = env.getProperty('snapshots.path')
-		def snapshotsSuffix = env.getProperty('snapshots.suffix')
+		String prerenderServer = env.getProperty('prerender.server')
+		String snapshotsPath = env.getProperty('snapshots.path')
+		String snapshotsSuffix = env.getProperty('snapshots.suffix')
 		boolean useHtml5Urls = env.getProperty("useHtml5Urls", Boolean.class)
 		def m = '/#!/pv/';
 		if (useHtml5Urls) m = "/pv/"
@@ -48,10 +48,10 @@ class Prerender {
 		PageTree tree = pageTreeService.getPublicPageTree(site)
 		
 		// generate home page
-		def uHome = "http://" + site.getDomain() + "/";
+		String uHome = "http://" + site.getDomain() + "/";
 		def fHome = "$snapshotsPath/${site.getName()}/index$snapshotsSuffix"
-		String urlHomeStr = prerenderServer + uHome.toString()
-		renderAndSavePage(urlHomeStr, f)
+		String urlHomeStr = prerenderServer + uHome
+		renderAndSavePage(urlHomeStr, fHome)
 		
 		// generate other pages
 		tree.listAllChildren().each { 

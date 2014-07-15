@@ -64,6 +64,7 @@ public class DocFileResource {
 	public void moveFileUp(@PathVariable("pageId") Integer pageId, @PathVariable("id") Integer id, HttpServletResponse response) {
 		DocFile d = docFileService.getDocById(id);
 		docFileService.moveDoc(d, "up");
+		pageService.resetPageCache();
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 	
@@ -71,6 +72,7 @@ public class DocFileResource {
 	public void moveFileDown(@PathVariable("pageId") Integer pageId, @PathVariable("id") Integer id, HttpServletResponse response) {
 		DocFile d = docFileService.getDocById(id);
 		docFileService.moveDoc(d, "down");
+		pageService.resetPageCache();
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 	
@@ -135,6 +137,7 @@ public class DocFileResource {
 					int sortIndex = docFileService.getNextDocSortIndex(pageId);
 					df.setSortIndex(sortIndex);
 					DocFile docFile = docFileService.save(df);
+					pageService.resetPageCache();
 					logger.debug("Document " + filePath + " saved: " + docFile);
 				}
 			}
@@ -155,6 +158,7 @@ public class DocFileResource {
 		existingEntity.setSortIndex(df.getSortIndex());
 		
 		DocFile savedEntity = docFileService.save(existingEntity);
+		pageService.resetPageCache();
 		logger.info("DOCFILE UPDATE/SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
@@ -164,6 +168,7 @@ public class DocFileResource {
 			HttpServletRequest request, HttpServletResponse response) {
 		DocFile existingEntity = docFileService.getDocById(id);
 		docFileService.deleteDoc(existingEntity);
+		pageService.resetPageCache();
 		logger.info("FILE DELETE: " + existingEntity + " Src:" + request.getRemoteAddr());
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
