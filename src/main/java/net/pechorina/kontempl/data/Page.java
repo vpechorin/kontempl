@@ -2,8 +2,10 @@ package net.pechorina.kontempl.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -97,6 +99,10 @@ public class Page implements Serializable, Cloneable {
 	@OrderBy("name ASC")
 	private List<PageProperty> properties;
 	
+	@OneToMany(mappedBy="page", fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+	@JsonIgnore
+	private Set<EmbedImage> embedImages;
+	
 	@Transient
 	private ImageFile mainImage;
 	
@@ -127,6 +133,14 @@ public class Page implements Serializable, Cloneable {
 		this.autoName = true;
 		this.richText = true;
 		this.properties = new ArrayList<>();
+		this.embedImages = new HashSet<EmbedImage>();
+	}
+	
+	public void addEmbedImage(EmbedImage im) {
+		embedImages.add(im);
+		if (im.getPage() != this) {
+			im.setPage(this);
+		}
 	}
 
 	public Integer getId() {
@@ -296,6 +310,14 @@ public class Page implements Serializable, Cloneable {
 
 	public void setDocs(List<DocFile> docs) {
 		this.docs = docs;
+	}
+
+	public Set<EmbedImage> getEmbedImages() {
+		return embedImages;
+	}
+
+	public void setEmbedImages(Set<EmbedImage> embedImages) {
+		this.embedImages = embedImages;
 	}
 
 	public void checkName() {
