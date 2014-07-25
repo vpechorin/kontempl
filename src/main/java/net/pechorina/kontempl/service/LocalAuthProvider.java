@@ -84,7 +84,7 @@ public class LocalAuthProvider implements AuthenticationProvider {
 
 		// 2. Check the passwords match.
         
-		if (!ud.getPassword().equals(DigestUtils.shaHex(password))) {
+		if (!ud.getPassword().equals(DigestUtils.sha1Hex(password))) {
 			throw new BadCredentialsException(messages.getMessage(
                     "LocalAuthProvider.incorrectPassword", null, "Bad password", Locale.getDefault()));
 		}

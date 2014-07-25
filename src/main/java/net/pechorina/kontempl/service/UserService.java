@@ -97,7 +97,7 @@ public class UserService {
 	public User saveNewUser(User u, String email, String password) {
         
         if (( email != null) && (password != null)) {
-        	String pwdHash = DigestUtils.shaHex(password);
+        	String pwdHash = DigestUtils.sha1Hex(password);
         	String uid = "password:" + email;
         	Credential c = new Credential(u, "password", uid, email, pwdHash);
     		c.setVerified(true);
@@ -211,7 +211,7 @@ public class UserService {
 	
 	@Transactional
 	public void updatePasswordEmailCredential(Credential c, String email, String password) {
-    	String pwdHash = DigestUtils.shaHex(password);
+    	String pwdHash = DigestUtils.sha1Hex(password);
     	String uid = "password:" + email;
     	c.setEmail(email);
     	c.setUid(uid);

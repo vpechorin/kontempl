@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.EmbedImage;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.Page;
+import net.pechorina.kontempl.exceptions.BadImageException;
 import net.pechorina.kontempl.service.ImageFileService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
@@ -125,6 +126,21 @@ public class EmbedImagesResource {
 						Files.createParentDirs(f);
 					}
 					Files.write(fm.getBytes(), f);
+					
+					// check if TIFF was uploaded
+					String ext = ImageUtils.getImageExtension(f);
+					if (ext != null) {
+						if (ext.equalsIgnoreCase("tif") || (ext.equalsIgnoreCase("tiff"))) {
+							// convert to jpeg
+							String newImageName = ImageUtils.convertImageToJpeg(f, ext, dirPath);
+							FileUtils.deleteFileByName(filePath);
+							f = new File(dirPath + File.separator + newImageName);
+							emb.setName(newImageName);
+							emb.setContentType("image/jpeg");
+							emb.setFileSize(f.length());
+						}
+					}
+					
 					Dimension dim = ImageUtils.getImageDimension(f);
 					if (dim != null) {
 						emb.setWidth(dim.width);
@@ -133,6 +149,9 @@ public class EmbedImagesResource {
 					success = true;
 				} catch (IOException e) {
 					logger.error("Can't write image to file: " + e);
+					success = false;
+				} catch (BadImageException e) {
+					logger.error("Bad image: " + e);
 					success = false;
 				}
 				if (success) {

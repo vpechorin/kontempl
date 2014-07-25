@@ -21,15 +21,15 @@ public class StringUtils {
 	 * 
 	 * @param s
 	 *            {@link String } String o trim
-	 * @param lenght
+	 * @param lengh
 	 *            {@link Integer} The max size of return string
 	 * @return {@link String }
 	 */
-	public static String trimToLength(String s, int lenght) {
+	public static String trimToLength(String s, int length) {
 		if (s == null || s.isEmpty()) {
 			return s;
 		}
-		s = s.substring(0, Math.min(s.length(), lenght));
+		s = s.substring(0, Math.min(s.length(), length));
 		return s.trim();
 	}
 

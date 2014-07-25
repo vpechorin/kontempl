@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileUtils {
-	private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(FileUtils.class);
 
 	public static boolean deleteFileByName(String fileName) {
 		logger.debug("Delete file: " + fileName);
@@ -16,18 +17,19 @@ public class FileUtils {
 		}
 
 		boolean success = false;
-		try{
+		try {
 			File file = new File(fileName);
 
-			if(file.delete()){
+			if (file.delete()) {
 				logger.debug(file.getName() + " is deleted!");
 				success = true;
 
-			}else{
-				logger.error(file.getName() + " - file delete operation failed.");
+			} else {
+				logger.error(file.getName()
+						+ " - file delete operation failed.");
 			}
 
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error(fileName + " - file delete operation failed: " + e);
 		}
 
@@ -36,20 +38,21 @@ public class FileUtils {
 
 	/**
 	 * Force deletion of directory
+	 * 
 	 * @param path
 	 * @return
 	 */
 	public static boolean deleteDirectory(File path) {
-	    if (path.exists()) {
-	        File[] files = path.listFiles();
-	        for (int i = 0; i < files.length; i++) {
-	            if (files[i].isDirectory()) {
-	                deleteDirectory(files[i]);
-	            } else {
-	                files[i].delete();
-	            }
-	        }
-	    }
-	    return (path.delete());
+		if (path.exists()) {
+			File[] files = path.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				} else {
+					files[i].delete();
+				}
+			}
+		}
+		return (path.delete());
 	}
 }

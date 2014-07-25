@@ -14,9 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
+import net.pechorina.kontempl.exceptions.BadImageException;
 import net.pechorina.kontempl.service.ImageFileService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
+import net.pechorina.kontempl.utils.FileUtils;
 import net.pechorina.kontempl.utils.ImageUtils;
 import net.pechorina.kontempl.utils.StringUtils;
 
@@ -149,12 +151,30 @@ public class PageImagesResource {
 						Files.createParentDirs(f);
 					}
 					Files.write(fm.getBytes(), f);
+					
+					// check if TIFF was uploaded
+					String ext = ImageUtils.getImageExtension(f);
+					if (ext != null) {
+						if (ext.equalsIgnoreCase("tif") || (ext.equalsIgnoreCase("tiff"))) {
+							// convert to jpeg
+							String newImageName = ImageUtils.convertImageToJpeg(f, ext, dirPath);
+							FileUtils.deleteFileByName(filePath);
+							f = new File(dirPath + File.separator + newImageName);
+							im.setName(newImageName);
+							im.setContentType("image/jpeg");
+							im.setFileSize(f.length());
+						}
+					}
+					
 					Dimension dim = ImageUtils.getImageDimension(f);
 					if (dim != null) {
 						im.setWidth(dim.width);
 						im.setHeight(dim.height);
 					}
 					success = true;
+				} catch (BadImageException e) {
+					logger.error("Can't write image to file: " + e);
+					success = false;
 				} catch (IOException e) {
 					logger.error("Can't write image to file: " + e);
 					success = false;

@@ -21,7 +21,7 @@ apply plugin: 'maven'
 apply plugin: 'artifactory'
 
 group = 'net.pechorina.kontempl'
-version = '1.2.6'
+version = '1.2.7'
 
 description = "Kontempl - web site management system"
 
@@ -52,10 +52,10 @@ repositories {
 }
 
 dependencies {
-    def jettyVersion = '9.2.1.v20140609'
+    def jettyVersion = '9.2.2.v20140723'
 	compile 'org.codehaus.groovy:groovy-all:2.3.4'
     compile 'mysql:mysql-connector-java'
-    compile group: 'com.h2database', name: 'h2', version:'1.4.179'
+    testCompile 'com.h2database:h2:1.4.180'
     compile('org.springframework.boot:spring-boot-starter-web') {
 	exclude(module: 'spring-boot-starter-tomcat')
     }
@@ -75,13 +75,15 @@ dependencies {
     }
     compile 'net.sf.ehcache:ehcache:2.8.3'
     compile group: 'commons-codec', name: 'commons-codec', version:'1.9'
-    compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
-    compile group: 'commons-validator', name: 'commons-validator', version:'1.4.0'
     compile group: 'com.google.guava', name: 'guava', version:'17.0'
     compile group: 'org.jsoup', name: 'jsoup', version:'1.7.3'
-    compile group: 'commons-fileupload', name: 'commons-fileupload', version:'1.3.1'
-    compile group: 'commons-io', name: 'commons-io', version:'2.4'
-    compile group: 'org.imgscalr', name: 'imgscalr-lib', version:'4.2'
+    compile 'commons-fileupload:commons-fileupload:1.3.1'
+    compile 'commons-io:commons-io:2.4'
+    compile 'org.imgscalr:imgscalr-lib:4.2'
+	compile 'com.twelvemonkeys.imageio:imageio-tiff:3.0-rc5'
+	compile 'com.twelvemonkeys.imageio:imageio-psd:3.0-rc5'
+	compile 'com.twelvemonkeys.imageio:imageio-pict:3.0-rc5'
+	compile 'com.twelvemonkeys.imageio:imageio-metadata:3.0-rc5'
     compile group: 'com.google.code', name: 'sitemapgen4j', version:'1.0.1'
     testCompile('org.springframework.boot:spring-boot-starter-test') {
 	exclude(module: 'commons-logging')
