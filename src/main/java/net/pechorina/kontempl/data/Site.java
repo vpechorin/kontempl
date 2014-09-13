@@ -47,6 +47,7 @@ public class Site implements Serializable {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy="site", cascade = ALL)
+	@OrderBy("name ASC")
 	private List<Page> pages;
 	
 	@Transient

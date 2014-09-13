@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.4.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.5.RELEASE")
     }
 }
 
@@ -21,7 +21,7 @@ apply plugin: 'maven'
 apply plugin: 'artifactory'
 
 group = 'net.pechorina.kontempl'
-version = '1.2.8'
+version = '1.2.9'
 
 description = "Kontempl - web site management system"
 
@@ -52,10 +52,10 @@ repositories {
 }
 
 dependencies {
-    def jettyVersion = '9.2.2.v20140723'
-	compile 'org.codehaus.groovy:groovy-all:2.3.4'
+    def jettyVersion = '9.2.3.v20140905'
+	compile 'org.codehaus.groovy:groovy-all:2.3.6'
     compile 'mysql:mysql-connector-java'
-    testCompile 'com.h2database:h2:1.4.180'
+    testCompile 'com.h2database:h2:1.4.181'
     compile('org.springframework.boot:spring-boot-starter-web') {
 	exclude(module: 'spring-boot-starter-tomcat')
     }

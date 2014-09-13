@@ -157,6 +157,9 @@ public class Page implements Serializable, Cloneable {
 
 	public void setSite(Site site) {
 		this.site = site;
+		if (!site.getPages().contains(this)) {
+			site.getPages().add(this);
+		}
 	}
 
 	public Integer getParentId() {
