@@ -82,6 +82,7 @@ public class PageResource {
 		// merge data
 		newPage.setBody(page.getBody());
 		newPage.setTitle(page.getTitle());
+		newPage.setHtmlTitle(page.getHtmlTitle());
 		newPage.setName(page.getName());
 		newPage.setDescription(page.getDescription());
 		newPage.setHideTitle(page.isHideTitle());
@@ -108,6 +109,7 @@ public class PageResource {
 		// merge data
 		existingEntity.setBody(page.getBody());
 		existingEntity.setTitle(page.getTitle());
+		existingEntity.setHtmlTitle(page.getHtmlTitle());
 		existingEntity.setName(page.getName());
 		existingEntity.setDescription(page.getDescription());
 		existingEntity.setHideTitle(page.isHideTitle());

@@ -109,7 +109,8 @@ public class DocFileResource {
 
 		if (files.size() > 0) {
 			for (FileMeta fm : files) {
-				DocFile df = new DocFile(fm);
+				DocFile df = new DocFile();
+				df.setPropertiesFromFileMeta(fm);
 				df.setPageId(pageId);
 				
 				String filePath = env.getProperty("fileStoragePath") + File.separator 

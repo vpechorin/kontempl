@@ -53,7 +53,11 @@ public class PersistanceTests {
 	@Ignore
 	@Test
 	public void testSiteCreate() throws Exception {
-		Site s = new Site("testsite1", "Test site 1", "test localdomain");
+		Site s = new Site();
+		s.setDomain("test.localdomain");
+		s.setName("testsite1");
+		s.setTitle("Test Site No 1");
+
 		Site e = siteService.save(s);
 
 		assertNotNull(e);

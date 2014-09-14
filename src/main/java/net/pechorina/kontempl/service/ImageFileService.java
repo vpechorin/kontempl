@@ -8,6 +8,7 @@ import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.repos.ImageFileRepo;
 import net.pechorina.kontempl.utils.FileUtils;
+import net.pechorina.kontempl.utils.CloneFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,7 +237,7 @@ public class ImageFileService {
 	
 	@Transactional
 	public ImageFile copyFileToPage(ImageFile src, Page srcPage, Page targetPage) {
-		ImageFile target = src.copy();
+		ImageFile target = CloneFactory.copyImageFile(src);
 		target.setPageId(targetPage.getId());
 		ImageFile savedFile = null;
 		logger.debug("Copy " + src.getName() + " file from page #" + src.getPageId() + " to page #" + targetPage.getId());

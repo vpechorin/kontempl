@@ -7,6 +7,7 @@ import java.util.List;
 import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.repos.DocFileRepo;
+import net.pechorina.kontempl.utils.CloneFactory;
 import net.pechorina.kontempl.utils.FileUtils;
 
 import org.slf4j.Logger;
@@ -169,7 +170,7 @@ public class DocFileService {
 	
 	@Transactional
 	public DocFile copyFileToPage(DocFile src,  Page srcPage, Page targetPage) {
-		DocFile target = src.copy();
+		DocFile target = CloneFactory.copyDocFile(src);
 		target.setPageId(targetPage.getId());
 		DocFile savedFile = null;
 		logger.debug("Copy " + src.getName() + " file from page #" + srcPage.getId() + " to page #" + targetPage.getId());

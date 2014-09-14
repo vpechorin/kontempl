@@ -76,7 +76,8 @@ public class ImageThumbService {
 		logger.debug("clearAndRegenThumbs: " + imageFile.getName());
 		deleteThumb(imageFile.getId(), page);
 		logger.debug("Ready to create a new thumb for image: " + imageFile.getName());
-		Thumbnail newThumb = new Thumbnail(imageFile);
+		Thumbnail newThumb = new Thumbnail();
+		newThumb.setPropertiesFromImageFile(imageFile);
 		boolean thumbCreated = makeThumbnail(imageFile, newThumb, page);
 		logger.debug("thumpCreated=" + thumbCreated);
 		if (thumbCreated) {

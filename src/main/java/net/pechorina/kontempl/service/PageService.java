@@ -11,6 +11,7 @@ import net.pechorina.kontempl.data.PageProperty;
 import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.repos.PageRepo;
 import net.pechorina.kontempl.repos.SiteRepo;
+import net.pechorina.kontempl.utils.CloneFactory;
 import net.pechorina.kontempl.utils.StringUtils;
 
 import org.slf4j.Logger;
@@ -245,7 +246,7 @@ public class PageService {
 	@CacheEvict(value = {"pageCache"}, allEntries = true)
 	public Page copyPage(Page src) {
 		pageTreeService.resetPageTreeCache();
-		Page newPage = src.copy();
+		Page newPage = CloneFactory.copyPage(src);
 		String newName = findNewPageName(src.getSite(), src.getName());
 		newPage.setName(newName);
 		String newTitle = src.getTitle() + " - Copy";

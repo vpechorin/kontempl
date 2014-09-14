@@ -133,7 +133,8 @@ public class PageImagesResource {
 		if (files.size() > 0) {
 			for (FileMeta fm : files) {
 				logger.debug(requestId + " Processing: " + fm.getFileName() + " -- " + fm.getFileType());
-				ImageFile im = new ImageFile(fm);
+				ImageFile im = new ImageFile();
+				im.setPropertiesFromFileMeta(fm);
 				im.setPageId(pageId);
 				
 				String filePath = env.getProperty("fileStoragePath") + File.separator + page.getSiteId() + im.getAbsolutePath();

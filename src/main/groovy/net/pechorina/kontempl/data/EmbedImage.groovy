@@ -24,7 +24,7 @@ import groovy.transform.TypeChecked
 @Entity
 @Table(name = "embedimage")
 @EqualsAndHashCode(includes=['id', 'name', 'fileSize', 'page'])
-@ToString(includeNames=true)
+@ToString(includeNames=true, excludes=["page"])
 @TypeChecked
 class EmbedImage {
 	@Id

@@ -52,9 +52,8 @@ public class PagePropertyResource {
 	public ResponseEntity<Page> createPageProperty(@PathVariable("pageId") Integer pageId, 
 			@RequestBody PageProperty pageProperty, HttpServletRequest request) {
 		Page p = pageService.getPage(pageId);
-		
+		//pageProperty.setPage(p);
 		p.addProperty(pageProperty);
-		pageProperty.setPage(p);
 		Page savedEntity = pageService.savePage(p);
 		logger.info("PAGE PROPERTY CREATE: " + savedEntity + " Src:" + request.getRemoteAddr());
 		return new ResponseEntity<Page>(savedEntity, HttpStatus.CREATED);
