@@ -54,10 +54,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/users/**").hasRole("admin")
                 .antMatchers("/api/sites/**", "/api/pages/**", "/api/images/**", "/api/sitemap/**").hasRole("editor")
+                .antMatchers("/api/dataformrecords/**", "/api/dataforms/**").hasRole("editor")
                 .anyRequest().authenticated()
                 .and().httpBasic()
             ;
    
-
     }
 }

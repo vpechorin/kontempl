@@ -41,7 +41,7 @@ class PageProperty {
 	
 	@Lob
 	String content
-	
+		
 	void setPage(Page page) {
 		this.page = page;
 		if (!page.properties.contains(this)) {
