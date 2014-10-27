@@ -93,6 +93,8 @@ public class PageResource {
 		newPage.setRichText(page.isRichText());
 		newPage.setSortindex(page.getSortindex());
 		newPage.setTags(page.getTags());
+		newPage.setIncludeForm(page.getIncludeForm());
+		newPage.setFormId(page.getFormId());
 		
 		Page savedEntity = pageService.savePage(newPage);
 		
@@ -121,6 +123,8 @@ public class PageResource {
 		// existingEntity.setSortindex(page.getSortindex());
 		existingEntity.setTags(page.getTags());
 		existingEntity.setUpdated(new DateTime());
+		existingEntity.setIncludeForm(page.getIncludeForm());
+		existingEntity.setFormId(page.getFormId());
 		
 		Page savedEntity = pageService.savePage(existingEntity);
 		logger.info("PAGE SAVE: " + savedEntity + " Src:" + request.getRemoteAddr());

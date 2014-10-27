@@ -5,9 +5,12 @@ import javax.persistence.*
 
 import org.hibernate.annotations.Type
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormatter
+import org.joda.time.format.DateTimeFormat
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty
 
 import groovy.transform.*
 
@@ -17,6 +20,9 @@ import groovy.transform.*
 @ToString(includeNames=true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DataFormRecord {
+	static DateTimeFormatter dateFmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+	static DateTimeFormatter datetimeFmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Integer id
@@ -43,5 +49,23 @@ class DataFormRecord {
 		if (!f.records.contains(this)) {
 			f.records.add(this);
 		}
+	}
+	
+	@Transient
+	@JsonProperty("postedDate")
+	String postedDate() {
+		if (posted) {
+			return posted.toString(dateFmt)
+		}
+		return null
+	}
+	
+	@Transient
+	@JsonProperty("postedTime")
+	String postedTime() {
+		if (posted) {
+			return posted.toString(datetimeFmt)
+		}
+		return null
 	}
 }

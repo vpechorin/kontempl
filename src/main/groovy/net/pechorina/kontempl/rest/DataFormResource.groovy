@@ -1,23 +1,27 @@
 package net.pechorina.kontempl.rest
 
-import java.util.List;
+import java.util.List
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.inject.Inject
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
-import groovy.util.logging.Slf4j;
-import net.pechorina.kontempl.data.DataForm;
+import groovy.util.logging.Slf4j
+import net.pechorina.kontempl.data.DataForm
+import net.pechorina.kontempl.data.Site
 import net.pechorina.kontempl.service.DataFormRecordService
-import net.pechorina.kontempl.service.DataFormService;
+import net.pechorina.kontempl.service.DataFormService
+import net.pechorina.kontempl.service.SiteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.core.env.Environment
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -25,14 +29,20 @@ import org.springframework.web.bind.annotation.RestController
 @Slf4j
 class DataFormResource {
 	
-	@Autowired
+	@Inject
 	DataFormService dataFormService
 	
 	@Autowired
+	private SiteService siteService
+	
+	@Inject
 	Environment env
 	
 	@RequestMapping(method=RequestMethod.GET)
-	List<DataForm> list() {
+	List<DataForm> list(@RequestParam(value="siteId", required=false) Integer siteId) {
+		if (siteId) {
+			return dataFormService.findBySiteId(siteId)
+		}
 		return dataFormService.findAll()
 	}
 	

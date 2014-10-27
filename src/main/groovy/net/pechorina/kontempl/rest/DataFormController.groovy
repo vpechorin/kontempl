@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.inject.Inject
 
 import groovy.json.JsonBuilder
 import groovy.util.logging.Slf4j
@@ -23,7 +24,6 @@ import net.sf.uadetector.service.UADetectorServiceFactory
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,19 +40,19 @@ class DataFormController {
 	
 	static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 	
-	@Autowired
+	@Inject
 	DataFormService dataFormService
 	
-	@Autowired
+	@Inject
 	DataFormRecordService dataFormRecordService
 	
-	@Autowired
+	@Inject
 	SiteService siteService
 	
-	@Autowired
+	@Inject
 	MailService mailService
 	
-	@Autowired
+	@Inject
 	Environment env
 	
 	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/forms/{formName}")
@@ -60,8 +60,23 @@ class DataFormController {
 			@PathVariable("formName") String formName) {
 		Site s =  siteService.findByNameCached(siteName)
 		DataForm f = dataFormService.getByNameAndSiteId(formName, s.id)
+		DataFormView dfv = null
+		if (f) {
+			dfv = new DataFormView(name: f.name, title: f.title, formFields: f.formFields)
+		}
 
-		DataFormView dfv = new DataFormView(name: f.name, title: f.title, formFields: f.formFields)
+		return new ResponseEntity<DataFormView>(dfv, HttpStatus.OK)
+	}
+			
+	@RequestMapping(method = RequestMethod.GET, value="/api/browse/sites/{siteName}/customform/{formId}")
+	public ResponseEntity<DataFormView> getFormById(@PathVariable("siteName") String siteName,
+			@PathVariable("formId") Integer formId) {
+
+		DataForm f = dataFormService.get(formId);
+		DataFormView dfv = null
+		if (f) {
+			dfv = new DataFormView(name: f.name, title: f.title, formFields: f.formFields)
+		}
 
 		return new ResponseEntity<DataFormView>(dfv, HttpStatus.OK)
 	}
@@ -94,8 +109,8 @@ User-Agent: $ua
 """
 		
 		if (f.persist) {
-			def json = new JsonBuilder()
-			String jsonStr = json(rec)
+			def json = new JsonBuilder(rec)
+			String jsonStr = json.toString()
 			DataFormRecord r = new DataFormRecord(dataForm: f, data: jsonStr, ip: ip, ua: ua, posted: new DateTime())
 			dataFormRecordService.save(r)
 		}

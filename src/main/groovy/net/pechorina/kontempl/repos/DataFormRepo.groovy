@@ -17,4 +17,6 @@ interface DataFormRepo extends JpaRepository<DataForm, Integer> {
 	DataForm findByName(String formName)
 	
 	DataForm findByNameAndSiteId(String formName, int siteId)
+	
+	List<DataForm> findBySiteId(int siteId)
 }

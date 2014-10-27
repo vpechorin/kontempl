@@ -75,6 +75,7 @@ class Page {
 	boolean hideTitle = false
 	boolean placeholder = false
 	boolean richText = true
+	boolean includeForm = false
 
 	String name
 
@@ -96,6 +97,8 @@ class Page {
 
 	@Lob
 	String body
+	
+	Integer formId
 	
 	@OneToMany(mappedBy="page", fetch=FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval=true)
 	@OrderBy("name ASC")

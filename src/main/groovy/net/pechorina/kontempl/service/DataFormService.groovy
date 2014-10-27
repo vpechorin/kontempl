@@ -1,16 +1,47 @@
 package net.pechorina.kontempl.service
 
 import net.pechorina.kontempl.data.DataForm
+import net.pechorina.kontempl.repos.DataFormRepo
 
-interface DataFormService {
-	DataForm get(Integer id)
-	DataForm getByName(String name)
-	DataForm getByNameAndSiteId(String name, int siteId)
+import org.springframework.stereotype.Service
+import javax.inject.Inject
+
+@Service
+class DataFormService {
 	
-	List<DataForm> findAll()
+	@Inject
+	DataFormRepo dataFormRepo
 	
-	DataForm save(DataForm f)
+	DataForm get(Integer id) {
+		return dataFormRepo.findOne(id)
+	}
 	
-	void remove(DataForm f)
-	void remove(Integer id)
+	DataForm getByName(String name) {
+		return dataFormRepo.findByName(name)
+	}
+	
+	List<DataForm> findAll() {
+		return dataFormRepo.findAll()
+	}
+	
+	List<DataForm> findBySiteId(int siteId) {
+		return dataFormRepo.findBySiteId(siteId)
+	}
+	
+	DataForm save(DataForm f) {
+		return dataFormRepo.saveAndFlush(f)
+	}
+	
+	void remove(DataForm f) {
+		dataFormRepo.delete(f)
+	}
+	
+	void remove(Integer id) {
+		dataFormRepo.delete(id)
+	}
+
+	DataForm getByNameAndSiteId(String name, int siteId) {
+		return dataFormRepo.findByNameAndSiteId(name, siteId)
+	}
+
 }
