@@ -7,6 +7,7 @@ import net.pechorina.kontempl.data.Site
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment
 
 import groovy.util.logging.*
@@ -42,13 +43,14 @@ class Prerender {
 		String snapshotsPath = env.getProperty('snapshots.path')
 		String snapshotsSuffix = env.getProperty('snapshots.suffix')
 		boolean useHtml5Urls = env.getProperty("useHtml5Urls", Boolean.class)
+		String siteProto = env.getProperty('sitemapProto')
 		def m = '/#!/pv/';
 		if (useHtml5Urls) m = "/pv/"
 		
 		PageTree tree = pageTreeService.getPublicPageTree(site)
 		
 		// generate home page
-		String uHome = "http://" + site.getDomain() + "/";
+		String uHome = "$siteProto://" + site.getDomain() + "/";
 		def fHome = "$snapshotsPath/${site.getName()}/index$snapshotsSuffix"
 		String urlHomeStr = prerenderServer + uHome
 		renderAndSavePage(urlHomeStr, fHome)
@@ -57,7 +59,7 @@ class Prerender {
 		tree.listAllChildren().each { 
 			Page p = it.getData();
 			if ((p.getName() != site.getHomePage()) && (!p.isPlaceholder())) {
-				def u = "http://" + site.getDomain() + m + p.getName()
+				def u = "$siteProto://" + site.getDomain() + m + p.getName()
 				def f = "$snapshotsPath/${site.getName()}/${p.getName()}$snapshotsSuffix"
 				String urlStr = prerenderServer + u.toString()
 				renderAndSavePage(urlStr, f)

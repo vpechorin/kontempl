@@ -26,6 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,9 @@ public class SitemapService {
 	@Autowired
 	private Environment env;
 	
+	@Value("${sitemapProto}")
+	private String sitemapProto;
+	
 	public void makeSitemap(boolean submit) {
 		String sitemapDef = env.getProperty("sitemaps");
 		Iterable<String> sitemapItems = Splitter.on(',')
@@ -73,7 +77,7 @@ public class SitemapService {
 	private void makeSiteSitemap(Site site, String sitemapPath, boolean submit) {
 		List<WebSitemapUrl> urls = makeUrlList(site);
 		
-		String siteUrl = "http://" + site.getDomain() + "/";
+		String siteUrl =  sitemapProto + "://" + site.getDomain() + "/";
 		
 		W3CDateFormat dateFormat = new W3CDateFormat(Pattern.DAY); 
 		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -103,7 +107,7 @@ public class SitemapService {
 		
 		PageTree tree = pageTreeService.getPublicPageTree(site);
 
-		String url = "http://" + domainName + "/"; 
+		String url = sitemapProto + "://" + domainName + "/"; 
 		WebSitemapUrl homeUrl = null;
 		try {
 			homeUrl = new WebSitemapUrl.Options(url)
@@ -137,7 +141,7 @@ public class SitemapService {
 		boolean useHtml5Urls = env.getProperty("useHtml5Urls", Boolean.class);
 		String m = "/#!/pv/";
 		if (useHtml5Urls) m = "/pv/";
-		String u = "http://" + s.getDomain() + m + p.getName();
+		String u =  sitemapProto + "://" + s.getDomain() + m + p.getName();
 		WebSitemapUrl url = new WebSitemapUrl.Options(u)
 	    .lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
 		return url;
@@ -158,7 +162,7 @@ public class SitemapService {
     }
     
     public void submitSitemap(Site site) throws IOException {
-    	String sitemapLocation = "http://" + site.getDomain() + env.getProperty("sitemapUrl");
+    	String sitemapLocation =  sitemapProto + "://" + site.getDomain() + env.getProperty("sitemapUrl");
     	String url = "";
 		try {
 			url = env.getProperty("sitemapSubmitUrl") + "?sitemap=" + URLEncoder.encode(sitemapLocation, "ISO-8859-1");
