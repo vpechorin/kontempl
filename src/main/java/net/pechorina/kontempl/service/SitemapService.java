@@ -155,7 +155,7 @@ public class SitemapService {
     	makeSitemap(true);
     }
     
-    @Scheduled(cron="* 30 4 * * MON-SAT")
+    @Scheduled(cron="0 30 4 * * MON-FRI")
     public void scheduledUpdate() {
     	Boolean submit = env.getProperty("sitemapSubmit", Boolean.class);
     	makeSitemap(submit);

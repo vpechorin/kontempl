@@ -21,7 +21,7 @@ apply plugin: 'maven'
 apply plugin: 'artifactory'
 
 group = 'net.pechorina.kontempl'
-version = '1.3.2'
+version = '1.3.3'
 
 description = "Kontempl - web site management system"
 
@@ -47,9 +47,9 @@ repositories {
 }
 
 dependencies {
-	compile 'org.codehaus.groovy:groovy-all:2.3.7'
+	compile 'org.codehaus.groovy:groovy-all:2.3.8'
     compile 'mysql:mysql-connector-java'
-    testCompile 'com.h2database:h2:1.4.181'
+    testCompile 'com.h2database:h2:1.4.182'
 	compile('org.springframework.boot:spring-boot-starter-web')
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -63,7 +63,7 @@ dependencies {
     compile('org.apache.httpcomponents:httpclient') {
 		exclude(module: 'commons-logging')
     }
-    compile 'net.sf.ehcache:ehcache:2.8.3'
+    compile 'net.sf.ehcache:ehcache:2.9.0'
     compile group: 'commons-codec', name: 'commons-codec', version:'1.9'
     compile group: 'com.google.guava', name: 'guava', version:'18.0'
     compile group: 'org.jsoup', name: 'jsoup', version:'1.7.3'
