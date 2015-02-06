@@ -1,7 +1,10 @@
 buildscript {
+    ext {
+        springBootVersion = '1.2.1.RELEASE'
+    }
     repositories {
         maven {
-            url 'http://mvn.home.pechorina.net:8081/artifactory/plugins-release'
+            url "${artifactory_contextUrl}/plugins-release"
             credentials {
                 username = "${artifactory_user}"
                 password = "${artifactory_password}"
@@ -10,7 +13,7 @@ buildscript {
     }
     dependencies {
         classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.1.9.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
     }
 }
 
@@ -21,7 +24,7 @@ apply plugin: 'maven'
 apply plugin: 'artifactory'
 
 group = 'net.pechorina.kontempl'
-version = '1.3.3'
+version = '1.3.4'
 
 description = "Kontempl - web site management system"
 
@@ -38,7 +41,7 @@ sourceSets.main.groovy.srcDirs += ["src/main/java"]
 
 repositories {
 	maven {
-		url 'http://mvn.home.pechorina.net:8081/artifactory/plugins-release'
+        url "${artifactory_contextUrl}/plugins-release"
 		credentials {
 			username = "${artifactory_user}"
 			password = "${artifactory_password}"
@@ -47,7 +50,7 @@ repositories {
 }
 
 dependencies {
-	compile 'org.codehaus.groovy:groovy-all:2.3.8'
+	compile 'org.codehaus.groovy:groovy-all'
     compile 'mysql:mysql-connector-java'
     testCompile 'com.h2database:h2:1.4.182'
 	compile('org.springframework.boot:spring-boot-starter-web')
