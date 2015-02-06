@@ -1,18 +1,8 @@
 package net.pechorina.kontempl.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.pechorina.kontempl.data.DocFile;
-import net.pechorina.kontempl.data.GenericTreeNode;
-import net.pechorina.kontempl.data.ImageFile;
-import net.pechorina.kontempl.data.Page;
-import net.pechorina.kontempl.data.PageNode;
-import net.pechorina.kontempl.data.PageTree;
-import net.pechorina.kontempl.data.Site;
+import net.pechorina.kontempl.data.*;
 import net.pechorina.kontempl.repos.PageRepo;
 import net.pechorina.kontempl.repos.SiteRepo;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +11,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PageTreeService {
@@ -51,7 +44,7 @@ public class PageTreeService {
 			List<Page> pages = pageRepo.listRootPages(site);
 
 			for (Page p : pages) {
-				GenericTreeNode<Page> node = new GenericTreeNode<Page>(p);
+				GenericTreeNode<Page> node = new GenericTreeNode<>(p);
 				pageTree.addChild(node);
 				auxiliaryAddChildren(node);
 			}
@@ -67,7 +60,7 @@ public class PageTreeService {
 		List<Page> pages = pageRepo.listRootPages(site);
 
 		for (Page p : pages) {
-			GenericTreeNode<Page> node = new GenericTreeNode<Page>(p);
+			GenericTreeNode<Page> node = new GenericTreeNode<>(p);
 			pageTree.addChild(node);
 			auxiliaryAddChildren(node);
 		}
@@ -79,7 +72,7 @@ public class PageTreeService {
 		List<Page> subPages = pageRepo.listSubPages(parent.getData().getId(), parent.getData().getSiteId());
 
 		for (Page child : subPages) {
-			GenericTreeNode<Page> node = new GenericTreeNode<Page>(child);
+			GenericTreeNode<Page> node = new GenericTreeNode<>(child);
 			node.setParent(parent);
 			auxiliaryAddChildren(node);
 			parent.addChild(node);
@@ -90,17 +83,16 @@ public class PageTreeService {
 
 		List<Page> subPages = pageRepo.listSubPages(parent.getData().getId(), parent.getData().getSiteId());
 
-		for (Page child : subPages) {
-			if (child.isPublicPage()) {
-				// set image for this page
-				child.setMainImage(imageFileService.getMainImageForPage(child.getId()));
-				
-				GenericTreeNode<Page> node = new GenericTreeNode<Page>(child);
-				node.setParent(parent);
-				auxiliaryAddPublicChildren(node);
-				parent.addChild(node);
-			}
-		}
+        // set image for this page
+        subPages.stream().filter(Page::isPublicPage).forEach(child -> {
+            // set image for this page
+            child.setMainImage(imageFileService.getMainImageForPage(child.getId()));
+
+            GenericTreeNode<Page> node = new GenericTreeNode<>(child);
+            node.setParent(parent);
+            auxiliaryAddPublicChildren(node);
+            parent.addChild(node);
+        });
 	}
 
 	@Transactional
@@ -119,18 +111,16 @@ public class PageTreeService {
 		
 		// set image for this page
 		homePage.setMainImage(imageFileService.getMainImageForPage(homePage.getId()));
-		
-		if (homePage != null) {
-			GenericTreeNode<Page> home = new GenericTreeNode<Page>(homePage);
-			pageTree.addChild(home);
-			auxiliaryAddPublicChildren(home);
-		}
-		return pageTree;
+
+        GenericTreeNode<Page> home = new GenericTreeNode<>(homePage);
+        pageTree.addChild(home);
+        auxiliaryAddPublicChildren(home);
+        return pageTree;
 	}
 	
 	@Transactional
 	public List<PageNode> getPageNodeTree(Site site) {
-		List<PageNode> tree = new ArrayList<PageNode>();
+		List<PageNode> tree = new ArrayList<>();
 
 		List<Page> pages = pageRepo.listRootPages(site);
 
@@ -156,18 +146,16 @@ public class PageTreeService {
 	@Transactional
 	@Cacheable("treeCache")
 	public List<PageNode> getPageNodeTreePublic(Site site, boolean includeImages, boolean includeFiles) {
-		List<PageNode> tree = new ArrayList<PageNode>();
+		List<PageNode> tree = new ArrayList<>();
 
 		List<Page> pages = pageRepo.listRootPages(site);
 
-		for (Page p : pages) {
-			if (p.isPublicPage()) {
-				PageNode rootNode = new PageNode(p);
-				updateAttachments(rootNode, includeImages, includeFiles);
-				auxiliaryAddPublicChildren(rootNode, p, includeImages, includeFiles);
-				tree.add(rootNode);
-			}
-		}
+        pages.stream().filter(Page::isPublicPage).forEach(p -> {
+            PageNode rootNode = new PageNode(p);
+            updateAttachments(rootNode, includeImages, includeFiles);
+            auxiliaryAddPublicChildren(rootNode, p, includeImages, includeFiles);
+            tree.add(rootNode);
+        });
 		
 		return tree;
 	}
@@ -179,21 +167,19 @@ public class PageTreeService {
 		}
 		if (includeImages) {
 			List<ImageFile> images = imageFileService.listImagesForPageOrdered(node.getId());
-			if (images != null) node.setImages(images);;
+			if (images != null) node.setImages(images);
 		}
 	}
 	
 	private void auxiliaryAddPublicChildren(PageNode node, Page parentPage, boolean includeImages, boolean includeFiles) {
 		List<Page> subPages = pageRepo.listSubPages(parentPage.getId(), parentPage.getSiteId());
 
-		for (Page child : subPages) {
-			if (child.isPublicPage()) {
-				PageNode childNode = new PageNode(child);
-				updateAttachments(childNode, includeImages, includeFiles);
-				auxiliaryAddPublicChildren(childNode, child, includeImages, includeFiles);
-				node.addChild(childNode);
-			}
-		}
+        subPages.stream().filter(Page::isPublicPage).forEach(child -> {
+            PageNode childNode = new PageNode(child);
+            updateAttachments(childNode, includeImages, includeFiles);
+            auxiliaryAddPublicChildren(childNode, child, includeImages, includeFiles);
+            node.addChild(childNode);
+        });
 	}
 	
 	@CacheEvict(value = {"treeCache"}, allEntries = true)

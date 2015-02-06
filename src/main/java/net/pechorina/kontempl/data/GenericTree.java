@@ -1,10 +1,10 @@
 package net.pechorina.kontempl.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GenericTree<T> {
 	static final Logger logger = LoggerFactory.getLogger(GenericTree.class);
@@ -12,7 +12,7 @@ public class GenericTree<T> {
     
     public GenericTree() {
         super();
-        children = new ArrayList<GenericTreeNode<T>>();
+        children = new ArrayList<>();
     }
     
     public List<GenericTreeNode<T>> getChildren() {
@@ -24,7 +24,7 @@ public class GenericTree<T> {
     }
     
     public List<GenericTreeNode<T>> listAllChildren() {
-        List<GenericTreeNode<T>> l = new ArrayList<GenericTreeNode<T>>();
+        List<GenericTreeNode<T>> l = new ArrayList<>();
         //List<GenericTreeNode<T>> rootNodes = this.getChildren();
         // logger.debug("Found root nodes: " + rootNodes.size());
         //int  i = 0;
@@ -40,7 +40,7 @@ public class GenericTree<T> {
     }
 
     public List<GenericTreeNode<T>> auxiliaryListAllChildren(GenericTreeNode<T> node) {
-        List<GenericTreeNode<T>> l = new ArrayList<GenericTreeNode<T>>();
+        List<GenericTreeNode<T>> l = new ArrayList<>();
         for (GenericTreeNode<T> child : node.getChildren()) {
             l.add(child);
             List<GenericTreeNode<T>> childList = auxiliaryListAllChildren(child);
@@ -93,6 +93,6 @@ public class GenericTree<T> {
     }
 
     public void removeChildren() {
-        this.children = new ArrayList<GenericTreeNode<T>>();
+        this.children = new ArrayList<>();
     }
 }

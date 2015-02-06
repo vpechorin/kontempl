@@ -1,13 +1,14 @@
 package net.pechorina.kontempl.data;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.util.stream.Collectors;
 
 public class OptiUserDetails implements Serializable, UserDetails {
 
@@ -25,11 +26,9 @@ public class OptiUserDetails implements Serializable, UserDetails {
 
 	public OptiUserDetails(User u, Set<String> roles) {
 		this.user = u;
-		this.authorities = new HashSet<GrantedAuthority>();
-		for (String role : roles) {
-			authorities.add(new SimpleGrantedAuthority("ROLE_"
-					+ role.toLowerCase()));
-		}
+		this.authorities = new HashSet<>();
+        authorities.addAll(roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_"
+                + role.toLowerCase())).collect(Collectors.toList()));
 	}
 
 	public User getUser() {
@@ -84,13 +83,7 @@ public class OptiUserDetails implements Serializable, UserDetails {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("OptiUserDetails [user=");
-		builder.append(user);
-		builder.append(", authorities=");
-		builder.append(authorities);
-		builder.append("]");
-		return builder.toString();
+        return "OptiUserDetails [user=" + user + ", authorities=" + authorities + "]";
 	}
 
 }

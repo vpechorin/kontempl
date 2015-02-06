@@ -1,34 +1,21 @@
 package net.pechorina.kontempl.data;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Entity implementation class for Entity: User
@@ -36,8 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Entity
 @Table(name = "user", indexes={
-		@Index(name="lockedIdx", columnList="locked"),
-//		@Index(name="activeIdx", columnList="active")
+		@Index(name="lockedIdx", columnList="locked")
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements Serializable {
@@ -60,7 +46,7 @@ public class User implements Serializable {
 	
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name="user_role")
-	private Set<String> roles = new HashSet<String>();
+	private Set<String> roles = new HashSet<>();
 	
 	@JsonIgnore
 	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -108,7 +94,7 @@ public class User implements Serializable {
 	@Transient
 	@JsonProperty("roleMap")
 	public Map<String, Boolean> roleMap() {
-		Map<String, Boolean> m = new HashMap<String, Boolean>();
+		Map<String, Boolean> m = new HashMap<>();
 		if (this.roles != null) {
 			for(String r: this.roles) {
 				m.put(r, true);
@@ -228,21 +214,7 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("User [id=");
-		builder.append(id);
-		builder.append(", name=");
-		builder.append(name);
-		builder.append(", locked=");
-		builder.append(locked);
-		builder.append(", active=");
-		builder.append(active);
-		builder.append(", roles=");
-		builder.append(roles);
-		builder.append(", created=");
-		builder.append(created);
-		builder.append("]");
-		return builder.toString();
+        return "User [id=" + id + ", name=" + name + ", locked=" + locked + ", active=" + active + ", roles=" + roles + ", created=" + created + "]";
 	}
 
 }

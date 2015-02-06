@@ -46,7 +46,7 @@ public class SiteResource {
 	public ResponseEntity<Site> createSite(@RequestBody Site site, HttpServletRequest request) {
 		Site savedEntity = siteService.save(site);
 		logger.info("SITE CREATE: " + savedEntity + " Src:" + request.getRemoteAddr());
-		return new ResponseEntity<Site>(savedEntity, HttpStatus.CREATED);
+		return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}")
@@ -59,7 +59,7 @@ public class SiteResource {
 		
 		Site savedEntity = siteService.save(site);
 		logger.info("SITE PROPERTY CREATE: " + savedEntity + " Src:" + request.getRemoteAddr());
-		return new ResponseEntity<Site>(savedEntity, HttpStatus.CREATED);
+		return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/{propId}")

@@ -1,15 +1,11 @@
 package net.pechorina.kontempl.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
+import com.google.common.io.Files;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.repos.ImageFileRepo;
-import net.pechorina.kontempl.utils.FileUtils;
 import net.pechorina.kontempl.utils.CloneFactory;
-
+import net.pechorina.kontempl.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +13,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.io.Files;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ImageFileService {
@@ -78,9 +76,7 @@ public class ImageFileService {
 	@Transactional
 	public void removeAllImagesForPage(Page page) {
 		List<ImageFile> images = imageFileRepo.findByPageId(page.getId());
-		for(ImageFile im: images) {
-			deleteImage(im);
-		}
+        images.forEach(this::deleteImage);
 		String pageImagesDir = env.getProperty("fileStoragePath") + File.separator 
 				+ page.getSiteId() + File.separator + page.getId() + File.separator + "images";
 		File dir = new File(pageImagesDir);
@@ -138,12 +134,10 @@ public class ImageFileService {
 	public void markImageAsMainImage(ImageFile mainImage) {
 		List<ImageFile> images = imageFileRepo.findByPageId(mainImage.getPageId());
 		if (images != null) {
-			for(ImageFile im: images) {
-				if (im.getId() != mainImage.getId()) {
-					im.setMainImage(false);
-					imageFileRepo.saveAndFlush(im);
-				}
-			}
+            images.stream().filter(im -> im.getId().intValue() != mainImage.getId().intValue()).forEach(im -> {
+                im.setMainImage(false);
+                imageFileRepo.saveAndFlush(im);
+            });
 		}
 		mainImage.setMainImage(true);
 		imageFileRepo.saveAndFlush(mainImage);

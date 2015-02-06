@@ -29,13 +29,13 @@ public class SitemapResource {
 	public ResponseEntity<String> updateSitemap(HttpServletRequest request) {
 		sitemapService.onlyUpdateSitemap();
 		logger.info("SITEMAPs UPDATED");
-		return new ResponseEntity<String>("OK", HttpStatus.OK);
+		return new ResponseEntity<>("OK", HttpStatus.OK);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/submit")
 	public ResponseEntity<String> submitSitemap(HttpServletRequest request) {
 		sitemapService.updateSitemap();
 		logger.info("SITEMAPs UPDATED and SUBMITTED");
-		return new ResponseEntity<String>("OK", HttpStatus.OK);
+		return new ResponseEntity<>("OK", HttpStatus.OK);
 	}
 }

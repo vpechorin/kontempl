@@ -1,22 +1,20 @@
 package net.pechorina.kontempl.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PageTree extends GenericTree<Page> {
 	static final Logger logger = LoggerFactory.getLogger(PageTree.class);
     
     public void updateItemsCounters(Map<Long, Integer> pageItems) {
-        for (GenericTreeNode<Page> rootPage : this.getChildren() ) {
-            if (rootPage.hasChildren()) {
-                int itemsInSubcategories = getItemsInSubcategories(rootPage);
-                rootPage.setItems(itemsInSubcategories);
-            }
-        }
+        this.getChildren().stream().filter(GenericTreeNode::hasChildren).forEach(rootPage -> {
+            int itemsInSubcategories = getItemsInSubcategories(rootPage);
+            rootPage.setItems(itemsInSubcategories);
+        });
     }
     
     public int getItemsInSubcategories(GenericTreeNode<Page> page) {
@@ -35,7 +33,7 @@ public class PageTree extends GenericTree<Page> {
     }
     
     public GenericTreeNode<Page> findPageNode(String name) {
-        GenericTreeNode<Page> n = new GenericTreeNode<Page>();
+        GenericTreeNode<Page> n = new GenericTreeNode<>();
         List<GenericTreeNode<Page>> children = this.listAllChildren();
         // logger.debug("Found " + children.size() + " children. Treesize: " + this.getNumberOfNodes());
         for (GenericTreeNode<Page> node : children) {
@@ -51,7 +49,7 @@ public class PageTree extends GenericTree<Page> {
     }
 
     public GenericTreeNode<Page> findPageNode(Integer id) {
-        GenericTreeNode<Page> n = new GenericTreeNode<Page>();
+        GenericTreeNode<Page> n = new GenericTreeNode<>();
         List<GenericTreeNode<Page>> children = this.listAllChildren();
         // logger.debug("Found " + children.size() + " children. Treesize: " + this.getNumberOfNodes());
         for (GenericTreeNode<Page> node : children) {
@@ -66,7 +64,7 @@ public class PageTree extends GenericTree<Page> {
     
     public List<Page> traceCategoryParents(String name) {
         GenericTreeNode<Page> n = findPageNode(name);
-        List<Page> l = new ArrayList<Page>();
+        List<Page> l = new ArrayList<>();
         if (n != null) {
             List<GenericTreeNode<Page>> pageNodes = n.traceParents();
             for (int i = (pageNodes.size() - 1); i >= 0; i--) {
@@ -109,7 +107,7 @@ public class PageTree extends GenericTree<Page> {
     			builder.append("/");
     			builder.append(n.getData().getName());
     			if (n.getParent() != null) {
-    				builder.append(" [parent:" + n.getParent().getData().getId() + "]");
+    				builder.append(" [parent:").append(n.getParent().getData().getId()).append("]");
     			}
     			builder.append("\n");
 
@@ -130,7 +128,7 @@ public class PageTree extends GenericTree<Page> {
 				builder.append("/");
 				builder.append(n.getData().getName());
 				if (n.getParent() != null) {
-					builder.append(" [parent:" + n.getParent().getData().getId() + "]");
+					builder.append(" [parent:").append(n.getParent().getData().getId()).append("]");
 				}
 				builder.append("\n");
 				auxPrintBranch(n, builder, margin + padding);

@@ -1,24 +1,15 @@
 package net.pechorina.kontempl.data;
 
-import java.io.Serializable;
-import java.util.UUID;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "authtoken", indexes={
@@ -140,21 +131,7 @@ public class AuthToken implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("AuthToken [uuid=");
-		builder.append(uuid);
-		builder.append(", user=");
-		builder.append(user);
-		builder.append(", created=");
-		builder.append(created);
-		builder.append(", updated=");
-		builder.append(updated);
-		builder.append(", ip=");
-		builder.append(ip);
-		builder.append(", ua=");
-		builder.append(ua);
-		builder.append("]");
-		return builder.toString();
+        return "AuthToken [uuid=" + uuid + ", user=" + user + ", created=" + created + ", updated=" + updated + ", ip=" + ip + ", ua=" + ua + "]";
 	}
 
 }

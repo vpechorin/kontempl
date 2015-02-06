@@ -1,25 +1,19 @@
 package net.pechorina.kontempl.rest;
 
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.pechorina.kontempl.data.Credential;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.view.forms.CredentialPasswordForm;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/api/users/{userId}/credentials")
@@ -35,14 +29,12 @@ public class UserCredentialsResource {
 	@RequestMapping(method = RequestMethod.GET) 
 	public Set<Credential> getCredentials(@PathVariable("userId") Integer userId) {
 		User u = userService.getUserByIdDetailed(userId);
-		Set<Credential> creds = u.getCredentials();
-		return creds;
+        return u.getCredentials();
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value="{id}") 
 	public Credential getCredential(@PathVariable("userId") Integer userId, @PathVariable("id") Integer id) {
-		Credential c = userService.getCredential(id);
-		return c;
+        return userService.getCredential(id);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)

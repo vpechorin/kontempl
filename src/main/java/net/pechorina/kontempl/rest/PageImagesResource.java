@@ -1,16 +1,6 @@
 package net.pechorina.kontempl.rest;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.io.Files;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
@@ -21,21 +11,23 @@ import net.pechorina.kontempl.service.SiteService;
 import net.pechorina.kontempl.utils.FileUtils;
 import net.pechorina.kontempl.utils.ImageUtils;
 import net.pechorina.kontempl.utils.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.common.io.Files;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/pages/{pageId}/images")
@@ -56,8 +48,7 @@ public class PageImagesResource {
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<ImageFile> list(@PathVariable("pageId") Integer pageId) {
-		List<ImageFile> list = imgService.listImagesForPageOrdered(pageId); 
-		return list;
+        return imgService.listImagesForPageOrdered(pageId);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
@@ -104,7 +95,7 @@ public class PageImagesResource {
 		
 		String requestId = UUID.randomUUID().toString();
 		
-		LinkedList<FileMeta> files = new LinkedList<FileMeta>();
+		LinkedList<FileMeta> files = new LinkedList<>();
 
 		Iterator<String> itr = request.getFileNames();
 		MultipartFile mpf = null;
@@ -173,14 +164,11 @@ public class PageImagesResource {
 						im.setHeight(dim.height);
 					}
 					success = true;
-				} catch (BadImageException e) {
-					logger.error("Can't write image to file: " + e);
-					success = false;
-				} catch (IOException e) {
+				} catch (BadImageException | IOException e) {
 					logger.error("Can't write image to file: " + e);
 					success = false;
 				}
-				if (success) {
+                if (success) {
 					ImageFile i = imgService.saveNew(im);
 					logger.debug(requestId + " Image " + filePath + " saved: " + i);
 				}

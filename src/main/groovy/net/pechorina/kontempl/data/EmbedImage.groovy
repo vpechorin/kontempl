@@ -1,25 +1,11 @@
 package net.pechorina.kontempl.data
-
-import groovy.transform.TypeChecked;
-
-import java.io.File;
-import java.math.RoundingMode;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import com.fasterxml.jackson.annotation.JsonIgnore
-
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import groovy.transform.TypeChecked
+
+import javax.persistence.*
+import java.math.RoundingMode
 
 @Entity
 @Table(name = "embedimage")
@@ -48,7 +34,7 @@ class EmbedImage {
 	long fileSize
 	
 	String getHFileSize() {
-		String hs = "";
+		String hs;
 		if (fileSize > (1024*1024)) {
 			BigDecimal s = (fileSize / (1024 * 1024)).setScale(1, RoundingMode.HALF_UP)
 			hs = "$s MB";

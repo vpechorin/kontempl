@@ -1,19 +1,10 @@
 package net.pechorina.kontempl.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import net.pechorina.kontempl.data.DocFile;
-import net.pechorina.kontempl.data.ImageFile;
-import net.pechorina.kontempl.data.Page;
-import net.pechorina.kontempl.data.PageProperty;
-import net.pechorina.kontempl.data.Site;
+import net.pechorina.kontempl.data.*;
 import net.pechorina.kontempl.repos.PageRepo;
 import net.pechorina.kontempl.repos.SiteRepo;
 import net.pechorina.kontempl.utils.CloneFactory;
 import net.pechorina.kontempl.utils.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +13,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class PageService {
@@ -70,7 +65,7 @@ public class PageService {
 	
 	@Transactional
 	public List<Page> listPageParents(Page page) {
-		List<Page> pages = new ArrayList<Page>();
+		List<Page> pages = new ArrayList<>();
 		Page thisPage = page;
 		while (thisPage.getParentId() != 0) {
 			Page parent = pageRepo.findOne(thisPage.getParentId());
@@ -139,9 +134,7 @@ public class PageService {
 	@Transactional
 	public void deleteSubPages(Page parent) {
 		List<Page> pages = pageRepo.listSubPages(parent.getId(), parent.getSiteId());
-		for(Page p: pages) {
-			deletePage(p);
-		}
+        pages.forEach(this::deletePage);
 	}
 
 	public Page beforeSave(Page page) {

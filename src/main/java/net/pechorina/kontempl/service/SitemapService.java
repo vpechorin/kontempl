@@ -1,20 +1,16 @@
 package net.pechorina.kontempl.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.redfin.sitemapgenerator.ChangeFreq;
+import com.redfin.sitemapgenerator.W3CDateFormat;
+import com.redfin.sitemapgenerator.W3CDateFormat.Pattern;
+import com.redfin.sitemapgenerator.WebSitemapGenerator;
+import com.redfin.sitemapgenerator.WebSitemapUrl;
 import net.pechorina.kontempl.data.GenericTreeNode;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.PageTree;
 import net.pechorina.kontempl.data.Site;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -31,13 +27,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-import com.redfin.sitemapgenerator.ChangeFreq;
-import com.redfin.sitemapgenerator.W3CDateFormat;
-import com.redfin.sitemapgenerator.W3CDateFormat.Pattern;
-import com.redfin.sitemapgenerator.WebSitemapGenerator;
-import com.redfin.sitemapgenerator.WebSitemapUrl;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 @Service
 public class SitemapService {
@@ -88,7 +86,8 @@ public class SitemapService {
 		} catch (MalformedURLException e) {
 			logger.error("Bad site url: " + e);
 		}
-		wsg.addUrls(urls);
+        assert wsg != null;
+        wsg.addUrls(urls);
 		wsg.write();
 		if (submit) {
 			try {
@@ -101,7 +100,7 @@ public class SitemapService {
 	
 	private List<WebSitemapUrl> makeUrlList(Site site) {
     	logger.debug("make sitemap for " + site.getDomain());
-    	List<WebSitemapUrl> urls = new ArrayList<WebSitemapUrl>();
+    	List<WebSitemapUrl> urls = new ArrayList<>();
     	
     	String domainName = site.getDomain();
 		
@@ -142,9 +141,8 @@ public class SitemapService {
 		String m = "/#!/pv/";
 		if (useHtml5Urls) m = "/pv/";
 		String u =  sitemapProto + "://" + s.getDomain() + m + p.getName();
-		WebSitemapUrl url = new WebSitemapUrl.Options(u)
-	    .lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
-		return url;
+        return new WebSitemapUrl.Options(u)
+.lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
 	}
     
     public void onlyUpdateSitemap() {
@@ -171,28 +169,26 @@ public class SitemapService {
 		}
 
 		logger.debug("URL: " + url);
-		CloseableHttpClient httpclient = HttpClients.createDefault();
-    	try {
-    		HttpGet httpget = new HttpGet(url);
-    		
-    		// Execute the method.
-    		HttpResponse response = httpclient.execute(httpget);
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpGet httpget = new HttpGet(url);
 
-    		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-    			logger.error("Submit failed: " + response.getStatusLine());
-    		}
+            // Execute the method.
+            HttpResponse response = httpclient.execute(httpget);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                logger.error("Submit failed: " + response.getStatusLine());
+            }
             // Get hold of the response entity
             HttpEntity entity = response.getEntity();
             String responseStr = EntityUtils.toString(entity);
             logger.debug("Sitemap submit detailed response: " + responseStr);
             logger.info("Sitemap submitted to " + url);
-    	} catch (IOException e) {
-    		logger.error("Fatal IO error: " + e.getMessage());
-    	} catch (ParseException e) {
-    		logger.error("Fatal parse error: " + e.getMessage());    		
-    	} finally {
-    		// Release the connection.
-    		httpclient.close();
-    	}  
+        } catch (IOException e) {
+            logger.error("Fatal IO error: " + e.getMessage());
+        } catch (ParseException e) {
+            logger.error("Fatal parse error: " + e.getMessage());
+        }
+        // Release the connection.
+
     }
 }

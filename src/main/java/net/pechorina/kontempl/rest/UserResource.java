@@ -1,15 +1,8 @@
 package net.pechorina.kontempl.rest;
 
-import javax.servlet.http.HttpServletRequest;
-
-import net.pechorina.kontempl.data.AuthToken;
-import net.pechorina.kontempl.data.LoginForm;
-import net.pechorina.kontempl.data.OptiUserDetails;
-import net.pechorina.kontempl.data.TokenTransfer;
-import net.pechorina.kontempl.data.User;
+import net.pechorina.kontempl.data.*;
 import net.pechorina.kontempl.exceptions.UnauthorizedException;
 import net.pechorina.kontempl.service.UserService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(value = "/api/user")
@@ -48,7 +43,7 @@ public class UserResource {
 
 		if (authentication != null && authentication.isAuthenticated()) {
 			Object principal = authentication.getPrincipal();
-			if (principal instanceof String && ((String) principal).equals("anonymousUser")) {
+			if (principal instanceof String && principal.equals("anonymousUser")) {
 				logger.debug("Found unauthenticated request");
 				throw new UnauthorizedException();	
 			}

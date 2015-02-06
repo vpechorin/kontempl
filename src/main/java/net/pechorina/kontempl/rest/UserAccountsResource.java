@@ -1,23 +1,17 @@
 package net.pechorina.kontempl.rest;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.view.forms.UserFormNew;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -32,8 +26,7 @@ public class UserAccountsResource {
 	
 	@RequestMapping(method = RequestMethod.GET) 
 	public List<User> getUsers() {
-		List<User> users = userService.findUsers();
-		return users;
+        return userService.findUsers();
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")

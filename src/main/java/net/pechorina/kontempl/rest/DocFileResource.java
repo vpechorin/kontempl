@@ -1,14 +1,6 @@
 package net.pechorina.kontempl.rest;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.io.Files;
 import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.Page;
@@ -16,21 +8,21 @@ import net.pechorina.kontempl.service.DocFileService;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
 import net.pechorina.kontempl.utils.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.common.io.Files;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/pages/{pageId}/files")
@@ -51,8 +43,7 @@ public class DocFileResource {
 	
 	@RequestMapping(method=RequestMethod.GET)
 	public List<DocFile> list(@PathVariable("pageId") Integer pageId) {
-		List<DocFile> list = docFileService.listDocsForPageOrdered(pageId); 
-		return list;
+        return docFileService.listDocsForPageOrdered(pageId);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
@@ -83,7 +74,7 @@ public class DocFileResource {
 		
 		Page page = pageService.getPage(pageId);
 		
-		LinkedList<FileMeta> files = new LinkedList<FileMeta>();
+		LinkedList<FileMeta> files = new LinkedList<>();
 
 		Iterator<String> itr = request.getFileNames();
 		MultipartFile mpf = null;

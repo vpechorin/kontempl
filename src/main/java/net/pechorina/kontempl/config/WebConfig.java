@@ -1,12 +1,11 @@
 package net.pechorina.kontempl.config;
 
-import java.util.List;
-
-import javax.xml.transform.Source;
-
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import net.pechorina.kontempl.filters.HeaderInterceptor;
 import net.pechorina.kontempl.filters.LoggingInterceptor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -28,10 +27,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import java.util.List;
 
 @Configuration
 @EnableWebMvc
@@ -98,7 +94,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         converters.add(new ByteArrayHttpMessageConverter());
         converters.add(stringConverter);
         converters.add(new ResourceHttpMessageConverter());
-        converters.add(new SourceHttpMessageConverter<Source>());
+        converters.add(new SourceHttpMessageConverter<>());
         converters.add(new AllEncompassingFormHttpMessageConverter());
         converters.add(mappingJackson2HttpMessageConverter());
     }

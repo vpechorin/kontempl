@@ -22,7 +22,7 @@ public class TextContentUtils {
         
     public String extractKeywords(String text) {
         if (text == null) {
-            return text;
+            return null;
         }
         text = text.replaceAll("\\r", "");
         text = text.trim();

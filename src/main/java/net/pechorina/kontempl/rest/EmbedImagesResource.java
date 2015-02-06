@@ -1,17 +1,6 @@
 package net.pechorina.kontempl.rest;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.io.Files;
 import net.pechorina.kontempl.data.EmbedImage;
 import net.pechorina.kontempl.data.FileMeta;
 import net.pechorina.kontempl.data.Page;
@@ -22,20 +11,24 @@ import net.pechorina.kontempl.service.SiteService;
 import net.pechorina.kontempl.utils.FileUtils;
 import net.pechorina.kontempl.utils.ImageUtils;
 import net.pechorina.kontempl.utils.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.common.io.Files;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/pages/{pageId}/embed")
@@ -57,15 +50,13 @@ public class EmbedImagesResource {
 	@RequestMapping(method=RequestMethod.GET)
 	public List<EmbedImage> list(@PathVariable("pageId") Integer pageId) {
 		Page p = pageService.getPage(pageId);
-		List<EmbedImage> list = p.getEmbedImages().stream().collect(Collectors.toList()); 
-		return list;
+        return p.getEmbedImages().stream().collect(Collectors.toList());
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public EmbedImage getById(@PathVariable("pageId") Integer pageId, @PathVariable("id") Integer id) {
 		Page p = pageService.getPage(pageId);
-		EmbedImage im = p.getEmbedImages().stream().filter(em -> em.getId() == id.intValue()).findFirst().orElse(null);
-		return im;
+        return p.getEmbedImages().stream().filter(em -> em.getId() == id.intValue()).findFirst().orElse(null);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
@@ -76,7 +67,7 @@ public class EmbedImagesResource {
 		
 		String requestId = UUID.randomUUID().toString();
 		
-		LinkedList<FileMeta> files = new LinkedList<FileMeta>();
+		LinkedList<FileMeta> files = new LinkedList<>();
 
 		Iterator<String> itr = request.getFileNames();
 		MultipartFile mpf = null;

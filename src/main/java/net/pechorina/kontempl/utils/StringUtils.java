@@ -21,7 +21,7 @@ public class StringUtils {
 	 * 
 	 * @param s
 	 *            {@link String } String o trim
-	 * @param lengh
+	 * @param length
 	 *            {@link Integer} The max size of return string
 	 * @return {@link String }
 	 */
@@ -56,8 +56,7 @@ public class StringUtils {
 			String pattern) {
 		Pattern p = Pattern.compile(regexp);
 		Matcher m = p.matcher(input);
-		String res = m.replaceAll(pattern);
-		return res;
+        return m.replaceAll(pattern);
 	}
 
 	/**
@@ -146,7 +145,7 @@ public class StringUtils {
 	 * @return {@link List}
 	 */
 	public static List<String> stringTokenizer(String string) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		if (string == null || string.isEmpty()) {
 			return list;
 		}
@@ -171,22 +170,21 @@ public class StringUtils {
 	public static boolean checkStopWords(String string) {
 		String[] stopWord = { "and", "with", "pcs", "for", "pro", "pack", "to",
 				"-", "mount", "x" };
-		for (int i = 0; i < stopWord.length; i++) {
-			String sw = stopWord[i];
-			if (sw.equals(string.toLowerCase())) {
-				return false;
-			}
-			if (string.matches("^(\\d+)$")) {
-				return false;
-			}
-		}
+        for (String sw : stopWord) {
+            if (sw.equals(string.toLowerCase())) {
+                return false;
+            }
+            if (string.matches("^(\\d+)$")) {
+                return false;
+            }
+        }
 		return true;
 	}
 
 	/**
 	 * Removes all non alphanum characters from the string
 	 * 
-	 * @param fileName
+	 * @param filename
 	 * @return
 	 */
 	public static String clearString(String s) {
@@ -226,11 +224,7 @@ public class StringUtils {
 		String res = txt.trim();
 		res = simplyRegexpReplace(res, "[\\-]{2,}", "-");
 		res = simplyRegexpReplace(res, "[\\s]{2,}", " ");
-		try {
-			res = encodeHtml(res);
-		} catch (IOException ex) {
-			logger.warn(ex.toString());
-		}
+		res = encodeHtml(res);
 		return res;
 	}
 
@@ -245,7 +239,7 @@ public class StringUtils {
 		return path;
 	}
 
-	public static String encodeHtml(CharSequence sequence) throws IOException {
+	public static String encodeHtml(CharSequence sequence) {
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < sequence.length(); i++) {
@@ -268,7 +262,7 @@ public class StringUtils {
 
 	public static String convertURLsToLinks(String text) {
 		if (text == null) {
-			return text;
+			return null;
 		}
 
 		return text.replaceAll(
@@ -278,7 +272,7 @@ public class StringUtils {
 
 	public static String convertLFtoBRs(String text) {
 		if (text == null) {
-			return text;
+			return null;
 		}
 		text = text.replaceAll("\\r", "");
 		text = text.trim();
@@ -290,7 +284,7 @@ public class StringUtils {
 	
 	public static String superTrim(String text) {
 		if (text == null) {
-			return text;
+			return null;
 		}
 		String out = text.replaceAll("^\\s+", "");
 		out = out.replaceAll("\\s+$", "");
@@ -299,7 +293,7 @@ public class StringUtils {
 	
 	public static String messageTemplateToMessageCode(String text) {
 		if (text == null) {
-			return text;
+			return null;
 		}
 
 		String out = text.replaceAll("^\\{(.*)\\}$", "$1");
@@ -312,7 +306,7 @@ public class StringUtils {
 	}
 	
 	public static Map<String, String> sortMapByKey(Map<String, String> items){
-		TreeMap<String, String> result = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+		TreeMap<String, String> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		result.putAll(items);
 		return result;
 	}

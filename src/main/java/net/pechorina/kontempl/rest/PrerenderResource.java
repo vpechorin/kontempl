@@ -29,6 +29,6 @@ public class PrerenderResource {
 	public ResponseEntity<String> doPrerender(HttpServletRequest request) {
 		prerender.processSites();
 		logger.info("doPrerender activated");
-		return new ResponseEntity<String>("OK", HttpStatus.OK);
+		return new ResponseEntity<>("OK", HttpStatus.OK);
 	}
 }

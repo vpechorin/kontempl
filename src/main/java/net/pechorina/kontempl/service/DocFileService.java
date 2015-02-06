@@ -1,15 +1,11 @@
 package net.pechorina.kontempl.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
+import com.google.common.io.Files;
 import net.pechorina.kontempl.data.DocFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.repos.DocFileRepo;
 import net.pechorina.kontempl.utils.CloneFactory;
 import net.pechorina.kontempl.utils.FileUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +13,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.io.Files;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 @Service
 public class DocFileService {
@@ -44,17 +42,14 @@ public class DocFileService {
 	
 	@Transactional
 	public DocFile save(DocFile im) {
-		DocFile docFile = docFileRepo.saveAndFlush(im);
 
-		return docFile;
+        return docFileRepo.saveAndFlush(im);
 	}
 	
 	@Transactional
 	public void removeAllDocsForPage(Page page) {
 		List<DocFile> docs = docFileRepo.findByPageId(page.getId());
-		for(DocFile d: docs) {
-			deleteDoc(d);
-		}
+        docs.forEach(this::deleteDoc);
 		String pageDocsDir = env.getProperty("fileStoragePath") + File.separator 
 				+ page.getSiteId() + File.separator + page.getId() + File.separator + "docs";
 		File dir = new File(pageDocsDir);

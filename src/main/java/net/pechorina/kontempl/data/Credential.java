@@ -257,35 +257,7 @@ public class Credential implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Credential [id=");
-		builder.append(id);
-		builder.append(", userId=");
-		builder.append(userId);
-		builder.append(", created=");
-		builder.append(created);
-		builder.append(", updated=");
-		builder.append(updated);
-		builder.append(", active=");
-		builder.append(active);
-		builder.append(", verified=");
-		builder.append(verified);
-		builder.append(", authServiceType=");
-		builder.append(authServiceType);
-		builder.append(", uid=");
-		builder.append(uid);
-		builder.append(", username=");
-		builder.append(username);
-		builder.append(", email=");
-		builder.append(email);
-		builder.append(", link=");
-		builder.append(link);
-		builder.append(", authData=");
-		builder.append(authData);
-		builder.append(", optData=");
-		builder.append(optData);
-		builder.append("]");
-		return builder.toString();
+        return "Credential [id=" + id + ", userId=" + userId + ", created=" + created + ", updated=" + updated + ", active=" + active + ", verified=" + verified + ", authServiceType=" + authServiceType + ", uid=" + uid + ", username=" + username + ", email=" + email + ", link=" + link + ", authData=" + authData + ", optData=" + optData + "]";
 	}
 
 }

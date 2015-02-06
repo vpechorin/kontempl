@@ -1,25 +1,19 @@
 package net.pechorina.kontempl.utils;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
+import net.pechorina.kontempl.exceptions.BadImageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
+import javax.imageio.*;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-
-import net.pechorina.kontempl.exceptions.BadImageException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 
 import static org.imgscalr.Scalr.*;
 
@@ -30,8 +24,7 @@ public class ImageUtils {
 	public static String getImageExtension(File imgFile) {
 		int pos = imgFile.getName().lastIndexOf(".");
 		if (pos == -1) return null;
-		String suffix = imgFile.getName().substring(pos + 1);
-		return suffix;
+        return imgFile.getName().substring(pos + 1);
 	}
 	
 	/**
@@ -81,7 +74,7 @@ public class ImageUtils {
 		ImageOutputStream outStream = null;
 		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
 		ImageWriter writer = null;
-		if (iter.hasNext()) writer = (ImageWriter)iter.next();
+		if (iter.hasNext()) writer = iter.next();
 		if (writer == null) {
 			logger.error("No JPEG image writers - fatal error");
 			throw new BadImageException("No JPEG image writers found");
@@ -105,7 +98,8 @@ public class ImageUtils {
         } finally {
         	writer.dispose();
         	try {
-				outStream.close();
+                assert outStream != null;
+                outStream.close();
 			} catch (IOException e) {
 				logger.error("Cannot close output stream: " + e);
 			}

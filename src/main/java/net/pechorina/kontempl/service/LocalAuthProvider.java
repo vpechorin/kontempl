@@ -1,13 +1,6 @@
 package net.pechorina.kontempl.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
 import net.pechorina.kontempl.utils.StringUtils;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +20,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("localAuthProvider")
 public class LocalAuthProvider implements AuthenticationProvider {
@@ -91,20 +87,16 @@ public class LocalAuthProvider implements AuthenticationProvider {
 
 		// 3. Return an authenticated token, containing user data and
 		// authorities
-		UsernamePasswordAuthenticationToken t = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
-		return t;
+        return new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
 	}
 	
 	public Collection<? extends GrantedAuthority> getAuthorities(List<String> aasRoles) {
-		List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>();
-		for (String roleName : aasRoles) {
-			temp.add( new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase()) );
-		}
-		return Collections.unmodifiableList(temp);
+		List<GrantedAuthority> temp = aasRoles.stream().map(roleName -> new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase())).collect(Collectors.toList());
+        return Collections.unmodifiableList(temp);
 	}
 	
 	@Override
-    public boolean supports(Class<? extends Object> authentication) {
+    public boolean supports(Class<?> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 

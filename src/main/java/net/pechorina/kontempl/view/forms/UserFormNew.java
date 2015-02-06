@@ -20,7 +20,7 @@ public class UserFormNew {
 	@Size(min = 7)
 	private String password;
 
-	private Set<String> roles = new HashSet<String>();
+	private Set<String> roles = new HashSet<>();
 
 	public UserFormNew() {
 		super();
@@ -65,17 +65,7 @@ public class UserFormNew {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("UserFormNew [name=");
-		builder.append(name);
-		builder.append(", email=");
-		builder.append(email);
-		builder.append(", password=");
-		builder.append(password);
-		builder.append(", roles=");
-		builder.append(roles);
-		builder.append("]");
-		return builder.toString();
+        return "UserFormNew [name=" + name + ", email=" + email + ", password=" + password + ", roles=" + roles + "]";
 	}
 
 }

@@ -1,11 +1,7 @@
 package net.pechorina.kontempl.utils
-
-import java.util.Set;
-
 import net.pechorina.kontempl.data.DocFile
-import net.pechorina.kontempl.data.ImageFile;
-import net.pechorina.kontempl.data.Page;
-
+import net.pechorina.kontempl.data.ImageFile
+import net.pechorina.kontempl.data.Page
 import org.codehaus.groovy.runtime.InvokerHelper
 
 class CloneFactory {
@@ -35,7 +31,6 @@ class CloneFactory {
 	}
 	
 	static copyPropertiesWithoutSome(source, target, Set<String> skipSet) {
-		def filter
 		Map<Object, Object> m = new HashMap<>()
 
 		source.properties.each {

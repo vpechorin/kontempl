@@ -18,7 +18,7 @@ public class GenericTreeNode<T> {
     
     public GenericTreeNode() {
         super();
-        children = new ArrayList<GenericTreeNode<T>>();
+        children = new ArrayList<>();
         items = 0;
     }
 
@@ -81,7 +81,7 @@ public class GenericTreeNode<T> {
     }
 
     public void removeChildren() {
-        this.children = new ArrayList<GenericTreeNode<T>>();
+        this.children = new ArrayList<>();
     }
 
     public void removeChildAt(int index) throws IndexOutOfBoundsException {
@@ -90,7 +90,7 @@ public class GenericTreeNode<T> {
     
     public List<GenericTreeNode<T>> traceParents() {
         //logger.debug("traceParents");
-        List <GenericTreeNode<T>> parents = new ArrayList<GenericTreeNode<T>>();
+        List <GenericTreeNode<T>> parents = new ArrayList<>();
         boolean reachedRoot = false;
         
         int maxIterations = 100;

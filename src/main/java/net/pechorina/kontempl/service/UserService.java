@@ -1,12 +1,5 @@
 package net.pechorina.kontempl.service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import net.pechorina.kontempl.data.AuthToken;
 import net.pechorina.kontempl.data.Credential;
 import net.pechorina.kontempl.data.OptiUserDetails;
@@ -14,7 +7,6 @@ import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.repos.AuthTokenRepo;
 import net.pechorina.kontempl.repos.CredentialRepo;
 import net.pechorina.kontempl.repos.UserRepo;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -28,6 +20,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -66,7 +64,7 @@ public class UserService {
 			return authTokenRepo.saveAndFlush(a);
 		}
 		
-		return a;
+		return null;
 	}
 	
 	// run every two hours
@@ -89,8 +87,7 @@ public class UserService {
 	@Transactional
 	public AuthToken createNewAuthToken(User user, String ipAddress, String userAgent) {
 		AuthToken a = new AuthToken(user, ipAddress, userAgent);
-		AuthToken authToken = authTokenRepo.saveAndFlush(a);
-		return authToken;
+        return authTokenRepo.saveAndFlush(a);
 	}
 	
 	@Transactional
@@ -103,9 +100,8 @@ public class UserService {
     		c.setVerified(true);
     		u.addCredential(c);
         }
-        
-        User entity = userRepo.saveAndFlush(u);
-        return entity;
+
+        return userRepo.saveAndFlush(u);
 	}
 
 	@Transactional
@@ -165,8 +161,7 @@ public class UserService {
 	@Transactional
 	public Credential getUserCredential(Integer userId, String authType) {
 		User u = userRepo.findOne(userId);
-		Credential c = u.getCredentials().stream().filter(cr -> cr.getAuthServiceType().equalsIgnoreCase(authType)).findFirst().orElse(null);
-		return c;
+        return u.getCredentials().stream().filter(cr -> cr.getAuthServiceType().equalsIgnoreCase(authType)).findFirst().orElse(null);
 	}
 	
 	@Transactional
@@ -223,11 +218,8 @@ public class UserService {
 	public boolean checkIfEmailAvailable(String email) {
 		String uid = "password:" + email;
 		Credential c = credentialRepo.findByUid(uid);
-		if (c != null) {
-			return false;
-		}
-		return true;
-	}
+        return c == null;
+    }
 	
 	public void setUserSession(HttpServletRequest request, User user) {
 
@@ -239,7 +231,7 @@ public class UserService {
         
         // Create a new session and add the security context.
         HttpSession session = request.getSession(true);
-        synchronized (session) {
+        synchronized (session.getId()) {
         	session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
         }
 	}
