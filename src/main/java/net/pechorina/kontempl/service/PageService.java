@@ -1,8 +1,11 @@
 package net.pechorina.kontempl.service;
 
-import net.pechorina.kontempl.data.*;
+import net.pechorina.kontempl.data.DocFile;
+import net.pechorina.kontempl.data.ImageFile;
+import net.pechorina.kontempl.data.Page;
+import net.pechorina.kontempl.data.PageProperty;
+import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.repos.PageRepo;
-import net.pechorina.kontempl.repos.SiteRepo;
 import net.pechorina.kontempl.utils.CloneFactory;
 import net.pechorina.kontempl.utils.StringUtils;
 import org.slf4j.Logger;
@@ -10,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +27,6 @@ public class PageService {
 	@Autowired
 	private PageRepo pageRepo;
 	
-	@Autowired
-	private SiteRepo siteRepo;
-    
     @Autowired
     private ImageFileService imageFileService;
 
@@ -36,9 +35,7 @@ public class PageService {
     
     @Autowired
     private PageTreeService pageTreeService;
-    
-	@Autowired
-	private Environment env;
+
 	
 	@Transactional
 	public Page getPage(Integer id) {
@@ -291,7 +288,9 @@ public class PageService {
 	
 	@Transactional
 	public List<Page> listBySite(Site site) {
-		return pageRepo.findBySite(site);
+		List<Page> pages = pageRepo.findBySite(site);
+		pages.forEach(p -> p.setMainImage(imageFileService.getMainImageForPage(p.getId())));
+		return pages;
 	}
 	
 	@Transactional

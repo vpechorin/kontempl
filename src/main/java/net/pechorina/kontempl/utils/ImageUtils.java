@@ -4,7 +4,11 @@ import net.pechorina.kontempl.exceptions.BadImageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.*;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -15,7 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-import static org.imgscalr.Scalr.*;
+import static org.imgscalr.Scalr.Method;
+import static org.imgscalr.Scalr.OP_ANTIALIAS;
+import static org.imgscalr.Scalr.OP_BRIGHTER;
+import static org.imgscalr.Scalr.resize;
 
 public class ImageUtils {
 

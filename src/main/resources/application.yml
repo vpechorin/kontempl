@@ -1,0 +1,113 @@
+logging:
+  level:
+    net.pechorina.kontempl: DEBUG
+    org.hibernate: WARN
+    org.springframework.web: WARN
+    org.springframework.data: WARN
+    org.springframework.jdbc.core: INFO
+    javax.mail: DEBUG
+
+spring:
+
+  application:
+    name: kontempl
+
+  profiles:
+    active: mysql
+
+  http:
+    multipart:
+      max-file-size: 90MB
+      max-request-size: 90MB
+
+  jpa:
+    show_sql: true
+    generate-ddl: false
+    properties:
+      hibernate:
+        ddl-auto: none
+#        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  mail:
+    host: 192.168.1.2
+    port: 25
+    protocol: smtp
+    username: mailuser
+    password: pass
+    properties.mail.debug: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/kontempldb
+    username: kontempl
+    password: dbpass
+    initialize: false
+    driver-class-name: com.mysql.jdbc.Driver
+    tomcat:
+      test-on-borrow: true
+      validation-query: "/* ping */"
+      test-while-idle: true
+
+management:
+  security:
+    enabled: false
+#  health:
+#    mail:
+#      enabled: false
+
+server:
+  port: 8090
+  address: 0.0.0.0
+  sessionTimeout: 10
+  tomcat:
+    remote-ip-header: x-forwarded-for
+    protocol-header: x-forwarded-proto
+    max-http-post-size: 90000000
+
+################### Web Config ########################
+
+home:
+  url: "/"
+
+domainname: localhost
+
+admin:
+  defaultEmail: admin@localdomain
+  defaultPassword: admin
+
+appPath: /kontempl
+
+startPage: /
+homePage: home
+pagePath: /c/
+
+showPageNavigation: yes
+
+pagesize: 50
+
+maxUploadSize: 50000000
+#fileStoragePath: tmp/att
+fileStoragePath: /web/kontapp/site/www/att
+fileStorageUrl: /att
+
+sitemaps: default:/web/kontempl/site/www/local
+sitemapUrl: /sitemap.xml
+sitemapProto: http
+sitemapCharset: UTF-8
+sitemapSubmit: false
+sitemapSubmitUrl: http://kontempl/do/helper/submitsitemap
+
+thumbSize: 370
+thumbFormat: png
+
+templateLoaderPaths: /WEB-INF/views/
+
+ogDescriptionLength: 300
+
+auth_token_expire: 60
+useHtml5Urls: true
+
+prerenderSites: default
+prerender.server: http://localhost:3000/
+snapshots.path: /web/kontempl/site/www/snapshots
+snapshots.suffix: .html
+

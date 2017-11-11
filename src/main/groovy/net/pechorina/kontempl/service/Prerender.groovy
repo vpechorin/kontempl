@@ -1,16 +1,13 @@
 package net.pechorina.kontempl.service
 
+import groovy.util.logging.Slf4j
 import net.pechorina.kontempl.data.Page
-import net.pechorina.kontempl.data.PageTree;
+import net.pechorina.kontempl.data.PageTree
 import net.pechorina.kontempl.data.Site
-
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment
-
-import groovy.util.logging.*
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 
 @Component
 @Slf4j

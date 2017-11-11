@@ -1,8 +1,5 @@
 package net.pechorina.kontempl.filters;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import net.pechorina.kontempl.data.OptiUserDetails;
 import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.service.PageService;
@@ -10,7 +7,6 @@ import net.pechorina.kontempl.service.PageTreeService;
 import net.pechorina.kontempl.service.ProfilingService;
 import net.pechorina.kontempl.service.UserService;
 import net.pechorina.kontempl.utils.TextContentUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequestInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @Component("commonDataInterceptor")
 public class CommonDataInterceptor implements  WebRequestInterceptor  {

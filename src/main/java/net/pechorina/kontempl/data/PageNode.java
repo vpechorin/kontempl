@@ -30,7 +30,7 @@ public class PageNode implements Serializable {
 		this.id = p.getId();
 		this.title = p.getTitle();
 		this.name = p.getName();
-		this.placeholder = p.isPlaceholder();
+		this.placeholder = p.getPlaceholder();
 	}
 
 	public Integer getId() {

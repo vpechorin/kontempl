@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,12 +19,8 @@ import java.util.Set;
 @Service("customUserDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
 
-	static final Logger logger = LoggerFactory.getLogger(UserDetailsService.class);
-	//protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-	
-	@Autowired
-	private Environment env;
-	
+	private static final Logger logger = LoggerFactory.getLogger(UserDetailsService.class);
+
 	@Autowired
 	UserService userService;
 	

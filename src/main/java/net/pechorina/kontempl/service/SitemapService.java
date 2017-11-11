@@ -39,136 +39,133 @@ import java.util.TimeZone;
 
 @Service
 public class SitemapService {
-	static final Logger logger = LoggerFactory.getLogger(SitemapService.class);
+    static final Logger logger = LoggerFactory.getLogger(SitemapService.class);
 
-	@Autowired
-	private PageService pageService;
-	
-	@Autowired
-	private PageTreeService pageTreeService;
-	
-	@Autowired
-	private SiteService siteService;
-    
-	@Autowired
-	private Environment env;
-	
-	@Value("${sitemapProto}")
-	private String sitemapProto;
-	
-	public void makeSitemap(boolean submit) {
-		String sitemapDef = env.getProperty("sitemaps");
-		Iterable<String> sitemapItems = Splitter.on(',')
-	       .trimResults()
-	       .omitEmptyStrings()
-	       .split(sitemapDef);
-		
-		for(String item: sitemapItems) {
-			Iterable<String> sitemapProps = Splitter.on(':').trimResults().split(item);
-			String siteName = Iterables.getFirst(sitemapProps, null);
-			String sitemapPath = Iterables.getLast(sitemapProps);
-			Site site = siteService.findByName(siteName);
-			makeSiteSitemap(site, sitemapPath, submit);
-		}
-	}
-	
-	private void makeSiteSitemap(Site site, String sitemapPath, boolean submit) {
-		List<WebSitemapUrl> urls = makeUrlList(site);
-		
-		String siteUrl =  sitemapProto + "://" + site.getDomain() + "/";
-		
-		W3CDateFormat dateFormat = new W3CDateFormat(Pattern.DAY); 
-		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-		WebSitemapGenerator wsg = null;
-		try {
-			File path = new File(sitemapPath);
-			wsg = WebSitemapGenerator.builder(siteUrl, path).dateFormat(dateFormat).build();
-		} catch (MalformedURLException e) {
-			logger.error("Bad site url: " + e);
-		}
+    @Autowired
+    private PageTreeService pageTreeService;
+
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private Environment env;
+
+    @Value("${sitemapProto}")
+    private String sitemapProto;
+
+    @Value("${pagePath}")
+    private String pagePath;
+
+    public void makeSitemap(boolean submit) {
+        String sitemapDef = env.getProperty("sitemaps");
+        Iterable<String> sitemapItems = Splitter.on(',')
+                .trimResults()
+                .omitEmptyStrings()
+                .split(sitemapDef);
+
+        for (String item : sitemapItems) {
+            Iterable<String> sitemapProps = Splitter.on(':').trimResults().split(item);
+            String siteName = Iterables.getFirst(sitemapProps, null);
+            String sitemapPath = Iterables.getLast(sitemapProps);
+            Site site = siteService.findByName(siteName);
+            makeSiteSitemap(site, sitemapPath, submit);
+        }
+    }
+
+    private void makeSiteSitemap(Site site, String sitemapPath, boolean submit) {
+        List<WebSitemapUrl> urls = makeUrlList(site);
+
+        String siteUrl = sitemapProto + "://" + site.getDomain() + "/";
+
+        W3CDateFormat dateFormat = new W3CDateFormat(Pattern.DAY);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        WebSitemapGenerator wsg = null;
+        try {
+            File path = new File(sitemapPath);
+            wsg = WebSitemapGenerator.builder(siteUrl, path).dateFormat(dateFormat).build();
+        } catch (MalformedURLException e) {
+            logger.error("Bad site url: " + e);
+        }
         assert wsg != null;
         wsg.addUrls(urls);
-		wsg.write();
-		if (submit) {
-			try {
-				submitSitemap(site);
-			} catch (IOException e) {
-				logger.error("Error submitting sitemap:" + e);
-			}
-		}
-	}
-	
-	private List<WebSitemapUrl> makeUrlList(Site site) {
-    	logger.debug("make sitemap for " + site.getDomain());
-    	List<WebSitemapUrl> urls = new ArrayList<>();
-    	
-    	String domainName = site.getDomain();
-		
-		PageTree tree = pageTreeService.getPublicPageTree(site);
+        wsg.write();
+        if (submit) {
+            try {
+                submitSitemap(site);
+            } catch (IOException e) {
+                logger.error("Error submitting sitemap:" + e);
+            }
+        }
+    }
 
-		String url = sitemapProto + "://" + domainName + "/"; 
-		WebSitemapUrl homeUrl = null;
-		try {
-			homeUrl = new WebSitemapUrl.Options(url)
-			.lastMod(new Date()).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
-			urls.add(homeUrl);
-		} catch (MalformedURLException e1) {
-			logger.error("Error generating hoem page url: " + e1);
-		}
-		
-		List<GenericTreeNode<Page>> nodes = tree.listAllChildren();
-		for(GenericTreeNode<Page> node: nodes) {
-			Page p = node.getData();
-			if (p.getName().equalsIgnoreCase(site.getHomePage())) {
-				continue;
-			}
-			if (p.isPlaceholder()) continue;
-			WebSitemapUrl u = null;
-			try {
-				u = makeSitemapUrl(p, site);
-				urls.add(u);
-			} catch (MalformedURLException e) {
-				logger.error("Bad url: " + e);
-			}
-			
-		}
-		
-		return urls;
-	}
-	
-	private WebSitemapUrl makeSitemapUrl(Page p, Site s) throws MalformedURLException {
-		boolean useHtml5Urls = env.getProperty("useHtml5Urls", Boolean.class);
-		String m = "/#!/pv/";
-		if (useHtml5Urls) m = "/pv/";
-		String u =  sitemapProto + "://" + s.getDomain() + m + p.getName();
+    private List<WebSitemapUrl> makeUrlList(Site site) {
+        logger.debug("make sitemap for " + site.getDomain());
+        List<WebSitemapUrl> urls = new ArrayList<>();
+
+        String domainName = site.getDomain();
+
+        PageTree tree = pageTreeService.getPublicPageTree(site);
+
+        String url = sitemapProto + "://" + domainName + "/";
+        WebSitemapUrl homeUrl = null;
+        try {
+            homeUrl = new WebSitemapUrl.Options(url)
+                    .lastMod(new Date()).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
+            urls.add(homeUrl);
+        } catch (MalformedURLException e1) {
+            logger.error("Error generating home page url: " + e1);
+        }
+
+        List<GenericTreeNode<Page>> nodes = tree.listAllChildren();
+        for (GenericTreeNode<Page> node : nodes) {
+            Page p = node.getData();
+            if (p.getName().equalsIgnoreCase(site.getHomePage())) {
+                continue;
+            }
+            if (p.getPlaceholder()) continue;
+            WebSitemapUrl u = null;
+            try {
+                u = makeSitemapUrl(p, site);
+                urls.add(u);
+            } catch (MalformedURLException e) {
+                logger.error("Bad url: " + e);
+            }
+
+        }
+
+        return urls;
+    }
+
+    private WebSitemapUrl makeSitemapUrl(Page p, Site s) throws MalformedURLException {
+        String u = sitemapProto + "://" + s.getDomain() + pagePath + p.getName();
         return new WebSitemapUrl.Options(u)
-.lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
-	}
-    
-    public void onlyUpdateSitemap() {
-    	makeSitemap(false);
+                .lastMod(p.getUpdated().toDate()).priority(0.9).changeFreq(ChangeFreq.WEEKLY).build();
     }
-    
-    public void updateSitemap() {
-    	makeSitemap(true);
-    }
-    
-    @Scheduled(cron="0 30 4 * * MON-FRI")
-    public void scheduledUpdate() {
-    	Boolean submit = env.getProperty("sitemapSubmit", Boolean.class);
-    	makeSitemap(submit);
-    }
-    
-    public void submitSitemap(Site site) throws IOException {
-    	String sitemapLocation =  sitemapProto + "://" + site.getDomain() + env.getProperty("sitemapUrl");
-    	String url = "";
-		try {
-			url = env.getProperty("sitemapSubmitUrl") + "?sitemap=" + URLEncoder.encode(sitemapLocation, "ISO-8859-1");
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("UnsupportedEncodingException: " + e1);
-		}
 
-		logger.debug("URL: " + url);
+    public void onlyUpdateSitemap() {
+        makeSitemap(false);
+    }
+
+    public void updateSitemap() {
+        makeSitemap(true);
+    }
+
+    @Scheduled(cron = "0 30 4 * * MON-FRI")
+    public void scheduledUpdate() {
+        Boolean submit = env.getProperty("sitemapSubmit", Boolean.class);
+        makeSitemap(submit);
+    }
+
+    public void submitSitemap(Site site) throws IOException {
+        String sitemapLocation = sitemapProto + "://" + site.getDomain() + env.getProperty("sitemapUrl");
+        String url = "";
+        try {
+            url = env.getProperty("sitemapSubmitUrl") + "?sitemap=" + URLEncoder.encode(sitemapLocation, "ISO-8859-1");
+        } catch (UnsupportedEncodingException e1) {
+            logger.error("UnsupportedEncodingException: " + e1);
+        }
+
+        logger.debug("URL: " + url);
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpGet httpget = new HttpGet(url);
 

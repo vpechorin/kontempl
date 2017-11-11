@@ -1,11 +1,9 @@
 package net.pechorina.kontempl.data
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @EqualsAndHashCode(includes=['uuid', 'fileName', 'fileSize', 'fileType'])
 @ToString(includeNames=true,excludes=["bytes"])

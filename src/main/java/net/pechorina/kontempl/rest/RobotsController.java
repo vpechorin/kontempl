@@ -4,7 +4,6 @@ import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.Site;
 import net.pechorina.kontempl.service.PageService;
 import net.pechorina.kontempl.service.SiteService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

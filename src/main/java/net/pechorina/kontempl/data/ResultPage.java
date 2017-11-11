@@ -1,12 +1,11 @@
 package net.pechorina.kontempl.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.domain.Page;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.function.Consumer;
-
-import org.springframework.data.domain.Page;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ResultPage<T> implements Serializable {
 	private static final long serialVersionUID = 1L;

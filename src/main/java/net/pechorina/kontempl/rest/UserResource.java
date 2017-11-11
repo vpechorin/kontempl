@@ -1,6 +1,10 @@
 package net.pechorina.kontempl.rest;
 
-import net.pechorina.kontempl.data.*;
+import net.pechorina.kontempl.data.AuthToken;
+import net.pechorina.kontempl.data.LoginForm;
+import net.pechorina.kontempl.data.OptiUserDetails;
+import net.pechorina.kontempl.data.TokenTransfer;
+import net.pechorina.kontempl.data.User;
 import net.pechorina.kontempl.exceptions.UnauthorizedException;
 import net.pechorina.kontempl.service.UserService;
 import org.slf4j.Logger;
@@ -13,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,7 +64,7 @@ public class UserResource {
 		return u;
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/authenticate")
+	@PostMapping("/authenticate")
 	public TokenTransfer authenicate(@RequestBody LoginForm form,
 			HttpServletRequest request) {
 		logger.debug("username/password: " + form.toString());

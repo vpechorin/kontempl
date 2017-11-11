@@ -1,0 +1,11 @@
+[Unit]
+Description=kontempl
+
+[Service]
+User=kontempl
+# The configuration file application.properties should be here:
+WorkingDirectory=/web/kontempl
+ExecStart=/usr/java/latest/bin/java -Xms256m -Xmx256m -jar kontempl-2.0.0.jar
+
+[Install]
+WantedBy=multi-user.target

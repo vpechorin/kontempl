@@ -1,0 +1,9 @@
+______                 _____                            ______
+___  /________ _______ __  /______ _______ ___ ________ ___  /
+__  //_/_  __ \__  __ \_  __/_  _ \__  __ `__ \___  __ \__  /
+_  ,<   / /_/ /_  / / // /_  /  __/_  / / / / /__  /_/ /_  /
+/_/|_|  \____/ /_/ /_/ \__/  \___/ /_/ /_/ /_/ _  .___/ /_/
+                                               /_/
+
+ ${AnsiColor.CYAN}App: ${spring.application.name}     Profile: ${spring.profiles.active}
+ ${AnsiColor.BRIGHT_GREEN}Datasource: ${spring.datasource.url}

@@ -1,11 +1,6 @@
 package net.pechorina.kontempl.service;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
+import com.google.common.io.Files;
 import net.pechorina.kontempl.data.ImageFile;
 import net.pechorina.kontempl.data.Page;
 import net.pechorina.kontempl.data.Thumbnail;
@@ -13,7 +8,6 @@ import net.pechorina.kontempl.repos.ImageFileRepo;
 import net.pechorina.kontempl.repos.ThumbnailRepo;
 import net.pechorina.kontempl.utils.FileUtils;
 import net.pechorina.kontempl.utils.ImageUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +16,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.io.Files;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 @Service
 public class ImageThumbService {

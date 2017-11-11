@@ -1,30 +1,30 @@
 buildscript {
     ext {
-        springBootVersion = '1.2.1.RELEASE'
+        springBootVersion = '1.5.7.RELEASE'
     }
     repositories {
-        maven {
-            url "${artifactory_contextUrl}/plugins-release"
-            credentials {
-                username = "${artifactory_user}"
-                password = "${artifactory_password}"
-            }
-        }
+        mavenLocal()
+        mavenCentral()
+        maven { url 'http://repo.spring.io/libs-release-remote/' }
+        maven { url 'https://plugins.gradle.org/m2/' }
+        jcenter()
     }
     dependencies {
-        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.2.5')
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.12"
     }
 }
 
 apply plugin: 'java'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'groovy'
 apply plugin: 'maven'
-apply plugin: 'artifactory'
+apply plugin: 'org.hidetake.ssh'
+apply plugin: "net.ltgt.apt"
 
 group = 'net.pechorina.kontempl'
-version = '1.3.5'
+version = '2.0.0'
 
 description = "Kontempl - web site management system"
 
@@ -40,71 +40,87 @@ sourceSets.main.java.srcDirs = []
 sourceSets.main.groovy.srcDirs += ["src/main/java"]
 
 repositories {
-	maven {
-        url "${artifactory_contextUrl}/plugins-release"
-		credentials {
-			username = "${artifactory_user}"
-			password = "${artifactory_password}"
-		}
-	}
+    mavenLocal()
+    mavenCentral()
+    maven { url 'http://repo.spring.io/libs-release-remote/' }
+    maven { url 'http://repo.spring.io/libs-release-remote/' }
 }
 
 dependencies {
+    testCompile('org.springframework.boot:spring-boot-starter-test') {
+        exclude(module: 'commons-logging')
+    }
+
 	compile 'org.codehaus.groovy:groovy-all'
-    compile 'mysql:mysql-connector-java'
-    testCompile 'com.h2database:h2:1.4.182'
+    compile group: 'mysql', name: 'mysql-connector-java'
 	compile('org.springframework.boot:spring-boot-starter-web')
     compile 'org.springframework.boot:spring-boot-starter-actuator'
-    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile ('org.springframework.boot:spring-boot-starter-data-jpa') {
+        exclude(module: "hibernate-entitymanager")
+        exclude(module: "hibernate-core")
+    }
+
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
+
     compile 'org.springframework.boot:spring-boot-starter-security'
     compile 'org.springframework.boot:spring-boot-starter-logging'
+    compile 'org.springframework.boot:spring-boot-starter-cache'
+    compile 'org.springframework.boot:spring-boot-starter-mail'
     compile 'org.springframework:spring-context-support'
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda'
-    compile 'org.jadira.usertype:usertype.core:3.1.0.GA'
+    compile ('org.jadira.usertype:usertype.core:6.0.1.GA')
     compile 'joda-time:joda-time'
     compile('org.apache.httpcomponents:httpclient') {
 		exclude(module: 'commons-logging')
     }
-    compile 'net.sf.ehcache:ehcache:2.9.0'
-    compile group: 'commons-codec', name: 'commons-codec', version:'1.9'
-    compile group: 'com.google.guava', name: 'guava', version:'18.0'
+    compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.5.6'
+    compile 'org.hibernate:hibernate-validator'
+
+    compile group: 'org.flywaydb', name: 'flyway-core', version: "4.2.0"
+    compile group: 'commons-codec', name: 'commons-codec'
+    compile group: 'com.google.guava', name: 'guava', version:'23.0'
     compile group: 'org.jsoup', name: 'jsoup', version:'1.7.3'
     compile 'commons-fileupload:commons-fileupload:1.3.1'
     compile 'commons-io:commons-io:2.4'
     compile 'org.apache.commons:commons-lang3:3.3.2'
-    compile 'org.imgscalr:imgscalr-lib:4.2'
-	compile 'com.twelvemonkeys.imageio:imageio-tiff:3.0-rc5'
-	compile 'com.twelvemonkeys.imageio:imageio-psd:3.0-rc5'
-	compile 'com.twelvemonkeys.imageio:imageio-pict:3.0-rc5'
-	compile 'com.twelvemonkeys.imageio:imageio-metadata:3.0-rc5'
-    compile group: 'com.google.code', name: 'sitemapgen4j', version:'1.0.1'
-	compile 'net.sf.uadetector:uadetector-resources:2014.04'
-	compile 'javax.mail:mail:1.4.7'
-	compile 'javax.inject:javax.inject:1'
-	compile group: 'javax.validation', name: 'validation-api', version:'1.0.0.GA'
-	compile group: 'javax.activation', name: 'activation', version:'1.1.1'
-    testCompile('org.springframework.boot:spring-boot-starter-test') {
-		exclude(module: 'commons-logging')
+    compile 'org.imgscalr:imgscalr-lib:4.3-SNAPSHOT'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-tiff', version: '3.3.2'
+    compile group: 'com.twelvemonkeys.imageio', name: 'imageio-metadata', version: '3.3.2'
+    compile group: 'com.github.dfabulich', name: 'sitemapgen4j', version:'1.0.6'
+	compile 'net.sf.uadetector:uadetector-resources:2014.10'
+	compile group: 'javax.validation', name: 'validation-api'
+    compile group: 'org.mapstruct', name: 'mapstruct-jdk8', version: '1.2.0.Final'
+    apt "org.mapstruct:mapstruct-processor:1.2.0.Final"
+
+}
+
+remotes {
+    web01 {
+        role 'remoteweb'
+        host = "$kontemplUploadHost"
+        user = "$kontemplUploadUser"
+        identity = file(sshIdentity)
     }
 }
 
-artifactory {
-    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-    publish {
-        repository {
-            repoKey = 'libs-release-local'
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
+task reload {
+    doLast {
+        ssh.run {
+            session(remotes.web01) {
+                put from: jar.archivePath, into: '/web/kontempl'
+                execute 'systemctl restart kontempl'
+            }
         }
     }
-    resolve {
-        repository {
-            repoKey = 'libs-release'
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
-        }
-    }
+}
+
+compileGroovy {
+    groovyOptions.javaAnnotationProcessing = true
+}
+
+bootRun {
+    args = ["-Xms256m", "-Xmx256m"]
 }
